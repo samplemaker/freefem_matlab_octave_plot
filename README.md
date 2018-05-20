@@ -1,16 +1,16 @@
 # How to plot FreeFem++ solutions in Matlab and Octave
 
-Examples demonstrating how to write FreeFem++ simulation results and how to create plots in Matlab/Octave from the results respectively. It should be emphasized that it is NOT necessary to have the Matlab-PDEtools installed to run these examples!
+Examples demonstrating how to write FreeFem++ simulation results and how to create plots in Matlab/Octave from the simulation results respectively. It should be emphasized that it is NOT necessary to have the Matlab-PDEtools installed to run these examples!
 
 ## Basic theory
 
-In contrast to the Matlab/Octave functions `surf()` and `mesh()` which do work on cartesian meshes the built in function `patch()` basically plots triangles (polygons) and hence enables plotting of irregular tesselation structures like FreeFem++ meshes. To do this the meshdata (triangle/vertex data) and the solution has to be written prior into a text file from within the FreeFem++ script. This file is then parsed and processed by the `ff2patch()` function in order to be plot with the `patch()` command. `ff2patch()` is doing nothing else but splitting and rearranging the continuous vertice data stream into batches of three adjacent numbers each because `patch()` expects its input to be bundled triangle (=facet) wise. Documentation of `patch()` can be found here [patch objects](https://de.mathworks.com/help/matlab/ref/patch.html).
+In contrast to the Matlab/Octave functions `surf()` and `mesh()` which do work on cartesian meshes the built in function `patch()` basically plots polygons (triangles) and hence enables plotting of irregular tesselation structures like FreeFem++ meshes. To do this the meshdata (triangle/vertex data) and the solution has to be written prior into a text file from within the FreeFem++ script. This file is then parsed and processed by the `ff2patch()` function in order to be plot with the `patch()` command. `ff2patch()` is doing nothing else but splitting and rearranging the continuous vertice data into batches of three adjacent numbers because `patch()` expects its input to be bundled per triangle (=facet). A documentation of the `patch()` command can be found here [patch objects](https://de.mathworks.com/help/matlab/ref/patch.html).
 
 ![](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dmesh.png)
 
 ## Running the 2d plot examples
 
-The 2d plot examples focus on displaying functions R<sup>2</sup> &rarr; R or 2d meshes:
+The 2d plot examples focus on displaying functions of the type R<sup>2</sup> &rarr; R or 2d meshes:
 
   * Seek into folder **plot2d** and run
     * FreeFem++ ffgendata2ddisc.edp
@@ -22,7 +22,7 @@ The 2d plot examples focus on displaying functions R<sup>2</sup> &rarr; R or 2d 
 
 ## Running the 3d plot examples
 
-The 3d plot examples focus on displaying functions R<sup>3</sup> &rarr; R (i.e. a 3d object boundary colored with a scalar value like temperature etc.) or 3d mesh surfaces:
+The 3d plot examples focus on displaying functions of the type R<sup>3</sup> &rarr; R (i.e. a 3d object boundary colored with a scalar value like temperature etc.) or 3d mesh surfaces:
 
   * Seek into folder **plot3d** and run
     * FreeFem++ ffgendata3dcyl.edp
@@ -45,7 +45,7 @@ The 3d plot examples focus on displaying functions R<sup>3</sup> &rarr; R (i.e. 
 
 2d: In FreeFem++ we can simply write the complete mesh:
 
-```javascript
+```c
 ofstream datamesh ("tridata2ddisc.txt");
 for (int i=0; i<Th.nt; i++){
   for (int j=0; j<3; j++){
@@ -58,7 +58,7 @@ for (int i=0; i<Th.nt; i++){
 
 3d: In FreeFem++ boundary elements must be written in order to display the surface only
 
-```javascript
+```c
 int idx;
 int nbelement=Th33d.nbe;
 ofstream bedata ("tridata3dbox.txt");
