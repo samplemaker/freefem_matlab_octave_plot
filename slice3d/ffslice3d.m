@@ -1,10 +1,10 @@
 %ffslice3d.m Returns all triangles affected if a 3d mesh is sliced with
-%            a slicing plane defined by the three points Sx,Sy,Sz
+%            a slicing plane defined by the three points S1,S2,S3
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
 %
-%   [XX YY ZZ CC] = ffslice3d (bdfilename,tetfilename,Sx,Sy,Sz,varargin)
+%   [XX YY ZZ CC] = ffslice3d (bdfilename,tetfilename,S1,S2,S3,varargin)
 %
 %   [XX YY ZZ CC] = ffslice3d (...,'PARAM1',val1,'PARAM2',val2,...) specifies parameter
 %   name/value pairs to control the input file format
@@ -30,7 +30,7 @@
 % along with this program.  If not, see
 % <https://www.gnu.org/licenses/>.
 %
-function [XX YY ZZ CC] = ffslice3d(bdfile,tetfile,Sx,Sy,Sz,varargin)
+function [XX YY ZZ CC] = ffslice3d(bdfile,tetfile,S1,S2,S3,varargin)
   switch nargin
     case {5,7,9}
     otherwise
@@ -71,9 +71,9 @@ function [XX YY ZZ CC] = ffslice3d(bdfile,tetfile,Sx,Sy,Sz,varargin)
   M=[x y z];
   [sz1 sz2]=size(M);
   
-  Ns=cross((Sy-Sx),(Sz-Sx));
+  Ns=cross((S2-S1),(S3-S1));
   Nd=repmat(Ns',sz1,1);
-  Sxd=repmat(Sx',sz1,1);
+  Sxd=repmat(S1',sz1,1);
   %used to check which points are in front of the plane
   location=dot(Nd,(M-Sxd),2);
   %all tetrahedra which do have one more point in front of, as well as behind
@@ -129,7 +129,7 @@ function [XX YY ZZ CC] = ffslice3d(bdfile,tetfile,Sx,Sy,Sz,varargin)
   M=[x y z];
   [sz1 sz2]=size(M);
   Nd=repmat(Ns',sz1,1);
-  Sxd=repmat(Sx',sz1,1);
+  Sxd=repmat(S1',sz1,1);
   %used to check which points are in front of the plane
   location=dot(Nd,(M-Sxd),2);
   %bool array indicating affected points
@@ -200,5 +200,5 @@ end
 
 function printhelp()
   fprintf('%s\n\n','Invalid call to ffslice3d. Correct usage is:');
-  fprintf('%s\n',' -- [X, Y, Z, C] = ffslice3d (bdfilename, tetfilename, ''Delimiter'','';'',''Format'',''%f %f %f %f'')');
+  fprintf('%s\n',' -- [X, Y, Z, C] = ffslice3d (bdfilename, tetfilename, S1, S2, S3, ''Delimiter'','';'',''Format'',''%f %f %f %f'')');
 end

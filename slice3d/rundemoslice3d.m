@@ -22,16 +22,17 @@
 
 clear all;
 
-%define the slicing plane; three points Sx .. Sz
-Sx=[0 0 0]';
-Sy=[1 0.5 0]';
-Sz=[1 1.3 1]';
+%define the slicing plane; three points S1 .. S3 containing the point coordinates
+%x,y,z respectively
+S1=[0 0 0]';
+S2=[1 0.5 0]';
+S3=[1 1.3 1]';
 
-Sx=[0 0.75 0]';
-Sy=[1 0.75 0]';
-Sz=[1 0.75 1]';
+S1=[0 0.75 0]';
+S2=[1 0.75 0]';
+S3=[1 0.75 1]';
 
-[XX YY ZZ CC]=ffslice3d('bdtridata.txt','tetrahedrondata.txt',Sx,Sy,Sz, ...
+[XX YY ZZ CC]=ffslice3d('bdtridata.txt','tetrahedrondata.txt',S1,S2,S3, ...
                         'Delimiter',';','Format','%f %f %f %f');
 
 %plot the sliced object
