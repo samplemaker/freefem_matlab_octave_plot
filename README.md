@@ -14,9 +14,9 @@ The 2d plot examples focus on displaying functions R<sup>2</sup> &rarr; R or 2d 
     * FreeFem++ ffgendata2ddisc.edp
     * From within Matlab/Octave run runplotdemo2d.m
 
-[Screenshot: density plot](https://github.com/samplemaker/freefem_matlab_octave_plot/blob/master/screenshots/2ddensity.png)  
-[Screenshot: surf plot](https://github.com/samplemaker/freefem_matlab_octave_plot/blob/master/screenshots/2dsurf.png)  
-[Screenshot: 2d-mesh](https://github.com/samplemaker/freefem_matlab_octave_plot/blob/master/screenshots/2dmesh.png)  
+[Screenshot: density plot](https://github.com/samplemaker/freefem_matlab_octave_plot/blob/public/screenshots/2ddensity.png)  
+[Screenshot: surf plot](https://github.com/samplemaker/freefem_matlab_octave_plot/blob/public/screenshots/2dsurf.png)  
+[Screenshot: 2d-mesh](https://github.com/samplemaker/freefem_matlab_octave_plot/blob/public/screenshots/2dmesh.png)  
 
 ## Running the 3d plot examples
 
@@ -27,8 +27,8 @@ The 3d plot examples focus on displaying functions R<sup>3</sup> &rarr; R (i.e. 
     * FreeFem++ ffgendata3dbox.edp
     * From within Matlab/Octave run runplotdemo3d.m
 
-[Screenshot: surf plot](https://github.com/samplemaker/freefem_matlab_octave_plot/blob/master/screenshots/3dsurf.png)  
-[Screenshot: surface of a 3d-mesh](https://github.com/samplemaker/freefem_matlab_octave_plot/blob/master/screenshots/3dmesh.png)
+[Screenshot: surf plot](https://github.com/samplemaker/freefem_matlab_octave_plot/blob/public/screenshots/3dsurf.png)  
+[Screenshot: surface of a 3d-mesh](https://github.com/samplemaker/freefem_matlab_octave_plot/blob/public/screenshots/3dmesh.png)
 
 ## Files
 
