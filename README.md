@@ -84,9 +84,14 @@ If you don't like to autodetect the number of columns use
 [XX,YY,CC] = ff2patch('filename.txt','Delimiter',';','Format','%f %f %f');
 ```
 
-## Hacking
+## slice3d()
 
-The folder `experimental` contains unfinished examples (meshes) and tests (3d slicing function)
+The folder `slice3d` contains experimental stuff (proof of concept)
+
+  * `ffslice3d.m` cuts 3d FreeFem++ simulation data along a plane und returns patch() data. You will need to write boundary and tetrahedron data from within FreeFem++ to use this function. Before you run the example `rundemoslice3d.m` create sample data with `ffgendata3dbox.m` from within the same folder.
+
+[Screenshot: slice3d](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_slice1.png)  
+
 
 ## Software and system requirements
 

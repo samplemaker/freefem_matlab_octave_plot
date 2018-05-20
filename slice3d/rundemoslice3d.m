@@ -1,7 +1,7 @@
-%convert a tetrahedron into four triangles
+%rundemoslice3d.m Slice a 3d plot
 %
 % Author: Chloros2 <chloros2@gmx.de>
-% Created: 2018-05-13
+% Created: 2018-05-19
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 % 
@@ -20,28 +20,28 @@
 % <https://www.gnu.org/licenses/>.
 %
 
-function [X1 X2 X3 X4 Y1 Y2 Y3 Y4 Z1 Z2 Z3 Z4 C1 C2 C3 C4] = tet2tri (tx,ty,tz,tc)
-  %first triangle
-  X1=[tx(1);tx(2);tx(3)];
-  Y1=[ty(1);ty(2);ty(3)];
-  Z1=[tz(1);tz(2);tz(3)];
-  C1=[tc(1);tc(2);tc(3)];
+clear all;
 
-  %2nd triangle
-  X2=[tx(1);tx(2);tx(4)];
-  Y2=[ty(1);ty(2);ty(4)];
-  Z2=[tz(1);tz(2);tz(4)];
-  C2=[tc(1);tc(2);tc(4)];
+%define the slicing plane; three points Sx .. Sz
+Sx=[0 0 0]';
+Sy=[1 0.5 0]';
+Sz=[1 1.3 1]';
 
-  %3nd triangle
-  X3=[tx(1);tx(3);tx(4)];
-  Y3=[ty(1);ty(3);ty(4)];
-  Z3=[tz(1);tz(3);tz(4)];
-  C3=[tc(1);tc(3);tc(4)];
+Sx=[0 0.75 0]';
+Sy=[1 0.75 0]';
+Sz=[1 0.75 1]';
 
-  %4th triangle
-  X4=[tx(2);tx(3);tx(4)];
-  Y4=[ty(2);ty(3);ty(4)];
-  Z4=[tz(2);tz(3);tz(4)];
-  C4=[tc(2);tc(3);tc(4)];
-end
+[XX YY ZZ CC]=ffslice3d('tridata3dbox.txt','tetrahedrondata.txt',Sx,Sy,Sz, ...
+                        'Delimiter',';','Format','%f %f %f %f');
+
+%plot the slice
+figure;
+patch(XX,YY,ZZ,CC);
+colormap(jet(250));
+caxis([min(min(CC)) max(max(CC))]);
+colorbar;
+zlabel('z');
+ylabel('y');
+xlabel('x');
+view(3);
+daspect([1 1 1]);
