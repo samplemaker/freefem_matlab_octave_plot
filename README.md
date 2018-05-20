@@ -6,6 +6,8 @@ Examples demonstrating how to write FreeFem++ simulation results and how to crea
 
 In contrast to the Matlab/Octave functions `surf()` and `mesh()` which do work on cartesian meshes the built in function `patch()` basically plots triangles (polygons) and hence enables plotting of irregular tesselation structures like FreeFem++ meshes. To do this the meshdata (triangle/vertex data) and the solution has to be written prior into a text file from within the FreeFem++ script. This file is then parsed and processed by the `ff2patch()` function in order to be plot with the `patch()` command. `ff2patch()` is doing nothing else but splitting and rearranging the continuous vertice data stream into batches of three adjacent numbers each because `patch()` expects its input to be bundled triangle (=facet) wise. Documentation of `patch()` can be found here [patch objects](https://de.mathworks.com/help/matlab/ref/patch.html).
 
+![](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dmesh.png)
+
 ## Running the 2d plot examples
 
 The 2d plot examples focus on displaying functions R<sup>2</sup> &rarr; R or 2d meshes:
@@ -14,9 +16,9 @@ The 2d plot examples focus on displaying functions R<sup>2</sup> &rarr; R or 2d 
     * FreeFem++ ffgendata2ddisc.edp
     * From within Matlab/Octave run runplotdemo2d.m
 
-[Screenshot: density plot](https://github.com/samplemaker/freefem_matlab_octave_plot/blob/public/screenshots/2ddensity.png)  
-[Screenshot: surf plot](https://github.com/samplemaker/freefem_matlab_octave_plot/blob/public/screenshots/2dsurf.png)  
-[Screenshot: 2d-mesh](https://github.com/samplemaker/freefem_matlab_octave_plot/blob/public/screenshots/2dmesh.png)  
+[Screenshot: density plot](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2ddensity.png)  
+[Screenshot: surf plot](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dsurf.png)  
+[Screenshot: 2d-mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dmesh.png)  
 
 ## Running the 3d plot examples
 
@@ -27,8 +29,8 @@ The 3d plot examples focus on displaying functions R<sup>3</sup> &rarr; R (i.e. 
     * FreeFem++ ffgendata3dbox.edp
     * From within Matlab/Octave run runplotdemo3d.m
 
-[Screenshot: surf plot](https://github.com/samplemaker/freefem_matlab_octave_plot/blob/public/screenshots/3dsurf.png)  
-[Screenshot: surface of a 3d-mesh](https://github.com/samplemaker/freefem_matlab_octave_plot/blob/public/screenshots/3dmesh.png)
+[Screenshot: surf plot](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf.png)  
+[Screenshot: surface of a 3d-mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dmesh.png)
 
 ## Files
 
