@@ -23,7 +23,7 @@
 clear all;
 
 %rearrange all columns in order to plot the facets using the patch() command
-[XX,YY,ZZ,CC] = ff2patch('tridata3dbox.txt','Delimiter',';','Format','auto');
+[XX,YY,ZZ,CC] = ff2patch('bddata3dbox.txt','Delimiter',';','Format','auto');
 
 %3D surf plot with scalar value
 figure;
@@ -40,7 +40,7 @@ daspect([1 1 1]);
 %alpha(0.7);
 
 %3D surf plot of a mesh only
-[XX,YY,ZZ] = ff2patch('tridata3dcyl.txt','Delimiter',';','Format','auto');
+[XX,YY,ZZ] = ff2patch('bddata3dcyl.txt','Delimiter',';','Format','auto');
 figure;
 patch(XX,YY,ZZ,[1 1 1],'EdgeColor',[0 0 1],'LineWidth',1);
 zlabel('z');

@@ -1,7 +1,7 @@
 /*ffgendata3dcyl.edp Generates cylindrical 3d mesh
  *
  *  Solve possion equation in solid blocks an write simulation
- *  simulation results to tridata3dbox.txt
+ *  simulation results to bddata3dcyl.txt
  *
  * Author: Chloros2 <chloros2@gmx.de>
  * Created: 2018-05-19
@@ -49,7 +49,7 @@ mesh3 Th3d=buildlayers(Th2d,n2,
 
 int idx;
 int nbelement=Th3d.nbe;
-ofstream bedata ("tridata3dcyl.txt");
+ofstream bedata ("bddata3dcyl.txt");
 for (int k=0;k<nbelement;++k){
   for (int num=0;num<3;num++){
     idx = Th3d.be(k)[num];

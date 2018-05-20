@@ -31,10 +31,10 @@ Sx=[0 0.75 0]';
 Sy=[1 0.75 0]';
 Sz=[1 0.75 1]';
 
-[XX YY ZZ CC]=ffslice3d('tridata3dbox.txt','tetrahedrondata.txt',Sx,Sy,Sz, ...
+[XX YY ZZ CC]=ffslice3d('bdtridata.txt','tetrahedrondata.txt',Sx,Sy,Sz, ...
                         'Delimiter',';','Format','%f %f %f %f');
 
-%plot the slice
+%plot the sliced object
 figure;
 patch(XX,YY,ZZ,CC);
 colormap(jet(250));

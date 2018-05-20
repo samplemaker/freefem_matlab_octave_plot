@@ -1,8 +1,9 @@
 /*ffgendata3dbox.edp Generates some 3d fantasy art vertex/triangle data
  *                   in order to be plot in Matlab
  *
- *  Solve possion equation in solid blocks an write simulation
- *  simulation results to tridata3dbox.txt
+ *  Solve possion equation in a solid block an write simulation
+ *  simulation results. boundary data to bdtridata.txt and
+ *  complete mesh data to tetrahedrondata.txt
  *
  * Author: Chloros2 <chloros2@gmx.de>
  * Created: 2018-05-19
@@ -110,7 +111,7 @@ for (int i=0; i<Th33d.nt; i++){
 
 int idx;
 int nbelement=Th33d.nbe;
-ofstream bedata ("tridata3dbox.txt");
+ofstream bedata ("bdtridata.txt");
 for (int k=0;k<nbelement;++k){
   for (int num=0;num<3;num++){
     idx = Th33d.be(k)[num];
