@@ -1,12 +1,13 @@
-%ffslice3d.m Returns all triangles affected if a 3d mesh is sliced with
-%            a slicing plane defined by the three points S1,S2,S3
+%ffslicetet3d.m Returns all triangles cut by the slicing plane if a 3d mesh
+%               is sliced with a slicing plane defined by the three
+%               points S1,S2,S3
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
 %
-%   [XX YY ZZ CC] = ffslice3d (bdfilename,tetfilename,S1,S2,S3,varargin)
+%   [XX YY ZZ CC] = ffslicetet3d (tetfilename,S1,S2,S3,varargin)
 %
-%   [XX YY ZZ CC] = ffslice3d (...,'PARAM1',val1,'PARAM2',val2,...) specifies
+%   [XX YY ZZ CC] = ffslicetet3d (...,'PARAM1',val1,'PARAM2',val2,...) specifies
 %   parameter name/value pairs to control the input file format
 %
 %       Parameter       Value
@@ -30,9 +31,9 @@
 % along with this program.  If not, see
 % <https://www.gnu.org/licenses/>.
 %
-function [XX YY ZZ CC] = ffslice3d(bdfile,tetfile,S1,S2,S3,varargin)
+function [SXX SYY SZZ SCC] = ffslicetet3d(tetfile,S1,S2,S3,varargin)
   switch nargin
-    case {5,7,9}
+    case {4,6,8}
     otherwise
       printhelp();
       error('wrong number arguments');
@@ -62,11 +63,6 @@ function [XX YY ZZ CC] = ffslice3d(bdfile,tetfile,S1,S2,S3,varargin)
     error('cannot open tetfile');
   end
 
-  bdfid = fopen(bdfile,'r');
-  if bdfid < 0
-    error('cannot open boundary file');
-  end
-
       %%%%%%%%%%%%%%%%%%%%%%%%%%   Theory   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % let Xn:=cross((S2-S1),(S3-S1)) be perpendicular to the slicing plane
@@ -77,7 +73,6 @@ function [XX YY ZZ CC] = ffslice3d(bdfile,tetfile,S1,S2,S3,varargin)
   
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  %step 1.)
   %find out tetrahedra which are cut or touched by the slicing plane
   fdata=textscan(tetfid,format,'Delimiter',delimiter);
   fclose(tetfid);
@@ -111,36 +106,6 @@ function [XX YY ZZ CC] = ffslice3d(bdfile,tetfile,S1,S2,S3,varargin)
   SYY=tet2tri(TYY);
   SZZ=tet2tri(TZZ);
   SCC=tet2tri(TCC);
-  
-  %step 2.)
-  %proceed with the boundary triangles
-  fdata=textscan(bdfid,format,'Delimiter',delimiter);
-  fclose(bdfid);
-  [x,y,z,c]=fdata{:};
-  M=[x y z];
-  [npts sz2]=size(M);
-  Xn0=repmat(Xn',npts,1);
-  S10=repmat(S1',npts,1);
-  %used to check which points are in front of the plane
-  pos=dot(Xn0,(M-S10),2);
-  %bool array indicating affected points
-  keep=(any(arrangecols((pos<=0),3))==1);
-  nkeep=sum(keep==1);
-  %extract all affected triangle and remove the chunck
-  tmpX=arrangecols(x,3);
-  BXX=tmpX(:,keep);
-  tmpY=arrangecols(y,3);
-  BYY=tmpY(:,keep);
-  tmpZ=arrangecols(z,3);
-  BZZ=tmpZ(:,keep);
-  tmpC=arrangecols(c,3);
-  BCC=tmpC(:,keep);
-  
-  %combine slicing triangles with boundary triangles
-  XX=[SXX BXX];
-  YY=[SYY BYY];
-  ZZ=[SZZ BZZ];
-  CC=[SCC BCC];
 end
 
 %convert tetrahedrons into vertex/triangles
@@ -159,6 +124,6 @@ function [M] = arrangecols(V,c)
 end
 
 function printhelp()
-  fprintf('%s\n\n','Invalid call to ffslice3d. Correct usage is:');
-  fprintf('%s\n',' -- [X, Y, Z, C] = ffslice3d (bdfilename, tetfilename, S1, S2, S3, ''Delimiter'','';'',''Format'',''%f %f %f %f'')');
+  fprintf('%s\n\n','Invalid call to ffslicetet3d. Correct usage is:');
+  fprintf('%s\n',' -- [X, Y, Z, C] = ffslicetet3d (tetfilename, S1, S2, S3, ''Delimiter'','';'',''Format'',''%f %f %f %f'')');
 end

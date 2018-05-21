@@ -32,19 +32,49 @@ S3=[1 1.3 1]';
 %S2=[1 0.75 0]';
 %S3=[1 0.75 1]';
 
-[XX YY ZZ CC]=ffslice3d('bdtridata.txt', ...
-                        'tetrahedrondata.txt', ...
-                        S1,S2,S3, ...
-                        'Delimiter',';','Format','%f %f %f %f');
-
-%plot the sliced object
+%get the slicing plane data
+[SXX SYY SZZ SCC]=ffslicetet3d('tetrahedrondata.txt', ...
+                               S1,S2,S3, ...
+                              'Delimiter',';','Format','%f %f %f %f');
+%and plot
 figure;
-patch(XX,YY,ZZ,CC);
+patch(SXX,SYY,SZZ,SCC);
 colormap(jet(250));
-caxis([min(min(CC)) max(max(CC))]);
+caxis([min(min(SCC)) max(max(SCC))]);
 colorbar;
 zlabel('z');
 ylabel('y');
 xlabel('x');
 view(3);
+title('crosssection');
+daspect([1 1 1]);
+
+%get the sliced boundary
+[BXX BYY BZZ BCC]=ffslicebd3d('bdtridata.txt', ...
+                              S1,S2,S3, ...
+                             'Delimiter',';','Format','%f %f %f %f');
+%and plot
+figure;
+patch(BXX,BYY,BZZ,BCC);
+colormap(jet(250));
+caxis([min(min(BCC)) max(max(BCC))]);
+colorbar;
+zlabel('z');
+ylabel('y');
+xlabel('x');
+view(3);
+title('boundary');
+daspect([1 1 1]);
+
+%put everything together and plot
+figure;
+patch([SXX BXX],[SYY BYY],[SZZ BZZ],[SCC BCC]);
+colormap(jet(250));
+caxis([min(min([SCC BCC])) max(max([SCC BCC]))]);
+colorbar;
+zlabel('z');
+ylabel('y');
+xlabel('x');
+view(3);
+title('crosssection + boundary');
 daspect([1 1 1]);
