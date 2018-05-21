@@ -87,15 +87,15 @@ function [XX YY ZZ CC] = ffslice3d(bdfile,tetfile,S1,S2,S3,varargin)
   Xn=cross((S2-S1),(S3-S1));
   Xn0=repmat(Xn',npts,1);
   S10=repmat(S1',npts,1);
-  pos=dot(Xn0,(M-S10),2);
-  %all tetrahedra which do have one or more points in front of, as well
-  %as one more points behind the slicing plane have to be identified.
-  %tetrahedra with point in the point do count as well
-  front=any(arrangecols((pos>0),4));
-  behind=any(arrangecols((pos<0),4));
-  ison=any(arrangecols((pos==0),4));
+  pos=arrangecols(dot(Xn0,(M-S10),2),4);
+  %tetrahedra which do have one or more points in front of, as well
+  %as one or more points behind the slicing plane have to be identified.
+  %tetrahedra with a point in the plane do count as well
+  front=any((pos>0));
+  behind=any((pos<0));
+  isin=any((pos==0));
   %boolarray identifing sliced or touched tetrahedra
-  keep=(((behind==1) & (front==1)) | (ison==1));
+  keep=(((behind==1) & (front==1)) | (isin==1));
   nkeep=sum(keep==1);
   %extract all affected tetrahedra and remove the chunck
   tmpX=arrangecols(x,4);
@@ -106,19 +106,11 @@ function [XX YY ZZ CC] = ffslice3d(bdfile,tetfile,S1,S2,S3,varargin)
   TZZ=tmpZ(:,keep);
   tmpC=arrangecols(c,4);
   TCC=tmpC(:,keep);
-  %we will store the triangles here
-  SXX=zeros(3,4*nkeep);
-  SYY=zeros(3,4*nkeep);
-  SZZ=zeros(3,4*nkeep);
-  SCC=zeros(3,4*nkeep);
   %extract from each tetrahedron 4 triangles, don't bother about duplicates
-  k=1;
-  for j=1:nkeep
-      [SXX(:,k:k+3) SYY(:,k:k+3) ...
-       SZZ(:,k:k+3) SCC(:,k:k+3)]= tet2tri(TXX(:,j),TYY(:,j), ...
-                                           TZZ(:,j),TCC(:,j));  
-      k=k+4;
-  end
+  SXX=tet2tri(TXX);
+  SYY=tet2tri(TYY);
+  SZZ=tet2tri(TZZ);
+  SCC=tet2tri(TCC);
   
   %step 2.)
   %proceed with the boundary triangles
@@ -144,36 +136,26 @@ function [XX YY ZZ CC] = ffslice3d(bdfile,tetfile,S1,S2,S3,varargin)
   tmpC=arrangecols(c,3);
   BCC=tmpC(:,keep);
   
-  %append to the other stuff and return
+  %combine slicing triangles with boundary triangles
   XX=[SXX BXX];
   YY=[SYY BYY];
   ZZ=[SZZ BZZ];
   CC=[SCC BCC];
 end
 
+%convert tetrahedrons into vertex/triangles
+function [Y] = tet2tri(X)
+  [sz1 sz2] = size(X);
+  M=[[X(1,:); X(2,:); X(3,:)]; ...
+     [X(1,:); X(2,:); X(4,:)]; ...
+     [X(1,:); X(3,:); X(4,:)]; ...
+     [X(2,:); X(3,:); X(4,:)]];
+  Y=reshape(M,3,4*sz2);
+end
+
 function [M] = arrangecols(V,c)
   r = length(V)/c;
   M = reshape(V,c,r);
-end
-
-%by brut force. any suggestions??!?!
-%return the vertex/triangle points from a tetrahedron
-function [X Y Z C] = tet2tri (x,y,z,c)
-  X=[x(1) x(1) x(1) x(2);
-     x(2) x(2) x(3) x(3);
-     x(3) x(4) x(4) x(4)];
-
-  Y=[y(1) y(1) y(1) y(2);
-     y(2) y(2) y(3) y(3);
-     y(3) y(4) y(4) y(4)];
- 
-  Z=[z(1) z(1) z(1) z(2);
-     z(2) z(2) z(3) z(3);
-     z(3) z(4) z(4) z(4)];
-     
-  C=[c(1) c(1) c(1) c(2);
-     c(2) c(2) c(3) c(3);
-     c(3) c(4) c(4) c(4)];
 end
 
 function printhelp()

@@ -32,9 +32,10 @@ The 3d plot examples focus on displaying functions of the type R<sup>3</sup> &ra
 [Screenshot: surf plot](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_2.png)  
 [Screenshot: surface of a 3d-mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dmesh.png)
 
-The Matlab/Octave function `ffslice3d()` is a proof of concept to cut 3d FreeFem++ simulation data along a plane and makes the crosssection visible. You will need to write the complete mesh data as well as the boundary data from within FreeFem++ to use this function. It is experimental!
+The Matlab/Octave function `ffslice3d()` is a proof of concept to cut 3d FreeFem++ simulation data along a plane and to make its inside visble. You will need to write the complete mesh data as well as the boundary data from within FreeFem++ to use this function. It works but it is experimental - i will change the syntax in future if it might be necessary! 
 
 [Screenshot: slice3d](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_slice3.png)  
+[Screenshot: zoom](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_slice4.png)  
 
 ## Implementation
 
