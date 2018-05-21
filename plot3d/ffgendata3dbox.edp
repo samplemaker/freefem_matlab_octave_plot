@@ -28,7 +28,7 @@
 load "msh3"
 load "medit"
 
-int C1=90,C2=91,C3=92,C4=93;
+int C1=90,C2=91,C3=92,C4=93,C5=94;
 
 real w0=1, h0=1;
 border C01(t=0,w0){x=t; y=0; label=C1;};
@@ -40,24 +40,27 @@ real w1=0.4;
 real h1=0.4;
 real posX1=w0/2;
 real posY1=h0/2;
-border C11(t=0,w1){x=posX1+t; y=posY1; label=C2;};
+border C11(t=0,w1){x=posX1+t; y=posY1; label=C5;};
 border C12(t=w1,0){x=posX1+t; y=posY1+h1; label=C2;};
 border C13(t=0,h1){x=posX1+w1; y=posY1+t; label=C4;};
 border C14(t=h1,0){x=posX1; y=posY1+t; label=C3;};
 
 int n=10;
-int m=40;
+int m=30;
+int k=10;
 mesh Th1=buildmesh(C01(w0*n)+C03(h0*n)+C02(w0*n)+C04(h0*n)
                   +C11(-w1*m)+C12(-w1*m)+C13(-h1*m)+C14(-h1*m) );
 
 int[int] rup=[0,2],
          rdown=[0,3],
-         rmid=[C1,1,
-               C2,4],
+         rmid=[C5,6,
+               C2,1,
+               C3,4,
+               C4,5],
          rtet=[0,0];
 
 real zmin=0,zmax=0.4;
-mesh3 Th13d=buildlayers(Th1,n,
+mesh3 Th13d=buildlayers(Th1,k,
                         zbound=[zmin,zmax],
                         reftet=rtet,
                         labelmid=rmid,
@@ -66,15 +69,15 @@ mesh3 Th13d=buildlayers(Th1,n,
 
 mesh Th2=buildmesh(C11(w1*m)+C12(w1*m)+C13(h1*m)+C14(h1*m));
 
-int[int] r2up=[0,9],
-         r2down=[0,5],
-         r2mid=[C2,6,
-                C3,7,
-                C4,8],
+int[int] r2up=[0,11],
+         r2down=[0,7],
+         r2mid=[C2,8,
+                C3,9,
+                C4,10],
          r2tet=[0,0];
 
-zmin=zmax+0.1;zmax=zmax+0.2;
-mesh3 Th23d=buildlayers(Th2,n,
+zmin=zmax+0.15;zmax=zmax+0.25;
+mesh3 Th23d=buildlayers(Th2,k/2,
                         zbound=[zmin,zmax],
                         reftet=r2tet,
                         labelmid=r2mid,
@@ -90,13 +93,18 @@ macro Grad(u) [dx(u),dy(u),dz(u)] // EOM
 
 problem Poisson(u,v,solver=CG) =
                int3d(Th33d)( Grad(u)'*Grad(v) )
-               +on(2,u=1)
+            // +on(2,u=1)
                +on(3,u=0)
-               +on(7,u=1)
-               +on(8,u=0);
+            // +on(7,u=1)
+               +on(9,u=0)
+               - int2d(Th33d,1)(1*v)
+               - int2d(Th33d,4)(1*v)
+               - int2d(Th33d,5)(1*v)
+               - int2d(Th33d,6)(1*v)
+             //- int3d(Th33d)(1*v)
+              ;
 
 Poisson;
-
 
 int idx;
 int nbelement=Th33d.nbe;
@@ -107,7 +115,7 @@ for (int k=0;k<nbelement;++k){
     bedata << Th33d(idx).x << ";"
            << Th33d(idx).y << ";"
            << Th33d(idx).z << ";"
-           << u[][idx] << "\n";
+           << u(Th33d(idx).x,Th33d(idx).y,Th33d(idx).z) << "\n";
   }
 }
 

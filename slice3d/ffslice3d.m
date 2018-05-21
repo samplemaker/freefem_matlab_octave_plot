@@ -6,8 +6,8 @@
 %
 %   [XX YY ZZ CC] = ffslice3d (bdfilename,tetfilename,S1,S2,S3,varargin)
 %
-%   [XX YY ZZ CC] = ffslice3d (...,'PARAM1',val1,'PARAM2',val2,...) specifies parameter
-%   name/value pairs to control the input file format
+%   [XX YY ZZ CC] = ffslice3d (...,'PARAM1',val1,'PARAM2',val2,...) specifies
+%   parameter name/value pairs to control the input file format
 %
 %       Parameter       Value
 %      'Delimiter'     Specifies the delimiter of the input file
@@ -56,112 +56,99 @@ function [XX YY ZZ CC] = ffslice3d(bdfile,tetfile,S1,S2,S3,varargin)
       error('wrong number arguments');
   end
   [delimiter, format] = varargout{:};
-  
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  %we starting to determine affected tetrahedra which are cut by the slicing plane
-  
-  fid = fopen(tetfile,'r');
-  if fid < 0
-    error('cannot open file');
+  tetfid = fopen(tetfile,'r');
+  if tetfid < 0
+    error('cannot open tetfile');
   end
-  fdata = textscan(fid,format,'Delimiter',delimiter);
-  fclose(fid);
-  [x,y,z,c] = fdata{:};
-  M=[x y z];
-  [sz1 sz2]=size(M);
+
+  bdfid = fopen(bdfile,'r');
+  if bdfid < 0
+    error('cannot open boundary file');
+  end
+
+      %%%%%%%%%%%%%%%%%%%%%%%%%%   Theory   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% let Xn:=cross((S2-S1),(S3-S1)) be perpendicular to the slicing plane
+% and Xp a point in the plane. it turns out that for any point X,
+% i.)   in the plane          --> dot(N,(X-Xp)) == 0
+% ii.)  in front of the plane --> dot(N,(X-Xp)) > 0
+% iii.) behind of the plane   --> dot(N,(X-Xp)) < 0
   
-  Ns=cross((S2-S1),(S3-S1));
-  Nd=repmat(Ns',sz1,1);
-  Sxd=repmat(S1',sz1,1);
-  %used to check which points are in front of the plane
-  location=dot(Nd,(M-Sxd),2);
-  %all tetrahedra which do have one more point in front of, as well as behind
-  %the slicing plane have to be sorted out
-  ptfront=(location>0);
-  tfront=arrangecols(ptfront,4);
-  tfront=any(tfront);
-  %bool array indicating points
-  pbehind=(location<0);
-  tbehind=arrangecols(pbehind,4);
-  %boolarray indication for tetrahedra
-  tbehind=any(tbehind);
-  %point on the plane
-  pison=(location==0);
-  tison=arrangecols(pison,4);
-  tison=any(tison);
-  %boolarray identifing sliced tetrahedra
-  keep=(((tbehind==1) & (tfront==1)) | (tison==1));
-  ntetrahedron=sum(keep==1);
-  tx=arrangecols(x,4);
-  ty=arrangecols(y,4);
-  tz=arrangecols(z,4);
-  tc=arrangecols(c,4);
-  %split each tetrahedron into 4 triangles containing
-  %3 nodes (vertices) eachBXX(:,k:k+3)=x(j:j+2)
-  XX=zeros(3,4*ntetrahedron);
-  YY=zeros(3,4*ntetrahedron);
-  ZZ=zeros(3,4*ntetrahedron);
-  CC=zeros(3,4*ntetrahedron);
-  %remove the chunck
-  [sz1 sz2] = size(tx);
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  %step 1.)
+  %find out tetrahedra which are cut or touched by the slicing plane
+  fdata=textscan(tetfid,format,'Delimiter',delimiter);
+  fclose(tetfid);
+  [x,y,z,c]=fdata{:};
+  M=[x y z];
+  [npts sz2]=size(M);
+  Xn=cross((S2-S1),(S3-S1));
+  Xn0=repmat(Xn',npts,1);
+  S10=repmat(S1',npts,1);
+  pos=dot(Xn0,(M-S10),2);
+  %all tetrahedra which do have one or more points in front of, as well
+  %as one more points behind the slicing plane have to be identified.
+  %tetrahedra with point in the point do count as well
+  front=any(arrangecols((pos>0),4));
+  behind=any(arrangecols((pos<0),4));
+  ison=any(arrangecols((pos==0),4));
+  %boolarray identifing sliced or touched tetrahedra
+  keep=(((behind==1) & (front==1)) | (ison==1));
+  nkeep=sum(keep==1);
+  %extract all affected tetrahedra and remove the chunck
+  tmpX=arrangecols(x,4);
+  TXX=tmpX(:,keep);
+  tmpY=arrangecols(y,4);
+  TYY=tmpY(:,keep);
+  tmpZ=arrangecols(z,4);
+  TZZ=tmpZ(:,keep);
+  tmpC=arrangecols(c,4);
+  TCC=tmpC(:,keep);
+  %we will store the triangles here
+  SXX=zeros(3,4*nkeep);
+  SYY=zeros(3,4*nkeep);
+  SZZ=zeros(3,4*nkeep);
+  SCC=zeros(3,4*nkeep);
+  %extract from each tetrahedron 4 triangles, don't bother about duplicates
   k=1;
-  i=1;
-  for j=1:sz2
-    if keep(j)
-      [XX(:,k:k+3) YY(:,k:k+3) ZZ(:,k:k+3) CC(:,k:k+3)]=tet2tri(tx(:,j),ty(:,j),tz(:,j),tc(:,j));  
+  for j=1:nkeep
+      [SXX(:,k:k+3) SYY(:,k:k+3) ...
+       SZZ(:,k:k+3) SCC(:,k:k+3)]= tet2tri(TXX(:,j),TYY(:,j), ...
+                                           TZZ(:,j),TCC(:,j));  
       k=k+4;
-    end
-    i=i+4;
   end
   
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-  %now proceed further with the boundary triangles
-  
-  fid = fopen(bdfile,'r');
-  if fid < 0
-    error('cannot open file');
-  end
-  fdata = textscan(fid,format,'Delimiter',delimiter);
-  fclose(fid);
-  [x,y,z,c] = fdata{:};
+  %step 2.)
+  %proceed with the boundary triangles
+  fdata=textscan(bdfid,format,'Delimiter',delimiter);
+  fclose(bdfid);
+  [x,y,z,c]=fdata{:};
   M=[x y z];
-  [sz1 sz2]=size(M);
-  Nd=repmat(Ns',sz1,1);
-  Sxd=repmat(S1',sz1,1);
+  [npts sz2]=size(M);
+  Xn0=repmat(Xn',npts,1);
+  S10=repmat(S1',npts,1);
   %used to check which points are in front of the plane
-  location=dot(Nd,(M-Sxd),2);
+  pos=dot(Xn0,(M-S10),2);
   %bool array indicating affected points
-  pa=(location<=0);
-  ta=arrangecols(pa,3);
-  %boolarray indicating affected triangles
-  ta=any(ta);
-  keep=(ta==1);
-  ntriangle=sum(keep==1);
-  %remove the chunck
-  BXX=zeros(3,ntriangle);
-  BYY=zeros(3,ntriangle);
-  BZZ=zeros(3,ntriangle);
-  BCC=zeros(3,ntriangle);
-  k=1;
-  j=1;
-  for i=1:(sz1/3)
-    if keep(i)
-      BXX(:,k)=x(j:j+2);
-      BYY(:,k)=y(j:j+2);
-      BZZ(:,k)=z(j:j+2);
-      BCC(:,k)=c(j:j+2);
-      k=k+3;
-    end
-    j=j+3;
-  end
+  keep=(any(arrangecols((pos<=0),3))==1);
+  nkeep=sum(keep==1);
+  %extract all affected triangle and remove the chunck
+  tmpX=arrangecols(x,3);
+  BXX=tmpX(:,keep);
+  tmpY=arrangecols(y,3);
+  BYY=tmpY(:,keep);
+  tmpZ=arrangecols(z,3);
+  BZZ=tmpZ(:,keep);
+  tmpC=arrangecols(c,3);
+  BCC=tmpC(:,keep);
   
-  %append to the other stuff
-  XX=[XX BXX];
-  YY=[YY BYY];
-  ZZ=[ZZ BZZ];
-  CC=[CC BCC];
+  %append to the other stuff and return
+  XX=[SXX BXX];
+  YY=[SYY BYY];
+  ZZ=[SZZ BZZ];
+  CC=[SCC BCC];
 end
 
 function [M] = arrangecols(V,c)
@@ -169,33 +156,24 @@ function [M] = arrangecols(V,c)
   M = reshape(V,c,r);
 end
 
+%by brut force. any suggestions??!?!
 %return the vertex/triangle points from a tetrahedron
-function [X Y Z C] = tet2tri (tx,ty,tz,tc)
-  %first triangle
-  X1=[tx(1);tx(2);tx(3)];
-  Y1=[ty(1);ty(2);ty(3)];
-  Z1=[tz(1);tz(2);tz(3)];
-  C1=[tc(1);tc(2);tc(3)];
-  %2nd triangle
-  X2=[tx(1);tx(2);tx(4)];
-  Y2=[ty(1);ty(2);ty(4)];
-  Z2=[tz(1);tz(2);tz(4)];
-  C2=[tc(1);tc(2);tc(4)];
-  %3nd triangle
-  X3=[tx(1);tx(3);tx(4)];
-  Y3=[ty(1);ty(3);ty(4)];
-  Z3=[tz(1);tz(3);tz(4)];
-  C3=[tc(1);tc(3);tc(4)];
-  %4th triangle
-  X4=[tx(2);tx(3);tx(4)];
-  Y4=[ty(2);ty(3);ty(4)];
-  Z4=[tz(2);tz(3);tz(4)];
-  C4=[tc(2);tc(3);tc(4)];
-  
-  X=[X1 X2 X3 X4];
-  Y=[Y1 Y2 Y3 Y4];
-  Z=[Z1 Z2 Z3 Z4];
-  C=[C1 C2 C3 C4];
+function [X Y Z C] = tet2tri (x,y,z,c)
+  X=[x(1) x(1) x(1) x(2);
+     x(2) x(2) x(3) x(3);
+     x(3) x(4) x(4) x(4)];
+
+  Y=[y(1) y(1) y(1) y(2);
+     y(2) y(2) y(3) y(3);
+     y(3) y(4) y(4) y(4)];
+ 
+  Z=[z(1) z(1) z(1) z(2);
+     z(2) z(2) z(3) z(3);
+     z(3) z(4) z(4) z(4)];
+     
+  C=[c(1) c(1) c(1) c(2);
+     c(2) c(2) c(3) c(3);
+     c(3) c(4) c(4) c(4)];
 end
 
 function printhelp()

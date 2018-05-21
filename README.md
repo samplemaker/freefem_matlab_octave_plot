@@ -1,10 +1,10 @@
 # How to plot FreeFem++ solutions in Matlab and Octave
 
-Examples demonstrating how to write FreeFem++ simulation results and how to create a plot in Matlab/Octave from the data. It should be emphasized that it is **NOT** necessary to have the Matlab-PDEtools installed to run the following examples!
+This is a collection of minimal examples to show how FreeFem++ simulation results can be plotted in Matlab/Octave. It should be emphasized that it is not necessary to have the Matlab-PDEtools installed to run the examples.
 
 ## Basic theory
 
-In contrast to the Matlab/Octave functions `surf()` and `mesh()` which do work on cartesian meshes the built in function `patch()` basically plots polygons (facets) and hence enables plotting of irregular tesselation structures like FreeFem++ meshes. To do this the meshdata (triangle/vertex data) and the solution has to be written prior into a text file from within the FreeFem++ script. This file is then parsed and processed by the `ff2patch()` function in order to be plot with the `patch()` command. `ff2patch()` is doing nothing else but splitting and rearranging the continuous vertice data into batches of three adjacent numbers because `patch()` expects its input to be bundled per triangle (=facet). A documentation of the `patch()` command can be found [here](https://de.mathworks.com/help/matlab/ref/patch.html).
+In contrast to the Matlab/Octave functions `surf()` and `mesh()` which do work on cartesian meshes the function `patch()` basically plots polygons (=facets) and hence enables plotting of irregular tesselation structures like FreeFem++ meshes. To do this the meshdata (triangle/vertex data) and the solution has to be written prior into a text file from within the FreeFem++ script. This file is then parsed and processed by `ff2patch()` in order to be plot with the `patch()` command. `ff2patch()` is doing nothing else but splitting and rearranging the continuous vertice data into batches of three adjacent numbers because `patch()` expects its input bundled per triangle (=facet). A documentation of the `patch()` command can be found [here](https://de.mathworks.com/help/matlab/ref/patch.html).
 
 ![](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dmesh.png)
 
@@ -29,12 +29,12 @@ The 3d plot examples focus on displaying functions of the type R<sup>3</sup> &ra
     * FreeFem++ ffgendata3dbox.edp
     * From within Matlab/Octave run runplotdemo3d.m
 
-[Screenshot: surf plot](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf.png)  
+[Screenshot: surf plot](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_2.png)  
 [Screenshot: surface of a 3d-mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dmesh.png)
 
 ## Implementation
 
-**2d:** In FreeFem++ we just need to write the mesh:
+**2d:** In FreeFem++ we have to write all data:
 
 ```cpp
 ofstream datamesh ("tridata2d.txt");
@@ -47,7 +47,7 @@ for (int i=0; i<Th.nt; i++){
 }
 ```
 
-**3d:** To display the surface only it is sufficient to write the boundary elements from within FreeFem++. If a 3d sclice is to be made it is also necessary to write the complete net data as well.
+**3d:** To display the surface it is sufficient to write the boundary elements only. If a 3d sclice is to be done it is also necessary to write the complete net data.
 
 ```cpp
 int idx;
@@ -59,12 +59,12 @@ for (int k=0;k<nbelement;++k){
     bedata << Th3d(idx).x << ";"
            << Th3d(idx).y << ";"
            << Th3d(idx).z << ";"
-           << u[][idx] << "\n";
+           <<  u(Th3d(idx).x,Th3d(idx).y,Th3d(idx).z) << "\n";
   }
 }
 ```
 
-The Matlab/Octave function `ff2patch()` rearranges the prior written file content in order to be plot using the `patch()` command. The arguments depend on the number of columns and on the separation character.  `ff2patch()` does not care about content hence you can process as many scalars and coordinates as you want:
+The Matlab/Octave function `ff2patch()` rearranges the prior written file content in order to be plot using the `patch()` command. The arguments depend on the number of columns and on the separation character.  `ff2patch()` does not care about content hence you can process as many columns as you want:
 
 ```cpp
 [XX,YY,CC] = ff2patch('filename.txt','Delimiter',';','Format','auto');
@@ -77,7 +77,7 @@ If you don't like to autodetect the number of columns use
 
 The Matlab/Octave function `ffslice3d()` is a proof of concept to cut 3d FreeFem++ simulation data along a plane. You will need to write boundary and tetrahedron data as well from within FreeFem++ to use this function.
 
-[Screenshot: slice3d](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_slice1.png)  
+[Screenshot: slice3d](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_slice3.png)  
 
 ## Files
 
