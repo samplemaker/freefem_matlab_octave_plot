@@ -1,9 +1,9 @@
-/*ffgendata2ddisc.edp Generates some vertex/triangle data in order to
- *                    be plot in Matlab
+/*demo2_plot2d.edp Generates some vertex/triangle data in order to
+ *                 be plot in Matlab
  *
  *  Calculate temperature distribution in a heated sheet metal disc
  *  employing heat transfer and one fixed border temperature.
- *  Write the mesh information to tridata2ddisc.txt.
+ *  Write the mesh information in order to be plot in Matlab/Octave.
  *
  * Author: Chloros2 <chloros2@gmx.de>
  * Created: 2018-05-13
@@ -84,7 +84,7 @@ for (int i=0;i<1;i++){
 //call once more so that mesh and u is synchronised!
 heat;
 
-ofstream datamesh ("tridata2ddisc.txt");
+ofstream datamesh ("temp_demo2_tridata2d.txt");
 for (int i=0; i<Th.nt; i++){
   for (int j=0; j<3; j++){
     datamesh << Th[i][j].x << ";"

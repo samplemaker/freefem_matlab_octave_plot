@@ -1,4 +1,4 @@
-%rundemoslice3d.m Slice a 3d plot
+%demo4_slice3d.m Slice a 3d plot
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-19
@@ -22,26 +22,39 @@
 
 clear all;
 
-%define the slicing plane; three points S1 .. S3 containing the point coordinates
-%x,y,z respectively
+addpath('ffmatlib');
+
+%%%%%% A slicing demonstration
+
+%Define the slicing plane: Three points S1 .. S3 = [x,y,z]' respectively
 S1=[0 0 0]';
 S2=[1 0.5 0]';
 S3=[1 1.3 1]';
 
-%S1=[0 0.75 0]';
-%S2=[1 0.75 0]';
-%S3=[1 0.75 1]';
+tic;
+fprintf('start reading file ...\n');
+[bdata,tdata] = ffreadfile('File1','temp_demo4_bddata3d_box.txt', ...
+                           'File2','temp_demo4_tetdata3d_box.txt', ...
+                           'Delimiter',';','Format','%f %f %f %f');
+fprintf('reading finished\n');
+toc;
 
-%get the slicing plane data
-[SXX SYY SZZ SCC]=ffslicetet3d('tetrahedrondata.txt', ...
-                               S1,S2,S3, ...
-                              'Delimiter',';','Format','%f %f %f %f');
-%and plot
+tic;
+fprintf('slicing ...\n');
+tic;
+[BX,BY,BZ,BC] = slicebd2patch(bdata,S1,S2,S3);
+[SX,SY,SZ,SC] = slicetet2patch(tdata,S1,S2,S3);
+fprintf('slicing finished\n');
+toc;
+
+%%%%%% Plot slice
+
 figure;
-patch(SXX,SYY,SZZ,SCC);
+patch(SX,SY,SZ,SC);
 colormap(jet(250));
-caxis([min(min(SCC)) max(max(SCC))]);
-colorbar;
+caxis([min(min(SC)) max(max(SC))]);
+hcb=colorbar;
+title(hcb,'dT[K]');
 zlabel('z');
 ylabel('y');
 xlabel('x');
@@ -49,16 +62,14 @@ view(3);
 title('crosssection');
 daspect([1 1 1]);
 
-%get the sliced boundary
-[BXX BYY BZZ BCC]=ffslicebd3d('bdtridata.txt', ...
-                              S1,S2,S3, ...
-                             'Delimiter',';','Format','%f %f %f %f');
-%and plot
+%%%%%% Plot boundary
+
 figure;
-patch(BXX,BYY,BZZ,BCC);
+patch(BX,BY,BZ,BC);
 colormap(jet(250));
-caxis([min(min(BCC)) max(max(BCC))]);
-colorbar;
+caxis([min(min(BC)) max(max(BC))]);
+hcb=colorbar;
+title(hcb,'dT[K]');
 zlabel('z');
 ylabel('y');
 xlabel('x');
@@ -66,12 +77,14 @@ view(3);
 title('boundary');
 daspect([1 1 1]);
 
-%put everything together and plot
+%%%%%% Combine and plot boundary + slice
+
 figure;
-patch([SXX BXX],[SYY BYY],[SZZ BZZ],[SCC BCC]);
+patch([SX BX],[SY BY],[SZ BZ],[SC BC]);
 colormap(jet(250));
-caxis([min(min([SCC BCC])) max(max([SCC BCC]))]);
-colorbar;
+caxis([min(min([SC BC])) max(max([SC BC]))]);
+hcb=colorbar;
+title(hcb,'dT[K]');
 zlabel('z');
 ylabel('y');
 xlabel('x');

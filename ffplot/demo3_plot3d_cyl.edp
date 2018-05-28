@@ -1,7 +1,8 @@
-/*ffgendata3dcyl.edp Generates cylindrical 3d mesh
+/*demo3_plot3d_cyl.edp Generates a cylindrical 3d mesh and writes
+ *                     the boundary data (triangles).
  *
  *  Solve possion equation in solid blocks an write simulation
- *  simulation results to bddata3dcyl.txt
+ *  simulation results.
  *
  * Author: Chloros2 <chloros2@gmx.de>
  * Created: 2018-05-19
@@ -39,9 +40,9 @@ int[int] rup=[0,2],
          rmid=[C1,1],
          rtet=[0,0];
 
-real zmin=0,zmax=2;
+real z0=0,z1=2;
 mesh3 Th3d=buildlayers(Th2d,n2,
-                       zbound=[zmin,zmax],
+                       zbound=[z0,z1],
                        reftet=rtet,
                        labelmid=rmid,
                        labelup=rup,
@@ -49,7 +50,7 @@ mesh3 Th3d=buildlayers(Th2d,n2,
 
 int idx;
 int nbelement=Th3d.nbe;
-ofstream bedata ("bddata3dcyl.txt");
+ofstream bedata ("temp_demo3_bddata3d_cyl.txt");
 for (int k=0;k<nbelement;++k){
   for (int num=0;num<3;num++){
     idx = Th3d.be(k)[num];
