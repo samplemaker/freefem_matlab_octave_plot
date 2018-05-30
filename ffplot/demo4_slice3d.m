@@ -41,7 +41,6 @@ toc;
 
 tic;
 fprintf('slicing ...\n');
-tic;
 [BX,BY,BZ,BC] = slicebd2patch(bdata,S1,S2,S3);
 [SX,SY,SZ,SC] = slicetet2patch(tdata,S1,S2,S3);
 fprintf('slicing finished\n');

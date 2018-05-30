@@ -26,6 +26,8 @@ addpath('ffmatlib');
 %Read FreeFem++ file and convert data in order to plot the facets
 [X,Y,C]=ffread2patch('temp_demo1_getstarted.txt');
 
+%%%%%%% 2D density plot
+
 %Draw triangles. X, Y contain vertice coordinates and C the color information.
 %Set a black edge color in order to show the mesh.
 patch(X,Y,C,'EdgeColor',[0 0 0],'LineWidth',1);

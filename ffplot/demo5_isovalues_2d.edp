@@ -1,0 +1,22 @@
+border C(t=0,2* pi){x=cos(t); y=sin(t);}
+mesh Th = buildmesh (C(75));
+fespace Vh(Th,P1);
+Vh u,v;
+func f = x*y;
+solve Poisson(u,v,solver=LU) =
+     int2d(Th)(dx(u) * dx(v) + dy(u) * dy(v))
+   - int2d(Th)( f*v)
+   + on(C,u=0) ;
+
+// file for Matlab or Octave
+ofstream file ("temp_demo5_isovalues.txt");
+for (int i = 0; i < Th.nt; i++){
+  for (int j = 0; j < 3; j++){
+    file << Th[i][j].x << ";"
+         << Th[i][j].y << ";"
+         << u[][Vh(i,j)] << "\n";
+  }
+}
+
+plot(u);
+

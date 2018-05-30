@@ -1,9 +1,9 @@
-%tri2patch.m Convert FreeFem++ vertex/triangle data to patch plot data
+%fftri2patch.m Convert FreeFem++ vertex/triangle data to patch plot data
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
 %
-%   [varargout] = tri2patch (X) rearranges triangle/vertex coordinates and 
+%   [varargout] = fftri2patch (X) rearranges triangle/vertex coordinates and 
 %   color data in such an order that a patch command can be invoked.
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
@@ -22,7 +22,7 @@
 % along with this program.  If not, see
 % <https://www.gnu.org/licenses/>.
 %
-function [varargout] = tri2patch(X)
+function [varargout] = fftri2patch(X)
     switch nargin
         case {1}
         otherwise
@@ -45,6 +45,6 @@ function [M] = arrangecols(V,c)
 end
 
 function printhelp()
-    fprintf('%s\n\n','Invalid call to tri2patch.  Correct usage is:');
-    fprintf('%s\n',' -- [varargout] = tri2patch (X)');
+    fprintf('%s\n\n','Invalid call to fftri2patch.  Correct usage is:');
+    fprintf('%s\n',' -- [varargout] = fftri2patch (X)');
 end

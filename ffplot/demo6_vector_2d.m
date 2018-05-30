@@ -1,4 +1,4 @@
-%demo1_getstarted2.m Plot FreeFem++ 2d simulation results
+%demo2_plot2d_isovalues.m Plot isovalues for FreeFem++ 2d simulation results
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
@@ -20,24 +20,30 @@
 % <https://www.gnu.org/licenses/>.
 %
 
-%Set path where to find ffread2patch.m
+clear all;
+
 addpath('ffmatlib');
 
-%Read FreeFem++ file and convert data in order to plot the facets
-[X,Y,C]=ffread2patch('temp_demo1_getstarted.txt');
+[fdata] = ffreadfile('File1','temp_demo6_vector.txt','Delimiter',';','Format','%f %f %f %f');
 
-%%%%%%% 3D surf plot
+%%%%%% Interpolation on a rectangular grid
 
-%Draw triangles. X, Y contain vertice coordinates and C the color information.
-%Set a black edge color in order to show the mesh.
-patch(X,Y,C,C,'EdgeColor',[0 0 0],'LineWidth',1);
-%Create a colormap with jet array
-colormap(jet(192));
-caxis([min(min(C)) max(max(C))]);
-%Create a colorbar
-colorbar;
-%Viewpoint specification: 3D plot.
-view(3);
-%Set aspect ratio for x,y,z
-daspect([1 1 1*(max(max(C))-min(min(C)))]);
+%Choose grid resolution
+N=10;
+M=14;
+x=linspace(0,1,N);
+y=linspace(0,1,M);
+tic;
+[UH,VH]=fftri2grid(fdata,x,y);
+toc;
+[X,Y] = meshgrid(x,y);
+
+%%%%%% 2d vector field plot
+
+figure();
+quiver(X,Y,UH,VH);
+ylabel('y');
+xlabel('x');
+axis tight equal;
 grid;
+

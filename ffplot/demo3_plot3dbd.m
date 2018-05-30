@@ -41,10 +41,10 @@ xlabel('x');
 title('A 3d plot of a surface boundary');
 view(3);
 daspect([1 1 1]);
-%Alpha transparency can be added if this uncommented:
+%Alpha transparency can be added if following is uncommented:
 %alpha(0.7);
 
-%%%%%% Again 3D surf plot this time but with fixed size during rotation
+%%%%%% Again 3D surf plot but keeps dimensions during rotation
 
 figure;
 ax=axes();
@@ -63,10 +63,9 @@ set(ax,props,get(ax,props));
 set(gcf,'color',[0.9 0.9 0.9]);
 set(ax, 'Visible','off');
 
-
 [X,Y,Z] = ffread2patch('temp_demo3_bddata3d_cyl.txt','Delimiter',';','Format','auto');
 
-%%%%%% 3D surface plot of a mesh
+%%%%%% 3D surface plot of a 3d mesh
 
 figure;
 patch(X,Y,Z,[1 1 1],'EdgeColor',[0 0 1],'LineWidth',1);
