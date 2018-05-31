@@ -4,7 +4,7 @@ Once you have successfully simulated a PDE problem using FreeFem++ you may want 
 
 ## Basic theory
 
-A FEM mesh is describing a CAD object or any other type of spatial geometry. It is built from mesh elements. They have a shape like a triangle or rectangle, may vary in size and the nodes (vertices) are not necessarily bounded to a rectangular grid. As we look at such an object the surface may be colorized according to the solution of a PDE which is given at the nodal coordinates and parts of the object may be obscured depending on the point view.<br>
+A FEM mesh is describing a CAD object or any other type of spatial geometry. It is built from mesh elements. Mesh elements have a shape like a triangle or rectangle, may vary in size and the nodes (vertices) are not necessarily bounded to a rectangular grid. As we look at such an object the surface may be colorized according to the solution of a PDE which is given at the nodal coordinates and parts of the object may be obscured depending on the point of view.<br>
 The built in Matlab&copy; or Octave command `patch()` basically renders a set of polygons (=facets, patches). We can associate the FEM mesh elements with such a drawing primitive (here: triangle) and therefore fullfill all the previous stated constraints in order to implement a plot function. In the current implementation the meshdata (the PDE solution at the mesh nodes and the meshing triangles defined by the vertices) have to be written into a text file from within your FreeFem++ script. This file is then parsed and processed by `ffread2patch()` in order to be plot by the `patch()` command. Basically `ffread2patch()` is splitting and rearranging the vertice data because `patch()` expects its input data to be bundled patch wise. A detailed documentation of the `patch()` command can be found at [1](https://de.mathworks.com/help/matlab/ref/patch.html), [2](https://de.mathworks.com/help/matlab/visualize/introduction-to-patch-objects.html) and [3](https://de.mathworks.com/help/matlab/creating_plots/how-patch-data-relates-to-a-colormap.html).
 
 ![](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_10.png)
@@ -80,11 +80,11 @@ For 2d problems it is sometimes helpful to have an vectorfield - plot as well. S
 
 [Screenshot: vectorfields](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dvectorfield.png)  
 
-## Implementation
+## Implementation - FreeFem++
 
-###FreeFem++
+### Simple 2d problems
 
-**Simple 2d problems:** From within the FreeFem++ script write the mesh elements (triangles defined by its vertices) and the solution of the PDE at the nodes respectively:
+From within the FreeFem++ script write the mesh elements (triangles defined by its vertices) and the solution of the PDE at the nodes respectively:
 
 ```cpp
 ofstream tridata ("export_tri.txt");
@@ -97,7 +97,9 @@ for (int i=0; i<Th.nt; i++){
 }
 ```
 
-**3d boundary problems:** If the domain boundary (surface) is to be displayed it is enough to write the boundary elements only:
+### 3d boundary problems
+
+If the domain boundary (surface) is to be displayed it is enough to write the boundary elements only:
 
 ```cpp
 int idx;
@@ -114,7 +116,8 @@ for (int k=0;k<nbelement;++k){
 }
 ```
 
-**Advanced: 3d problems (slicing):** If a crosssection is to be made it is necessary to write the mesh elements (tetrahedra) as well as the boundary data:
+### Advanced: 3d problems (slicing)
+If a crosssection is to be made it is necessary to write the mesh elements (tetrahedra) as well as the boundary data:
 
 ```cpp
 ofstream tetdata ("export_tet.txt");
@@ -128,7 +131,9 @@ for (int i=0; i<Th3d.nt; i++){
 }
 ```
 
-**Advanced: 2d problems (vector fields):** In order to plot 2d vector fields just write multiple columns:
+### Advanced: 2d problems (vector fields)
+
+In order to plot 2d vector fields just write multiple columns:
 
 ```cpp
 ofstream file ("export_tri_ncols.txt");
@@ -142,31 +147,38 @@ for (int i = 0; i < Th.nt; i++){
 }
 ```
 
-###Matlab&copy;/Octave
+## Implementation - Matlab&copy;/Octave
 
-**General purpose plots in 2d and 3d boundary:** The Matlab&copy;/Octave function `ffread2patch()` reads and rearranges the prior written file content in order to be plot using the `patch()` command. It's arguments depend on the number of columns and on the separation character. `ffread2patch()` can process both 2d mesh elements or 3d boundary data (triangle) and as many columns as you want:
+Hint: Library functions can be found in the folder `ffmatlib`. Therefore use the `addpath(ffmatlib)` command if you are working from another directory.
+
+### General purpose plots in 2d and 3d boundary
+
+The Matlab&copy;/Octave function `ffread2patch()` reads and rearranges file content in order to be plot with the `patch()` command. It's arguments depend on the number of columns and on the separation character. `ffread2patch()` can process 2d mesh elements or 3d boundary data (must be triangle):
 
 ```cpp
 [X,Y,C, ...] = ffread2patch('filename.txt','Delimiter',';','Format','auto');
 ```
-If you don't like to autodetect the number of columns you can give the format specifier explicitely:
+The number of columns can be set via the format specifier explicitely:
 
 ```cpp
 [X,Y,Z,C] = ffread2patch('filename.txt','Delimiter',';','Format','%f %f %f %f');
 ```
 X, Y and C are matrices which can be fed to `patch()`.
 
-Hint: You can split the reading and rearranging process into two different entities with the two commands:
+Hint: You can split the reading and conversion process into two different entities:
 
 ```cpp
 [tridata] = ffreadfile('File1','filename.txt','Delimiter',';','Format','%f %f %f');
 [X,Y,C] = fftri2patch(tridata);
 ```
 
-**Advanced: 3d slicing:** In order to perform a slice from a 3d problem you have to load the boundary data as well as the mesh element data. This can be accomplished with the function call:
+### Advanced: 3d slicing
+
+In order to perform a slice from a 3d problem you have to load the boundary data as well as the mesh element data. This can be accomplished with the function call:
 
 ```cpp
-[file1data,file2data] = ffreadfile ('File1','filename1.txt','File2','filename2.txt','Delimiter',...,'Format',...)');
+[file1data,file2data] = ffreadfile ('File1','filename1.txt','File2','filename2.txt', ...
+                                    'Delimiter',';','Format','%f %f %f %f')');
 ```
 
 Next perform the slice with the data stored in the variables file1data, file2data: 
@@ -176,17 +188,20 @@ Next perform the slice with the data stored in the variables file1data, file2dat
 [SX,SY,SZ,SC] = slicetet2patch (meshdata,S1,S2,S3);
 ```
 
-The output data `(BX,BY,BZ,BC)` and `(SX,SY,SZ,SC)` or the sum of both `([SX BX],[SY BY],[SZ BZ],[SC BC])` can be plot with the `patch()` command. The input arguments `S1..S3` contain x,y,z coordinates of three points defining the slicing plane.
+The input arguments `S1..S3` contain x,y,z coordinates of three points defining the slicing plane. The output data `(BX,BY,BZ,BC)` and `(SX,SY,SZ,SC)` or the superposition of both `([SX BX],[SY BY],[SZ BZ],[SC BC])` can be plot with the `patch()` command.
 
-**Advanced: Slicer_GUI:** There is a graphical user interface (working in both worlds, Matlab and Octave either) which can be used to create crossections of PDE problems more easily. The function call is
+### Advanced: Slicer_GUI
+
+There is a graphical user interface (working in both worlds, Matlab and Octave either) which can be used to create crossections of PDE problems more easily. The function call is
 
 ```cpp
 slicer_gui(bddatafile,tetdatafile);
 ```
 You may also have a look at `demo4_start_slicer_gui.m`.
 
-**Advanced: 2d isovalues:** To create isoplots with the Matlab / Octave command `contour()` it is necessary to interpolate the data given on the mesh vertices on a rectangular grid.<br>
-In a first step load the raw data:
+### Advanced: 2d isovalues
+
+To create isolevel-curveplots with the Matlab / Octave command `contour()` it is necessary to interpolate the data given on the mesh vertices on a rectangular grid. In a first step load the raw data:
 
 ```cpp
 [tridata] = ffreadfile('File1','filename.txt','Delimiter',';','Format','%f %f %f');
@@ -204,8 +219,9 @@ The result can be plot with the command:
 [c,h] = contour(X,Y,C,8);
 ```
 
-**Advanced: 2d vectorfields:** To create vector field plots with the Matlab / Octave command `quiver()` it is necessary to interpolate the data given on the mesh vertices on a rectangular grid.<br>
-In a first step load the raw data:
+### Advanced: 2d vectorfields
+
+To create vector field plots with the Matlab / Octave command `quiver()` it is necessary to interpolate the data given on the mesh vertices on a rectangular grid. In a first step load the raw data:
 
 ```cpp
 [tridata] = ffreadfile('File1','filename.txt','Delimiter',';','Format','%f %f %f');
@@ -232,19 +248,19 @@ quiver(X,Y,U,V);
   * `slicebd2patch.m` Slice 3d boundary (triangle) data and convert to patch plot data.
   * `demo4_start_slicer_gui.m` Starts the slicer graphical user interface (Slicer_GUI) to slice 3d data.
   * `slicer_gui.m` Slicer_GUI - Implementation.
-  * `fftri2grid.m` Interpolate R<sup>n</sup> data given on a 2d mesh on a rectangular grid.
+  * `fftri2grid.m` Interpolates R<sup>2</sup> &rarr; R<sup>n</sup> FEM data on a rectangular mesh grid.
 
 ## Software
 
   * [FreeFem++][freefem]
   * [Octave][octave]
+  * [Matlab][matlab]
 
-[freefem]:    http://www.freefem.org//
+[freefem]:    http://www.freefem.org/
              "FreeFem++ solver for partial differential equations"
 [octave]:     https://www.gnu.org/software/octave/
              "GNU Octave scientific programming language"
-
-[matlab]:     https://de.mathworks.com/products/matlab.html
+[matlab]:     https://www.mathworks.com/
              "Matlab scientific programming language"
 
 ## Hardware acceleration
