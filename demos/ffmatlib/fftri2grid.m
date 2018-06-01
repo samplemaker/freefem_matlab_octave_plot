@@ -10,6 +10,11 @@
 %   The return value is the interpolation at X,Y.
 %   Returns NaN's if a interpolation point lies outside
 %
+%   Hint: We only consider the PDE solution on the mesh vertices although
+%   the underlying FE-space may have a higher order (P2 element etc.).
+%   Therefore there is some small loss of accuracy except P1 elements
+%   are used.
+%
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %
 % This program is free software: you can redistribute it and/or modify it
