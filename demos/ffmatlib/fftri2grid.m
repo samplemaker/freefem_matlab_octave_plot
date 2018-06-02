@@ -3,17 +3,17 @@
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
 %
-%   [varargout] = fftri2grid (tridata, X, Y) interpolates on a
-%   rectangular grid defined by X and Y. tridata(:,1) and tridata(:,2)
-%   specify the triangle coordinates and following columns scalar value
-%   on the vertices respectively.
-%   The return value is the interpolation at X,Y.
-%   Returns NaN's if a interpolation point lies outside
+%   [varargout] = fftri2grid (tridata, X, Y) interpolates data given on
+%   a triangular mesh to a rectangular mesh defined by X and Y. The columns
+%   tridata(:,1) and tridata(:,2) must contain the triangular mesh node
+%   coordinates. The following columns must contain the scalar values ​​at
+%   the node points that need to be interpolated.
+%   The return value is the interpolation at the grid points X, Y. Returns
+%   NaN's if an interpolation point is outside the triangle mesh.
 %
-%   Hint: We only consider the PDE solution on the mesh vertices although
-%   the underlying FE-space may have a higher order (P2 element etc.).
-%   Therefore there is some small loss of accuracy except P1 elements
-%   are used.
+%   Hint: We use the PDE solution only on the grid vertices, although the
+%   underlying FE space may have a higher order (P2 element, etc.).
+%   Therefore, there is a small loss of accuracy, except P1 elements are used
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %
@@ -47,7 +47,8 @@ function [varargout] = fftri2grid(tridata, X, Y)
         printhelp();
         error('wrong number of columns - must be > 3');
     end
-    tx=arrangecols(tridata(:,1),3); %want to calculate triangle and point wise
+    %Splitting into triangles
+    tx=arrangecols(tridata(:,1),3);
     ty=arrangecols(tridata(:,2),3);
     ntriangles=npts/3;
     tu=zeros(3*nvars,ntriangles);
@@ -63,11 +64,11 @@ function [varargout] = fftri2grid(tridata, X, Y)
         strc=sprintf('C%1.0f',i);
         vars.(strc)=NaN(numel(Y),numel(X));
     end
-    %saves 50% runtime to create copies instead of using indexing tx(1,:)
-    %again and again
-    ax=tx(1,:); %x werte des ersten punktes für alle dreiecke
+    %Making copies saves 50% of running time instead of using
+    %tx(1,:) directly
+    ax=tx(1,:); %x values ​​of the first triangle point for all triangles
     ay=ty(1,:);
-    bx=tx(2,:); %x werte des zweiten punktes für alle dreiecke
+    bx=tx(2,:); %x values ​​of the second triangle point for all triangles
     by=ty(2,:);
     cx=tx(3,:);
     cy=ty(3,:);
@@ -75,13 +76,14 @@ function [varargout] = fftri2grid(tridata, X, Y)
         for my=1:numel(Y)
             px=X(mx);
             py=Y(my);
-            %calculate barycentric coordinates
+            %Calculates barycentric coordinates
             fac=(1.0)./((by-cy).*(ax-cx)+(cx-bx).*(ay-cy));
             wa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*fac;
             wb=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*fac;
             wc=1.0-wa-wb;
-            %is inside which triangle?
-            pos=find(((wa>=0) & (wb>=0) & (wc>=0)),1,'first');%can possibly sit on a border
+            %Is inside which triangle?
+            %Can possibly sit on a border (multiple output)
+            pos=find(((wa>=0) & (wb>=0) & (wc>=0)),1,'first');
             if ~isempty(pos)
                 j=0;
                 for i=3:nvars
@@ -111,4 +113,3 @@ function printhelp()
     fprintf('%s\n\n','Invalid call to fftri2grid.  Correct usage is:');
     fprintf('%s\n',' -- [A,B, ...] = fftri2grid (tridata, X, Y)');
 end
-

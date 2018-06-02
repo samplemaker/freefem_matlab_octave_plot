@@ -1,4 +1,4 @@
-%slicer_gui.m Graphical user interface to slice FreeFem++ simulations
+%slicer_gui.m Graphical user interface for cuttig FreeFem++ simulations
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-19
@@ -21,23 +21,23 @@
 %
 function slicer_gui(bddatafile,tetdatafile)
 
-    %listbox slicing normals preselection
+    %Listbox: Cutting normals preselection
     slicingNormals={'0;0;1';'0;1;0';'1;0;0';'0;0;-1';'0;-1;0';'-1;0;0'; ...
                     '0;1;1';'0;1;-1';'1;1;0';'1;-1;0';'1;0;-1'; ...
                     '-1;1;-1';'-1;1;1';'1;1;1';'1;-0.5;-0.75'};
-    %slicing point
+    %Slicing point
     handles.O=[0.5 0.5 0.2];
-    %startup slicing plane normal
+    %Startup: Default slicing plane normal
     handles.N=[0 0 1];
 
-    %slider and colorbar control variables
+    %Slider and colorbar control variables
     handles.Tspread=[0.5 2.0 1.0];
-    %initial guess at startup, will be updated later on
+    %Initial guess at startup, will be updated later on
     handles.Tshift=[-1.0 1.0 0.0];
-    %hold min and max temperature of the acutal slice used for colorbar
+    %Holds min and max temperatures of the acutal slice. Used for colorbar
     handles.Tmax=1;
     handles.Tmin=0;
-    %used for color scale if "FIX" check box is activated in order to freeze
+    %Used for color scale if "FIX" check box is activated in order to freeze
     %the color scale limits
     handles.Tminfrz=handles.Tmin;
     handles.Tmaxfrz=handles.Tmax;
@@ -226,7 +226,7 @@ function editZ_Callback(hObject, eventdata, handles)
     guidata(hObject, handles);
 end
 
-%reset the color slider settings. if slicing data is available
+%Resets the color slider settings. If slicing data is available
 %set the Tshift slider borders to a preset value
 function pushbuttonTreset_Callback(hObject, eventdata, handles)
     handles=guidata(hObject);
@@ -256,23 +256,23 @@ function listboxNormal_Callback(hObject, eventdata, handles)
     guidata(hObject, handles);
 end
 
-%slider controlled colorbar
-%take min and max temperatures of the actual slice
-%multiply spread and shift by Tshift
+%Slider controlled colorbar
+%Takes min and max temperatures of the actual slice
+%Multiplies spread and shift by Tshift
 %--> colorbar is changing every time if a new slice is made and is
-%showing the range existing in the slice
+%showing the temperature range of the slice
 function handles=setcolbar_handler(handles)
     logVal=10^(handles.Tspread(3)-1);
     if get(handles.cbfixScale, 'Value')
-        %fixed colorbar boundary
+        %Fixed colorbar boundary selected
         Tmid=handles.Tminfrz+0.5*(handles.Tmaxfrz-handles.Tminfrz);
         dT=logVal*(handles.Tmaxfrz-handles.Tminfrz);    
     else
-        %colorbar boundary will change with actual slice
+        %Colorbar boundary will change with each slice
         Tmid=handles.Tmin+0.5*(handles.Tmax-handles.Tmin);
         dT=logVal*(handles.Tmax-handles.Tmin);
-        %update those in case FIX checkbox is activated, then we have the same
-        %settings as before activating the checkbox
+        %If the check box FIX is going to be activated, we will have
+        %the same settings as before activating the check box
         handles.Tminfrz=handles.Tmin;
         handles.Tmaxfrz=handles.Tmax;
     end
@@ -286,7 +286,7 @@ function handles=setcolbar_handler(handles)
 end
 
 function handles=draw_handler(handles)
-    %find a valid orthogonal
+    %Finds a valid orthogonal
     if ~all([-handles.N(3) 0 handles.N(1)] == 0)
         A=[-handles.N(3) 0 handles.N(1)];
     end
@@ -294,7 +294,7 @@ function handles=draw_handler(handles)
         A=[0 -handles.N(3) handles.N(2)];
     end
     B=cross(A,handles.N);
-    %find three points on the plane
+    %Finds three points on the plane
     S1=handles.O';
     S2=handles.O'+A';
     S3=handles.O'+B';
@@ -325,7 +325,7 @@ function handles=draw_handler(handles)
             end
         end
     end
-    %you can also put everything at once
+    %Can also put everything at once
     %patch([SX BX],[SY BY],[SZ BZ],[SC BC]);
 
     axis('image');
@@ -333,7 +333,7 @@ function handles=draw_handler(handles)
     zlabel('z');
     ylabel('y');
     xlabel('x');
-    %possibly there is no data to draw
+    %Possibly there is no data to draw
     if ~(isempty(SC) && isempty(BC))
         handles.haveSlicingdata=true;
         handles.Tmin=min(min([SC BC]));

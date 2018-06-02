@@ -1,10 +1,10 @@
-%fftri2patch.m Convert FreeFem++ vertex/triangle data to patch plot data
+%fftri2patch.m Converts vertex / triangle data into patch plot data.
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
 %
-%   [varargout] = fftri2patch (X) rearranges triangle/vertex coordinates and 
-%   color data in such an order that a patch command can be invoked.
+%   [varargout] = fftri2patch (X) arranges vertex coordinates
+%   and color data in such order that a patch command can be invoked.
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %

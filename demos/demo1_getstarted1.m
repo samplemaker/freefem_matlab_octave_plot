@@ -20,23 +20,22 @@
 % <https://www.gnu.org/licenses/>.
 %
 
-%Set path where to find ffread2patch.m
+%Specifies the path where the ffmatlib can be found
 addpath('ffmatlib');
 
-%Read FreeFem++ file and convert data in order to plot the facets
+%Reads the file content and converts to patch() - plot data
 [X,Y,C]=ffread2patch('temp_demo1_getstarted.txt');
 
 %%%%%%% 2D density plot
 
-%Draw triangles. X, Y contain vertice coordinates and C the color information.
-%Set a black edge color in order to show the mesh.
+%Plots the facets and display the mesh
 patch(X,Y,C,'EdgeColor',[0 0 0],'LineWidth',1);
-%Create a colormap with jet array
+%Creates a colormap with jet array
 colormap(jet(192));
 caxis([min(min(C)) max(max(C))]);
-%Create a colorbar
+%Creates a colorbar
 colorbar;
-%Viewpoint specification: 2D plot.
+%Sets the view point specification to 2d
 view(2);
-%Axis scaling and appearance: set tight and equal aspect ratio
+%Sets 1:1 aspect ratio
 axis tight equal;

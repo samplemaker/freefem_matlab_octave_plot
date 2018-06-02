@@ -1,4 +1,4 @@
-%ffreadfile.m Read one or two FreeFem++ simulation result files.
+%ffreadfile.m Reads one or two FreeFem++ simulation result files.
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13

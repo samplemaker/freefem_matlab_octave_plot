@@ -1,11 +1,13 @@
-%slicebd2patch.m Slice 3d boundary (triangle) data and convert to
-%                patch plot data. The data is sliced by a slicing
-%                plane defined by the three points S1,S2,S3.
+%slicebd2patch.m Cuts the boundary data and converts remaining rest into
+%                patch plot data.
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
 %
-%   [X,Y,Z,C] = slicebd2patch (data, S1, S2, S3)
+%   [X,Y,Z,C] = slicebd2patch (fdata, S1, S2, S3)  The boundary data is cut
+%   by a cutting plane defined by the three points S1, S2, S3. fdata must
+%   contain the boundary coordinates (triangle vertices) in the first three
+%   columns and in the forth column a scalar value. 
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %
@@ -38,22 +40,20 @@ function [BX,BY,BZ,BC] = slicebd2patch(fdata,S1,S2,S3)
 % i.)   in the plane          --> dot(N,(X-Xp)) == 0
 % ii.)  in front of the plane --> dot(N,(X-Xp)) > 0
 % iii.) behind of the plane   --> dot(N,(X-Xp)) < 0
-  
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    %proceed with the boundary triangles
-    %[x,y,z,c]=fdata{:};
     x=fdata(:,1);y=fdata(:,2);z=fdata(:,3);c=fdata(:,4);
     M=[x y z];
     [npts,~]=size(M);
     Xn=cross((S2-S1),(S3-S1));
     Xn0=repmat(Xn',npts,1);
     S10=repmat(S1',npts,1);
-    %used to check which points are in front of the plane
+    %Used to check which points are in front of the plane
     pos=dot(Xn0,(M-S10),2);
-    %bool array indicating affected points
+    %Bool array indicating affected points
     keep=(any(arrangecols((pos<=0),3))==1);
-    %extract all affected triangle and remove the chunck
+    %Extracts all affected triangles and removes the rest
     tmpX=arrangecols(x,3);
     BX=tmpX(:,keep);
     tmpY=arrangecols(y,3);

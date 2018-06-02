@@ -39,8 +39,8 @@ border C04(t=h0,0){x=0; y=t; label=C1;};
 
 real w1=0.4;
 real h1=0.4;
-real posX1=w0/2;
-real posY1=h0/2;
+real posX1=0.1;
+real posY1=0.1;
 border C11(t=0,w1){x=posX1+t; y=posY1; label=C2;};
 border C12(t=w1,0){x=posX1+t; y=posY1+h1; label=C3;};
 border C13(t=0,h1){x=posX1+w1; y=posY1+t; label=C4;};

@@ -20,24 +20,23 @@
 % <https://www.gnu.org/licenses/>.
 %
 
-%Set path where to find ffread2patch.m
+%Specifies the path where the ffmatlib can be found
 addpath('ffmatlib');
 
-%Read FreeFem++ file and convert data in order to plot the facets
+%Reads the file content and converts to patch() - plot data
 [X,Y,C]=ffread2patch('temp_demo1_getstarted.txt');
 
 %%%%%%% 3D surf plot
 
-%Draw triangles. X, Y contain vertice coordinates and C the color information.
-%Set a black edge color in order to show the mesh.
+%Plots the facets and display the mesh
 patch(X,Y,C,C,'EdgeColor',[0 0 0],'LineWidth',1);
-%Create a colormap with jet array
+%Creates a colormap with jet array
 colormap(jet(192));
 caxis([min(min(C)) max(max(C))]);
-%Create a colorbar
+%Creates a colorbar
 colorbar;
-%Viewpoint specification: 3D plot.
+%Sets the view point specification to 3d
 view(3);
-%Set aspect ratio for x,y,z
+%Sets 1:1:1 aspect ratio
 daspect([1 1 1*(max(max(C))-min(min(C)))]);
 grid;

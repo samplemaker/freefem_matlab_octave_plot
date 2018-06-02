@@ -28,7 +28,7 @@ addpath('ffmatlib');
 %%%%%% 2D density plot
 
 figure;
-%We can switch the mesh off by setting 'EdgeColor' to 'none' 
+%No Edge Color (hide the mesh)
 patch(X,Y,C,'EdgeColor','none');
 colormap(jet(250));
 caxis([min(min(C)) max(max(C))]);
@@ -43,7 +43,7 @@ axis tight equal;
 %%%%%% 2D mesh plot
 
 figure;
-%We can plot the mesh if we draw white triangles and set 'EdgeColor' to blue
+%Plots white facets with blue edge color in order to show the mesh
 patch(X,Y,[1 1 1],'EdgeColor',[0 0 1],'LineWidth',1);
 ylabel('y');
 xlabel('x');

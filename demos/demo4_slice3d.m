@@ -26,7 +26,7 @@ addpath('ffmatlib');
 
 %%%%%% A slicing demonstration
 
-%Define the slicing plane: Three points S1 .. S3 = [x,y,z]' respectively
+%Slicing plane definition
 S1=[0 0 0]';
 S2=[1 0.5 0]';
 S3=[1 1.3 1]';
@@ -40,13 +40,13 @@ fprintf('reading finished\n');
 toc;
 
 tic;
-fprintf('slicing ...\n');
+fprintf('cutting ...\n');
 [BX,BY,BZ,BC] = slicebd2patch(bdata,S1,S2,S3);
 [SX,SY,SZ,SC] = slicetet2patch(tdata,S1,S2,S3);
-fprintf('slicing finished\n');
+fprintf('cutting finished\n');
 toc;
 
-%%%%%% Plot slice
+%%%%%% Plot cross section only
 
 figure;
 patch(SX,SY,SZ,SC);
@@ -58,10 +58,10 @@ zlabel('z');
 ylabel('y');
 xlabel('x');
 view(3);
-title('crosssection');
+title('cross section');
 daspect([1 1 1]);
 
-%%%%%% Plot boundary
+%%%%%% Plot boundary only
 
 figure;
 patch(BX,BY,BZ,BC);
@@ -76,7 +76,7 @@ view(3);
 title('boundary');
 daspect([1 1 1]);
 
-%%%%%% Combine and plot boundary + slice
+%%%%%% Combine and plot both
 
 figure;
 patch([SX BX],[SY BY],[SZ BZ],[SC BC]);
@@ -88,5 +88,5 @@ zlabel('z');
 ylabel('y');
 xlabel('x');
 view(3);
-title('crosssection + boundary');
+title('cross section + boundary');
 daspect([1 1 1]);

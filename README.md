@@ -1,16 +1,16 @@
-# How to plot FreeFem++ simulations in Matlab and Octave
+# How to plot FreeFem++ Simulations in Matlab and Octave
 
 Once you have successfully simulated a PDE problem using FreeFem++ you may want to have a look at your simulation results from within Matlab&copy; or Octave. In this repository you will find some code snippets showing how to make this wish come true.
 
-## Basic theory
+## Basic Theory
 
 A FEM mesh is describing a CAD object or any other type of spatial geometry. A FEM mesh is built from mesh elements. Mesh elements have the shape of a triangle or rectangle, can vary in size and the nodes (vertices) are not necessarily bound to a rectangular grid. If we look at a meshed object the surface may be colored according to a PDE solution which - for the sake of simplicity - shall be given at the mesh nodes. Finally parts of the object may be obscured depending on the point of view.<br>
 At the other hand the `patch()` command which is built into Matlab&copy; and Octave renders a set of polygons (=facets, patches). The patch drawing primitives are defined by a color value and the spatial coordinates at the polygon vertices. We now can associate these drawing primitives with FEM mesh elements and looking towards a plot implementation all the conditions previously stated are fulfilled automatically.<br>
-In the current implementation the mesh data (the PDE solution at the mesh nodes and the nodal coordinates) have to be written to a text file via the FreeFem ++ script. In order to plot the problem with the `patch()` command this file is parsed and processed by the `ffmatlib` library. Basically, the `ffmatlib` library splits and rearranges the continuous vertice data, as `patch()` expects its input data to be clustered patch-wise. A detailed documentation of the `patch()` command can be found at [1](https://de.mathworks.com/help/matlab/ref/patch.html), [2](https://de.mathworks.com/help/matlab/visualize/introduction-to-patch-objects.html) and [3](https://de.mathworks.com/help/matlab/creating_plots/how-patch-data-relates-to-a-colormap.html).
+In the current implementation the mesh data (the PDE solution at the mesh nodes and the nodal coordinates) have to be written to a text file via the FreeFem++ script. In order to plot the problem with the `patch()` command this file is parsed and processed by the `ffmatlib` library. Basically, the `ffmatlib` library splits and rearranges the continuous vertice data, as `patch()` expects its input data to be clustered patch-wise. A detailed documentation of the `patch()` command can be found at [1](https://de.mathworks.com/help/matlab/ref/patch.html), [2](https://de.mathworks.com/help/matlab/visualize/introduction-to-patch-objects.html) and [3](https://de.mathworks.com/help/matlab/creating_plots/how-patch-data-relates-to-a-colormap.html).
 
 ![](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_10.png)
 
-## Source code snippets
+## Source Code Snippets
 
 ### Getting started
 
@@ -24,9 +24,9 @@ Two beginners examples:
 [Screenshot: minimum example](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dgetstarted1.png)  
 [Screenshot: minimum example](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dgetstarted2.png)  
 
-### 2d plot examples
+### Creating 2D Plots
 
-The 2d plot examples focus on displaying functions of the type R<sup>2</sup> &rarr; R or 2d meshes:
+The 2D plot examples focus on displaying functions of the type R<sup>2</sup> &rarr; R or 2D meshes:
 
   * Run
     * FreeFem++ `demo2_plot2d.edp`
@@ -34,11 +34,11 @@ The 2d plot examples focus on displaying functions of the type R<sup>2</sup> &ra
 
 [Screenshot: density plot](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2ddensity.png)  
 [Screenshot: surf plot](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dsurf.png)  
-[Screenshot: 2d-mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dmesh.png)  
+[Screenshot: 2D-mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dmesh.png)  
 
-### 3d plot examples
+### Creating 3D Plots
 
-The 3d plot examples focus on displaying functions of the type R<sup>3</sup> &rarr; R (i.e. a 3d object boundary colored with a scalar value like a temperature) or 3d mesh surfaces:
+The 3D plot examples focus on displaying functions of the type R<sup>3</sup> &rarr; R (i.e. a 3D object boundary colored with a scalar value like a temperature) or 3D mesh surfaces:
 
   * Run
     * FreeFem++ `demo3_plot3d_cyl.edp`
@@ -46,11 +46,11 @@ The 3d plot examples focus on displaying functions of the type R<sup>3</sup> &ra
     * From within Matlab/Octave run `demo3_plot3dbd.m`
 
 [Screenshot: surf plot](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_2.png)  
-[Screenshot: surface of a 3d-mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dmesh.png)
+[Screenshot: surface of a 3D-mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dmesh.png)
 
-### Advanced: 3d slicing examples
+### Advanced: Cutting 3D Simulations
 
-To make the inside visible it is also possible to cut a 3d FreeFem++ simulation along a slicing plane. You have to write the mesh elements as well as the boundary information to use this feature:
+To make the inside visible it is also possible to cut a 3D FreeFem++ simulation along a slicing plane. You have to write the mesh elements as well as the boundary information to use this feature:
 
   * Run
     * From within Matlab/Octave run `demo4_start_slicer_gui.m`
@@ -61,9 +61,9 @@ To make the inside visible it is also possible to cut a 3d FreeFem++ simulation 
 [Screenshot: cross section](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_slice9.png)  
 [Screenshot: GUI-Slicer](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/GUI_Slicer.png)  
 
-### Advanced: 2d isovalues
+### Advanced: 2D Contour
 
-For 2d problems it is sometimes helpful to have an isovalue - plot which will be created in the following example:<br>
+For 2D problems it is sometimes helpful to have an isovalue - plot which will be created in the following example:<br>
 
   * Run
     * FreeFem++ `demo5_isovalues_2d.edp`
@@ -72,9 +72,9 @@ For 2d problems it is sometimes helpful to have an isovalue - plot which will be
 [Screenshot: isovalues](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dsurf_isovalues.png)  
 [Screenshot: surf](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dsurf_surf.png)  
 
-### Advanced: 2d vectorfields
+### Advanced: 2D Vector Fields
 
-For 2d problems it is sometimes helpful to have an vectorfield - plot as well. Such a plot  will be created in the following example:<br>
+For 2D problems it is sometimes helpful to have an vector field - plot as well. Such a plot  will be created in the following example:<br>
 
   * Run
     * FreeFem++ `demo6_vector_2d.edp`
@@ -86,7 +86,7 @@ For 2d problems it is sometimes helpful to have an vectorfield - plot as well. S
 
 Hint: The `patch()` command draws and colors flat facets based on the coordinates and color values given on each vertex. If a higher order FE-space (e.g. P2 elements) was choosen the PDE solution can have a higher degree of freedom as can be visualized.
 
-### Simple 2d problems
+### 2D Problems
 
 From within the FreeFem++ script write the mesh elements (triangles defined by its vertices) and the solution of the PDE at the nodes respectively:
 
@@ -101,7 +101,7 @@ for (int i=0; i<Th.nt; i++){
 }
 ```
 
-### 3d boundary problems
+### 3D Boundary Value Problems
 
 If the domain boundary (surface) is to be displayed it is enough to write the boundary elements only:
 
@@ -120,7 +120,7 @@ for (int k=0;k<nbelement;++k){
 }
 ```
 
-### Advanced: 3d problems (slicing)
+### Advanced: Cutting 3D Problems
 If a cross section is to be made it is necessary to write the mesh elements (tetrahedra) as well as the boundary data:
 
 ```Matlab
@@ -135,9 +135,9 @@ for (int i=0; i<Th3d.nt; i++){
 }
 ```
 
-### Advanced: 2d problems (vector fields)
+### Advanced: 2D Vector Fields
 
-In order to plot 2d vector fields just write multiple columns:
+In order to plot 2D vector fields just write multiple columns:
 
 ```Matlab
 ofstream file ("export_tri_ncols.txt");
@@ -155,9 +155,9 @@ for (int i = 0; i < Th.nt; i++){
 
 Hint: The library functions can be found in the folder `ffmatlib`. Use the `addpath(path to ffmatlib)` command if you are working in a different directory.
 
-### General purpose plots in 2d and 3d boundary
+### General Plots in 2D and 3D Boundary Value Plots
 
-The function `ffread2patch()` reads a file and rearranges its content in such a way that diagrams can be created with the `patch()` command. It's arguments depend on the number of columns and on the separation character. `ffread2patch()` can process 2d mesh elements or 3d boundary data (triangles):
+The function `ffread2patch()` reads a file and rearranges its content in such a way that diagrams can be created with the `patch()` command. It's arguments depend on the number of columns and on the separation character. `ffread2patch()` can process 2D mesh elements or 3D boundary data (triangles):
 
 ```Matlab
 [X,Y,C, ...] = ffread2patch('filename.txt','Delimiter',';','Format','auto');
@@ -176,7 +176,7 @@ Hint: You can split the reading and conversion process into two different entiti
 [X,Y,C] = fftri2patch(tridata);
 ```
 
-### Advanced: 3d slicing
+### Advanced: Cutting 3D Problems
 
 To make a cut from a 3D problem, both the edge data and the mesh element data must be loaded. This can be achieved with the following function call:
 
@@ -203,7 +203,7 @@ slicer_gui(bddatafile,tetdatafile);
 ```
 You may also have a look at `demo4_start_slicer_gui.m`.
 
-### Advanced: 2d isovalues
+### Advanced: 2D Contour
 
 To create iso-level curve plots with the Matlab / Octave `contour ()` command, the data must be interpolated on a rectangular grid. In a first step load the raw data:
 
@@ -223,7 +223,7 @@ The result can be plot with the command:
 [c,h] = contour(X,Y,C,8);
 ```
 
-### Advanced: 2d vectorfields
+### Advanced: 2D Vector Fields
 
 To create vector field plots with the Matlab / Octave command `quiver()` it is necessary to interpolate the data given on the mesh vertices on a rectangular grid. In a first step load the raw data:
 
@@ -248,9 +248,9 @@ quiver(X,Y,U,V);
   * `ffread2patch.m` Reads FreeFem++ simulation results and converts vertex/triangle data to patch plot data.
   * `ffreadfile.m` Reads one or two FreeFem++ simulation result files.
   * `fftri2patch.m` Convert FreeFem++ vertex/triangle data to patch plot data.
-  * `slicetet2patch.m` Slices 3d mesh elements (tetrahedra) and converts to patch plot data.
-  * `slicebd2patch.m` Slices 3d boundary (triangle) data and converts to patch plot data.
-  * `demo4_start_slicer_gui.m` Starts the slicer graphical user interface (Slicer_GUI) to slice 3d data.
+  * `slicetet2patch.m` Slices 3D mesh elements (tetrahedra) and converts to patch plot data.
+  * `slicebd2patch.m` Slices 3D boundary (triangle) data and converts to patch plot data.
+  * `demo4_start_slicer_gui.m` Starts the slicer graphical user interface (Slicer_GUI) to slice 3D data.
   * `slicer_gui.m` Slicer_GUI - Implementation.
   * `fftri2grid.m` Interpolates R<sup>2</sup> &rarr; R<sup>n</sup> FEM data on a rectangular mesh grid.
 

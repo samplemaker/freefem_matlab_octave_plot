@@ -1,17 +1,16 @@
-%ffread2patch.m Read FreeFem++ simulation results and convert vertex/triangle
-%               data to patch plot data.
-%               Can process 2d mesh elements (triangles) or
-%               3d boundary data (triangles) either.
+%ffread2patch.m Reads FreeFem++ simulation results and converts the vertex /
+%               triangle data into patch plot data.
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
 %
-%   [varargout] = ffread2patch (filename,varargin) rearranges vertex coordinates and 
-%   color data in such an order that a patch command can be invoked. Each column of
-%   the input file is processed and returned as separate variable.
+%   [varargout] = ffread2patch (filename,varargin) arranges vertex coordinates
+%   and color data in such order that a patch command can be invoked. Each
+%   column of the input file is processed and returned as a separate variable.
+%   Can handle 2d mesh elements (triangles) or 3D boundary data (triangles).
 %
-%   [varargout] = ffread2patch (...,'PARAM1',val1,'PARAM2',val2,...) specifies parameter
-%   name/value pairs to control the input file format
+%   [varargout] = ffread2patch (...,'PARAM1',val1,'PARAM2',val2,...)
+%   specifies parameter name/value pairs to control the input file format
 %
 %       Parameter       Value
 %      'Delimiter'     Specifies the delimiter of the input file

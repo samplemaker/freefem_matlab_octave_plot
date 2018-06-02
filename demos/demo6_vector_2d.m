@@ -1,4 +1,5 @@
-%demo2_plot2d_isovalues.m Plot isovalues for FreeFem++ 2d simulation results
+%demo2_plot2d_isovalues.m Plot a 2d vector field from FreeFem ++ 2d simulation
+%                         results
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
@@ -24,7 +25,8 @@ clear all;
 
 addpath('ffmatlib');
 
-[fdata] = ffreadfile('File1','temp_demo6_vector.txt','Delimiter',';','Format','%f %f %f %f');
+[fdata] = ffreadfile('File1','temp_demo6_vector.txt', ...
+                     'Delimiter',';','Format','%f %f %f %f');
 
 %%%%%% Interpolation on a rectangular grid
 

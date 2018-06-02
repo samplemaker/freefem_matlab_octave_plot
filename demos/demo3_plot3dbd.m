@@ -27,7 +27,7 @@ addpath('ffmatlib');
 
 [X,Y,Z,C] = ffread2patch('temp_demo3_bddata3d_box.txt','Delimiter',';','Format','auto');
 
-%%%%%% 3D surf plot. Surface colored by value.
+%%%%%% 3D surf plot. Surface is colored by PDE solution.
 
 figure;
 patch(X,Y,Z,C,'EdgeColor',[0 0 0],'LineWidth',1);
@@ -41,10 +41,10 @@ xlabel('x');
 title('A 3d plot of a surface boundary');
 view(3);
 daspect([1 1 1]);
-%Alpha transparency can be added if following is uncommented:
+%Alpha transparency can be added if following line is uncommented:
 %alpha(0.7);
 
-%%%%%% Again 3D surf plot but keeps dimensions during rotation
+%%%%%% 3D surf plot, but this time retains the dimensions during the rotation
 
 figure;
 ax=axes();

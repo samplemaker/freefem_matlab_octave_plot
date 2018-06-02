@@ -1,4 +1,4 @@
-%demo5_isovalues_2d.m Plot isovalues for FreeFem++ 2d simulation results
+%demo5_isovalues_2d.m Plot isolines of FreeFem ++ 2d simulation results
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
@@ -24,11 +24,12 @@ clear all;
 
 addpath('ffmatlib');
 
-[tridata] = ffreadfile('File1','temp_demo5_isovalues.txt','Delimiter',';','Format','%f %f %f');
+[tridata] = ffreadfile('File1','temp_demo5_isovalues.txt', ...
+                       'Delimiter',';','Format','%f %f %f');
 
 %%%%%% Interpolation on a rectangular grid
 
-%Choose grid resolution
+%Choose a grid resolution
 N=200;
 x=linspace(-1,1,N);
 y=linspace(-1,1,N);
@@ -37,7 +38,7 @@ C=fftri2grid(tridata,x,y);
 toc;
 [X,Y] = meshgrid(x,y);
 
-%%%%%% 2d isovalue plot
+%%%%%% Isovalue plot
 
 figure();
 [c,h]=contour(X,Y,1000*C,8);
