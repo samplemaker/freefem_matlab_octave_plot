@@ -243,16 +243,17 @@ The result can be plot with the command:
 quiver(X,Y,U,V);
 ```
 
+
 ## Files
 
-  * `ffread2patch.m` Reads FreeFem++ simulation results and converts vertex/triangle data to patch plot data.
+  * `ffread2patch.m` Reads FreeFem++ simulation results and converts the vertex/triangle data into patch plot data.
   * `ffreadfile.m` Reads one or two FreeFem++ simulation result files.
-  * `fftri2patch.m` Convert FreeFem++ vertex/triangle data to patch plot data.
-  * `slicetet2patch.m` Slices 3D mesh elements (tetrahedra) and converts to patch plot data.
-  * `slicebd2patch.m` Slices 3D boundary (triangle) data and converts to patch plot data.
-  * `demo4_start_slicer_gui.m` Starts the slicer graphical user interface (Slicer_GUI) to slice 3D data.
-  * `slicer_gui.m` Slicer_GUI - Implementation.
-  * `fftri2grid.m` Interpolates R<sup>2</sup> &rarr; R<sup>n</sup> FEM data on a rectangular mesh grid.
+  * `fftri2patch.m` Converts vertex/triangle data into patch plot data.
+  * `slicetet2patch.m` Cuts 3D mesh elements (tetrahedrons) and converts the cross section into patch plot data.
+  * `slicebd2patch.m` Cuts the boundary data and converts remaining rest into patch plot data.
+  * `demo4_start_slicer_gui.m` Starts the slicer graphical user interface (Slicer_GUI) to cut 3D data.
+  * `slicer_gui.m` Graphical user interface for cuttig FreeFem++ simulations.
+  * `fftri2grid.m` Interpolates from 2D triangular mesh to 2D rectangular grid.
 
 ## Software
 
