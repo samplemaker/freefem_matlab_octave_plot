@@ -35,17 +35,16 @@ N=10;
 M=14;
 x=linspace(0,1,N);
 y=linspace(0,1,M);
-tic;
-[UH,VH]=fftri2grid(fdata,x,y);
-toc;
-[X,Y] = meshgrid(x,y);
+[U,V]=fftri2grid(fdata,x,y);
+[X,Y]=meshgrid(x,y);
 
 %%%%%% 2d vector field plot
 
 figure();
-quiver(X,Y,UH,VH);
+quiver(X,Y,U,V);
 ylabel('y');
 xlabel('x');
+title('Quiver');
 axis tight equal;
 grid;
 

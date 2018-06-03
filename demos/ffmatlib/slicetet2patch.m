@@ -34,15 +34,18 @@ function [SX,SY,SZ,SC] = slicetet2patch(fdata,S1,S2,S3)
             error('wrong number arguments');
     end
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%   Theory   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    S1=colvec(S1);
+    S2=colvec(S2);
+    S3=colvec(S3);
 
+%%%%%%% Theory
+%
 % let Xn:=cross((S2-S1),(S3-S1)) be perpendicular to the slicing plane
 % and Xp a point in the plane. it turns out that for any point X,
 % i.)   in the plane          --> dot(N,(X-Xp)) == 0
 % ii.)  in front of the plane --> dot(N,(X-Xp)) > 0
 % iii.) behind of the plane   --> dot(N,(X-Xp)) < 0
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 
     %Finds tetrahedra cut or touched by the cutting plane
     x=fdata(:,1);y=fdata(:,2);z=fdata(:,3);c=fdata(:,4);
@@ -74,6 +77,14 @@ function [SX,SY,SZ,SC] = slicetet2patch(fdata,S1,S2,S3)
     SY=tet2tri(TY);
     SZ=tet2tri(TZ);
     SC=tet2tri(TC);
+    %eliminate duplicates
+    %T=[SX;SY;SZ;SC]'; %Combine in order to find identical triangles
+    %[C,ia,ic]=unique(T(:,1:9),'rows'); %Find the unique rows of A based on the data in the first 9 cols
+    %TU=T(ia,:); %Use ia to index into T and retrieve the rows
+    %SX=TU(:,1:3)';
+    %SY=TU(:,4:6)';
+    %SZ=TU(:,7:9)';
+    %SC=TU(:,10:12)';
 end
 
 %Converts tetrahedrons into vertex/triangles
@@ -89,6 +100,12 @@ end
 function [M] = arrangecols(V,c)
     r = length(V)/c;
     M = reshape(V,c,r);
+end
+
+function [S] = colvec(S)
+    if size(S,2)>1
+        S=S(:);
+    end
 end
 
 function printhelp()

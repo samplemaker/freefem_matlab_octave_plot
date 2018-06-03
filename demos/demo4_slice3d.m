@@ -58,7 +58,7 @@ zlabel('z');
 ylabel('y');
 xlabel('x');
 view(3);
-title('cross section');
+title('Cross Section');
 daspect([1 1 1]);
 
 %%%%%% Plot boundary only
@@ -73,7 +73,7 @@ zlabel('z');
 ylabel('y');
 xlabel('x');
 view(3);
-title('boundary');
+title('Boundary');
 daspect([1 1 1]);
 
 %%%%%% Combine and plot both
@@ -88,5 +88,5 @@ zlabel('z');
 ylabel('y');
 xlabel('x');
 view(3);
-title('cross section + boundary');
+title('Cross Section + Boundary');
 daspect([1 1 1]);

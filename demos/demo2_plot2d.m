@@ -36,7 +36,7 @@ hcb=colorbar;
 title(hcb,'dT[K]');
 ylabel('y');
 xlabel('x');
-title('A 2d density plot');
+title('2D Density Plot');
 view(2);
 axis tight equal;
 
@@ -47,7 +47,7 @@ figure;
 patch(X,Y,[1 1 1],'EdgeColor',[0 0 1],'LineWidth',1);
 ylabel('y');
 xlabel('x');
-title('A 2d mesh plot');
+title('2D Mesh Plot');
 view(2);
 axis tight equal;
 
@@ -65,6 +65,6 @@ camlight('left');
 zlabel('u');
 ylabel('y');
 xlabel('x');
-title('A 3d surf plot');
+title('3D Surf Plot');
 view(3);
 daspect([1 1 6*(max(max(C))-min(min(C)))]);

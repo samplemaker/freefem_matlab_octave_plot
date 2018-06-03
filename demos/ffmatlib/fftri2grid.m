@@ -1,19 +1,19 @@
-%fftri2grid.m Interpolate from 2d triangular mesh to 2d rectangular grid
+%fftri2grid.m Interpolates from 2d triangular mesh to 2d rectangular grid
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
 %
 %   [varargout] = fftri2grid (tridata, X, Y) interpolates data given on
-%   a triangular mesh to a rectangular mesh defined by X and Y. The columns
+%   a triangular mesh to a rectangular grid defined by X and Y. The columns
 %   tridata(:,1) and tridata(:,2) must contain the triangular mesh node
 %   coordinates. The following columns must contain the scalar values ​​at
 %   the node points that need to be interpolated.
 %   The return value is the interpolation at the grid points X, Y. Returns
 %   NaN's if an interpolation point is outside the triangle mesh.
 %
-%   Hint: We use the PDE solution only on the grid vertices, although the
+%   Hint: We evaluate the PDE solution only on the grid vertices although the
 %   underlying FE space may have a higher order (P2 element, etc.).
-%   Therefore, there is a small loss of accuracy, except P1 elements are used
+%   Therefore, there is a small loss of accuracy except P1 elements are used.
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %
@@ -50,19 +50,19 @@ function [varargout] = fftri2grid(tridata, X, Y)
     %Splitting into triangles
     tx=arrangecols(tridata(:,1),3);
     ty=arrangecols(tridata(:,2),3);
-    ntriangles=npts/3;
-    tu=zeros(3*nvars,ntriangles);
-    j=0;
+    uvarin=cell(1,nvars-2);
+    %ntriangles=npts/3;
+    %It would be faster if we only had one column but to support
+    %vector plots, we need to convert (nvars-2) columns.
+    varargout=cell(1,nvars-2);
     for i=3:nvars
         %tu=arrangecols(tridata(:,3),3);
         %ua=tu(1,:);
         %ub=tu(2,:);
         %uc=tu(3,:);
-        tu(1+j:3+j,:)=arrangecols(tridata(:,i),3);
-        j=j+3;
+        uvarin{i-2}=arrangecols(tridata(:,i),3);
         %C=NaN(numel(Y),numel(X));        
-        strc=sprintf('C%1.0f',i);
-        vars.(strc)=NaN(numel(Y),numel(X));
+        varargout{i-2}=NaN(numel(Y),numel(X));
     end
     %Making copies saves 50% of running time instead of using
     %tx(1,:) directly
@@ -72,35 +72,29 @@ function [varargout] = fftri2grid(tridata, X, Y)
     by=ty(2,:);
     cx=tx(3,:);
     cy=ty(3,:);
+    %Calculates barycentric coordinates
+    fac=(1.0)./((by-cy).*(ax-cx)+(cx-bx).*(ay-cy));
     for mx=1:numel(X)
         for my=1:numel(Y)
             px=X(mx);
             py=Y(my);
             %Calculates barycentric coordinates
-            fac=(1.0)./((by-cy).*(ax-cx)+(cx-bx).*(ay-cy));
             wa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*fac;
             wb=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*fac;
             wc=1.0-wa-wb;
             %Is inside which triangle?
             %Can possibly sit on a border (multiple output)
             pos=find(((wa>=0) & (wb>=0) & (wc>=0)),1,'first');
+            %Out of triangle: No else because varargout contains already NaN's
             if ~isempty(pos)
-                j=0;
                 for i=3:nvars
                     %C(my,mx)=wa(pos).*ua(pos)+wb(pos).*ub(pos)+wc(pos).*uc(pos);
-                    strc=sprintf('C%1.0f',i);
-                    vars.(strc)(my,mx)=wa(pos).*tu(1+j,pos)+ ...
-                                       wb(pos).*tu(2+j,pos)+ ...
-                                       wc(pos).*tu(3+j,pos);
-                    j=j+3;
+                    varargout{i-2}(my,mx)=wa(pos).*uvarin{i-2}(1,pos)+ ...
+                                          wb(pos).*uvarin{i-2}(2,pos)+ ...
+                                          wc(pos).*uvarin{i-2}(3,pos);
                 end
             end
         end
-    end
-    varargout=cell(1,nvars-2);
-    for i = 1:(nvars-2)
-        strc=sprintf('C%1.0f',i+2);
-        varargout{i} = vars.(strc);
     end
 end
 

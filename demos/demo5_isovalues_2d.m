@@ -33,10 +33,8 @@ addpath('ffmatlib');
 N=200;
 x=linspace(-1,1,N);
 y=linspace(-1,1,N);
-tic;
 C=fftri2grid(tridata,x,y);
-toc;
-[X,Y] = meshgrid(x,y);
+[X,Y]=meshgrid(x,y);
 
 %%%%%% Isovalue plot
 
@@ -49,7 +47,7 @@ for i=1:size(texth)
     textstrnew=sprintf('%0.1f', textnum);
     set(texth(i),'String',textstrnew);
 end
-title('isovalues x1000');
+title('Isovalues x1000');
 axis tight equal;
 %grid;
 

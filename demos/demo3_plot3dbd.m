@@ -38,7 +38,7 @@ title(hcb,'dT[K]');
 zlabel('z');
 ylabel('y');
 xlabel('x');
-title('A 3d plot of a surface boundary');
+title('3D Plot of a Surface Boundary');
 view(3);
 daspect([1 1 1]);
 %Alpha transparency can be added if following line is uncommented:
@@ -72,7 +72,7 @@ patch(X,Y,Z,[1 1 1],'EdgeColor',[0 0 1],'LineWidth',1);
 zlabel('z');
 ylabel('y');
 xlabel('x');
-title('A 3d plot of a surface boundary');
+title('3D Plot of a Surface Boundary');
 view(3);
 daspect([1 1 1]);
 %alpha(0.7);

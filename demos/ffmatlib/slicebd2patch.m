@@ -33,15 +33,18 @@ function [BX,BY,BZ,BC] = slicebd2patch(fdata,S1,S2,S3)
             error('wrong number arguments');
     end
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%   Theory   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    S1=colvec(S1);
+    S2=colvec(S2);
+    S3=colvec(S3);
 
+%%%%%%% Theory
+%
 % let Xn:=cross((S2-S1),(S3-S1)) be perpendicular to the slicing plane
 % and Xp a point in the plane. it turns out that for any point X,
 % i.)   in the plane          --> dot(N,(X-Xp)) == 0
 % ii.)  in front of the plane --> dot(N,(X-Xp)) > 0
 % iii.) behind of the plane   --> dot(N,(X-Xp)) < 0
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 
     x=fdata(:,1);y=fdata(:,2);z=fdata(:,3);c=fdata(:,4);
     M=[x y z];
@@ -67,6 +70,12 @@ end
 function [M] = arrangecols(V,c)
     r = length(V)/c;
     M = reshape(V,c,r);
+end
+
+function [S] = colvec(S)
+    if size(S,2)>1
+        S=S(:);
+    end
 end
 
 function printhelp()
