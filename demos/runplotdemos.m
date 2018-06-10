@@ -33,3 +33,9 @@ close all;
 demo7_slice3d_2dgrid
 pause(5);
 close all;
+system('FreeFem++ -ns -nw -v 0 demo8_slice3d_vectors.edp');
+pause(5);
+close all;
+demo8_slice3d_2dgrid_vectors
+pause(5);
+close all;

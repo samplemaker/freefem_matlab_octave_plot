@@ -1,5 +1,5 @@
-/* demo7_slice3d.edp Generates some 3d fantasy art data
- *                     in order to be plot in Matlab
+/* demo8_slice3d_vectors.edp Generates some 3d fantasy art data
+ *                           in order to be plot in Matlab
  *
  *  Solve possion equation in a solid block an write simulation
  *  simulation results. Save boundary data as well as mesh
@@ -46,7 +46,7 @@ border C12(t=w1,0){x=posX1+t; y=posY1+h1; label=C3;};
 border C13(t=0,h1){x=posX1+w1; y=posY1+t; label=C4;};
 border C14(t=h1,0){x=posX1; y=posY1+t; label=C5;};
 
-int n=15, m=15, k=15;
+int n=25, m=25, k=25;
 mesh Th2d=buildmesh(C01(w0*n)+C03(h0*n)+C02(w0*n)+C04(h0*n)
                    +C11(-w1*m)+C12(-w1*m)+C13(-h1*m)+C14(-h1*m));
 
@@ -81,28 +81,39 @@ problem Poisson(u,v,solver=CG) =
 
 Poisson;
 
-ofstream tetdata ("temp_demo7_tetdata3d_box.txt");
+real lambda = 1.0;
+Vh qx, qy, qz;
+qx = -lambda*dx(u);
+qy = -lambda*dy(u);
+qz = -lambda*dz(u);
+
+ofstream tetdata ("temp_demo8_tetdata3d_box.txt");
 for (int i=0; i<Th3d.nt; i++){
   for (int j=0; j<4; j++){
     tetdata << Th3d[i][j].x << ";"
             << Th3d[i][j].y << ";"
             << Th3d[i][j].z << ";"
+            << qx[][Vh(i,j)] << ";"
+            << qy[][Vh(i,j)] << ";"
+            << qz[][Vh(i,j)] << ";"
             << u[][Vh(i,j)] << "\n";
-
   }
 }
 
 int idx;
 int nbelement=Th3d.nbe;
-ofstream bedata ("temp_demo7_bddata3d_box.txt");
+ofstream bedata ("temp_demo8_bddata3d_box.txt");
 for (int k=0;k<nbelement;++k){
   for (int num=0;num<3;num++){
     idx = Th3d.be(k)[num];
     bedata << Th3d(idx).x << ";"
            << Th3d(idx).y << ";"
            << Th3d(idx).z << ";"
+           << qx(Th3d(idx).x,Th3d(idx).y,Th3d(idx).z) << ";"
+           << qy(Th3d(idx).x,Th3d(idx).y,Th3d(idx).z) << ";"
+           << qz(Th3d(idx).x,Th3d(idx).y,Th3d(idx).z) << ";"
            << u(Th3d(idx).x,Th3d(idx).y,Th3d(idx).z) << "\n";
   }
 }
 
-medit("U",Th3d,u);
+medit("U",Th3d,[qx,qy,qz]);

@@ -6,7 +6,7 @@
  *   [varargout] = fftet2gridfast(tdata,X,Y,Z) interpolates data given on
  *   a tetrahedral mesh to a rectangular grid defined by X, Y and Z. The first
  *   three columns in tdata must contain the tetrahedral mesh node
- *   coordinates. The fourth column must contain the scalar values at
+ *   coordinates. The following columns must contain the scalar values at
  *   the four tetrahedra node points that need to be interpolated.
  *   The return value is the interpolation at the grid points defined by X, Y
  *   and Z. Returns NaN's if an interpolation point is outside the tetrahedral mesh.
@@ -54,7 +54,7 @@ double min4(double i, double j, double k, double l){
 typedef struct{
   double i,j,k;
 }Vector;
-  
+
 static inline
 double dotProduct(Vector a, Vector b){
   return a.i*b.i+a.j*b.j+a.k*b.k;
@@ -72,8 +72,8 @@ Vector minus(Vector a, Vector b){
   return c;
 }
 
-void fftet2gridfast(double *T, double *out, double *X, double *Y, double *Z,
-                    mwSize N, mwSize M, mwSize nNodes){
+void fftet2gridfast(double *T, double *X, double *Y, double *Z, double **out,
+                    int nOuts, mwSize N, mwSize M, mwSize nNodes){
 
   mwSize nTet=nNodes/3;
   double *invV0=mxMalloc(nTet*sizeof(double));
@@ -85,7 +85,7 @@ void fftet2gridfast(double *T, double *out, double *X, double *Y, double *Z,
   y=&T[nNodes];
   z=&T[2*nNodes];
   col=&T[3*nNodes];
-  
+
   /*Calculates the volumes of all tetrahedrons and stores their reciprocal value */
   mwSize j=0;
   for (mwSize i=0; i<nTet; i++) {
@@ -99,7 +99,10 @@ void fftet2gridfast(double *T, double *out, double *X, double *Y, double *Z,
   for (mwSize mx=0; mx<N; mx++){
      for (mwSize my=0; my<M; my++){
         mwSize ofs=(mx*M)+my;
-        *(out+ofs)=init;
+        /*Variable number of output matrices */ 
+        for (mwSize ncols=0; ncols<nOuts; ncols++){
+           *(out[ncols]+ofs) = init;
+        }
         mwSize i=0, j=0;
         /*Performs a quick search through all TETs with a pre-criteria
           to improve speed */
@@ -131,8 +134,11 @@ void fftet2gridfast(double *T, double *out, double *X, double *Y, double *Z,
               /*If point is inside the tetrahedron */
               if ((Va>=0) && (Vb>=0) && (Vc>=0) && (Vd>=0)){
                  /*Interpolate */
-                 *(out+ofs)=invV0[j]*(Va*col[i]+Vb*col[i+1]+
-                                      Vc*col[i+2]+Vd*col[i+3]);
+                 for (mwSize ncols=0; ncols<nOuts; ncols++){
+                    mwSize colofs=ncols*nNodes;
+                    *(out[ncols]+ofs)=invV0[j]*(Va*col[colofs+i]+Vb*col[colofs+i+1]+
+                                                Vc*col[colofs+i+2]+Vd*col[colofs+i+3]);
+                 }
                  doSearchTet=false;
               }
            }
@@ -148,11 +154,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
                  int nrhs, const mxArray *prhs[]){
 
   double *inMatrix0, *inMatrix1, *inMatrix2, *inMatrix3;
-  double *outMatrix;
+  double *outMatrix[100];
   mwSize ncols0, ncols1, ncols2, ncols3;
   mwSize mrows0, mrows1, mrows2, mrows3;
 
   //mexPrintf("nrhs: %i\nnlhs: %i\n",nrhs,nlhs);
+  if (nrhs!=4) {
+     mexErrMsgTxt("4 input arguments required");
+  }
+  if ((nlhs<1) || (nlhs>99)){
+     mexErrMsgTxt("Between 1 and up to 99 output arguments");
+  }
 
   inMatrix0 = mxGetPr(prhs[0]); //mesh data first 3 columns + scalar 4th column
   ncols0 = mxGetN(prhs[0]);
@@ -172,20 +184,23 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mexPrintf("mrows0: %i\nmrows1: %i\nmrows2: %i\nmrows3: %i\n",
                mrows0,mrows1,mrows2,mrows3); */
 
-  if (ncols0!=4){
-     mexErrMsgTxt("Input 1: ncols must be 4");
+  if (ncols0<4){
+     mexErrMsgTxt("Input 1: ncols must be > 3");
   }
   if (mrows0%4){
      mexErrMsgTxt("Input 1: rows must be a multiple of 4");
   }
   if (!((ncols1==ncols2) && (ncols1==ncols3) &&
         (mrows1==mrows2) && (mrows1==mrows3))){
-     mexErrMsgTxt("Grid must have same length and width");
+     mexErrMsgTxt("Grid arguments must have same length and width");
   }
 
-  plhs[0]=mxCreateDoubleMatrix(mrows1, ncols1, mxREAL);
-  outMatrix=mxGetPr(plhs[0]);
+  /*Create output matrices */
+  for (mwSize i=0; i<nlhs; i++){
+    plhs[i]=mxCreateDoubleMatrix(mrows1, ncols1, mxREAL);
+    outMatrix[i]=mxGetPr(plhs[i]);
+  }
 
-  fftet2gridfast(inMatrix0, outMatrix, inMatrix1, inMatrix2, inMatrix3,
-                 ncols1, mrows1, mrows0);
+ fftet2gridfast(inMatrix0, inMatrix1, inMatrix2, inMatrix3,
+                outMatrix, nlhs, ncols1, mrows1, mrows0);
 }

@@ -4,8 +4,8 @@ Once you have successfully simulated a PDE problem using FreeFem++ you may want 
 
 ## Basic Theory
 
-The purpose of a FEM mesh is to describe a spatial object which can be defined by a CAD object for example. A FEM mesh is built from mesh elements. Mesh elements have the shape of a triangle or rectangle, can vary in size and the nodes (vertices) are not necessarily bound to a rectangular grid. If we look at a meshed object the surface may be colored according to the solution of a PDE which - for the sake of simplicity - shall be given at the mesh nodes only. Finally parts of the FEM mesh may be obscured depending on the point of view.<br>
-At the other hand the `patch()` command which is built into Matlab&copy; and Octave renders a set of polygons (=facets, patches). The patch drawing primitives are defined by a color value and the spatial coordinates at the polygon vertices. We can associate these drawing primitives with FEM mesh elements and looking towards a plot implementation all the prerequisites stated will be met automatically.<br>
+The purpose of a FE mesh is to describe a spatial geometry - for example a CAD object. A FE mesh is built from mesh elements. Mesh elements have the shape of a triangle or rectangle, can vary in size and the nodes (vertices) are not necessarily bound to a rectangular grid. If we look at a meshed object the surface may be colored according to the solution of a PDE which - for the sake of simplicity - shall be given at the mesh nodes only. Finally parts of the FE mesh may be obscured depending on the point of view.<br>
+At the other hand the `patch()` command which is built into Matlab&copy; and Octave renders a set of polygons (=facets, patches). The patch drawing primitives are defined by a color value and the spatial coordinates at the polygon vertices. We can associate these drawing primitives with FE mesh elements and looking towards a plot implementation all the prerequisites stated will be met.<br>
 In the current implementation the mesh data (i.e. the PDE solution at the mesh nodes and the nodal coordinates) has to be written to a text file via the FreeFem++ script. In order to plot the problem with the `patch()` command this file must be parsed and processed by the `ffmatlib` library. Basically, the `ffmatlib` library splits and rearranges the continuous vertice data because `patch()` expects its input data to be clustered patch-wise. A detailed documentation of the `patch()` command can be found at [1](https://de.mathworks.com/help/matlab/ref/patch.html), [2](https://de.mathworks.com/help/matlab/visualize/introduction-to-patch-objects.html) and [3](https://de.mathworks.com/help/matlab/creating_plots/how-patch-data-relates-to-a-colormap.html).
 
 ![](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_10.png)
@@ -82,7 +82,7 @@ For 2D problems it is sometimes helpful to have an vector field - plot as well. 
 
 [Screenshot: vectorfields](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dvectorfield.png)  
 
-### Advanced: Interpolation of a 3D tetrahedral mesh on a rectangular grid
+### Advanced: Interpolation of a 3D Mesh on a Rectangular Grid
 
   * Run
     * FreeFem++ `demo7_slice3d.edp`
@@ -92,6 +92,14 @@ For 2D problems it is sometimes helpful to have an vector field - plot as well. 
 [Screenshot: 3D cross section interpolation](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dinterpolation.png)  
 [Screenshot: plane definition](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dplanedefinition.png)  
 
+### Advanced: 3D Vector Fields on Cross Sections
+
+  * Run
+    * FreeFem++ `demo8_slice3d_vectors.edp`
+    * Build MEX - File `./ffmatlib/fftet2gridfast.c`
+    * From within Matlab/Octave run `demo8_slice3d_2dgrid_vectors.m`
+
+[Screenshot: 3D cross section vector field](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dvectorfield.png)  
 
 ## Implementation - FreeFem++
 
@@ -265,6 +273,15 @@ quiver(X,Y,U,V);
 
 Note: There is a one to one replacement MEX implementation available for `fftri2grid.m` which can be considered to be approx. x33 faster. See `./ffmatlib/fftri2gridfast.c` for more informations.
 
+### Advanced: 3D Vector Fields and Cross Section Interpolation
+
+The function `fftet2gridfast()` is able to create cross sections of higher order vector fields as well. Multiple columns in `meshdata` can be written and the function can be simply called via:
+
+```Matlab
+[V1,V2, ...] = fftet2gridfast(meshdata,X,Y,Z);
+```
+For more information see section "Cutting 3D Problems".
+
 ## Files
 
   * `ffread2patch.m` Reads FreeFem++ simulation results and converts the vertex/triangle data into patch plot data.
@@ -291,7 +308,7 @@ Note: There is a one to one replacement MEX implementation available for `fftri2
 [matlab]:     https://www.mathworks.com/
              "Matlab scientific programming language"
 
-## Hardware acceleration
+## Hardware Acceleration
 
 It should be emphasized that the responsiveness of the plots is highly dependent on the degree of freedom of the PDE problem and the capabilities of the graphics hardware. For larger problems (lots of thousand of vertices), a dedicated graphics card rather than on board graphics should be preferred. Make use of hardware acceleration extensively. Some notes on trouble shooting and tweaking:<br><br>
  If `get(gcf,'RendererMode')` is set to auto Matlab/Octave will decide on its own which renderer is the best for the current graphic task.
