@@ -75,7 +75,6 @@ ylabel('y');
 xlabel('x');
 view(3);
 title('Grid Interpolation');
-%axis image;
 daspect([1 1 1]);
 
 %Shows the boundary data and the slicing plane
@@ -84,7 +83,6 @@ ax=axes();
 [sz1,sz2]=size(Z);
 ZZ=0.5*ones(sz1,sz2);
 surf(X,Y,Z,ZZ,'EdgeColor','none');
-%alpha(0.5);
 hold on;
 [~,sz2]=size(BC);
 patch(BX,BY,BZ,repmat([0;1;0],1,sz2),'EdgeColor','none');
@@ -94,11 +92,6 @@ text(S2(1),S2(2),S2(3),'S2','HorizontalAlignment','center',
      'FontSize',15,'FontWeight','bold','Color','m');
 text(S3(1),S3(2),S3(3),'S3','HorizontalAlignment','center',
      'FontSize',15,'FontWeight','bold','Color','m');
-%plot3(S1(1),S1(2),S1(3),'Color','r','.','MarkerSize',30);
-%plot3(S2(1),S2(2),S2(3),'Color','r','.','MarkerSize',30);
-%plot3(S3(1),S3(2),S3(3),'Color','r','.','MarkerSize',30);
-%plot3([S1(1) S2(1)],[S1(2) S2(2)],[S1(3) S2(3)],'-r','LineWidth',20);
-%plot3([S1(1) S3(1)],[S1(2) S3(2)],[S1(3) S3(3)],'-r','LineWidth',20);
 zlabel('z');
 ylabel('y');
 xlabel('x');

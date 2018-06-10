@@ -37,18 +37,10 @@ N=50;
 M=50;
 [X,Y,Z] = gridplane3d(S1,S2,S3,N,M);
 
-[bdtmp,ttmp] = ffreadfile('File1','temp_demo8_bddata3d_box.txt', ...
-                          'File2','temp_demo8_tetdata3d_box.txt', ...
-                          'Delimiter',';','Format','%f %f %f %f %f %f %f');
+[tdata] = ffreadfile('File1','temp_demo8_tetdata3d_box.txt', ...
+                     'Delimiter',';','Format','%f %f %f %f %f %f %f');
 
-%Get meshdata and temperature data
-%bdTempData=[bdtmp(:,1:3), bdtmp(:,7)];
-%tTempData=[ttmp(:,1:3), ttmp(:,7)];
-%Get meshdata and heat flux data
-%bdFluxData=bdtmp(:,1:6);
-%tTempData=ttmp(:,1:6);
-
-[qx qy qz C] = fftet2gridfast(ttmp,X,Y,Z);
+[qx qy qz C] = fftet2gridfast(tdata,X,Y,Z);
 
 figure;
 %Shows heat flux vector field at cross section
