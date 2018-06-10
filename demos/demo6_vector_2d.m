@@ -36,6 +36,10 @@ M=14;
 x=linspace(0,1,N);
 y=linspace(0,1,M);
 [U,V]=fftri2grid(fdata,x,y);
+%A one to one exchangable as MEX implementation which is approx.
+%factor 33 faster than fftri2grid.m
+%For further informations see ./ffmatlib/fftri2gridfast.c
+%[U,V]=fftri2gridfast(fdata,x,y);
 [X,Y]=meshgrid(x,y);
 
 %%%%%% 2d vector field plot

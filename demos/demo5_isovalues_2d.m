@@ -33,7 +33,15 @@ addpath('ffmatlib');
 N=200;
 x=linspace(-1,1,N);
 y=linspace(-1,1,N);
+tic;
 C=fftri2grid(tridata,x,y);
+toc;
+tic;
+%A one to one exchangable as MEX implementation which is approx.
+%factor 33 faster than fftri2grid.m
+%For further informations see ./ffmatlib/fftri2gridfast.c
+%C=fftri2gridfast(tridata,x,y);
+toc;
 [X,Y]=meshgrid(x,y);
 
 %%%%%% Isovalue plot

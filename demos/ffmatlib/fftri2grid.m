@@ -6,7 +6,7 @@
 %   [varargout] = fftri2grid (tridata, X, Y) interpolates data given on
 %   a triangular mesh to a rectangular grid defined by X and Y. The columns
 %   tridata(:,1) and tridata(:,2) must contain the triangular mesh node
-%   coordinates. The following columns must contain the scalar values ​​at
+%   coordinates. The following columns must contain the scalar values at
 %   the node points that need to be interpolated.
 %   The return value is the interpolation at the grid points X, Y. Returns
 %   NaN's if an interpolation point is outside the triangle mesh.
@@ -61,14 +61,14 @@ function [varargout] = fftri2grid(tridata, X, Y)
         %ub=tu(2,:);
         %uc=tu(3,:);
         uvarin{i-2}=arrangecols(tridata(:,i),3);
-        %C=NaN(numel(Y),numel(X));        
+        %C=NaN(numel(Y),numel(X));
         varargout{i-2}=NaN(numel(Y),numel(X));
     end
     %Making copies saves 50% of running time instead of using
     %tx(1,:) directly
-    ax=tx(1,:); %x values ​​of the first triangle point for all triangles
+    ax=tx(1,:); %x values of the first triangle point for all triangles
     ay=ty(1,:);
-    bx=tx(2,:); %x values ​​of the second triangle point for all triangles
+    bx=tx(2,:); %x values of the second triangle point for all triangles
     by=ty(2,:);
     cx=tx(3,:);
     cy=ty(3,:);

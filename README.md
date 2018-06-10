@@ -4,9 +4,9 @@ Once you have successfully simulated a PDE problem using FreeFem++ you may want 
 
 ## Basic Theory
 
-A FEM mesh is describing a CAD object or any other type of spatial geometry. A FEM mesh is built from mesh elements. Mesh elements have the shape of a triangle or rectangle, can vary in size and the nodes (vertices) are not necessarily bound to a rectangular grid. If we look at a meshed object the surface may be colored according to a PDE solution which - for the sake of simplicity - shall be given at the mesh nodes. Finally parts of the object may be obscured depending on the point of view.<br>
-At the other hand the `patch()` command which is built into Matlab&copy; and Octave renders a set of polygons (=facets, patches). The patch drawing primitives are defined by a color value and the spatial coordinates at the polygon vertices. We now can associate these drawing primitives with FEM mesh elements and looking towards a plot implementation all the conditions previously stated are fulfilled automatically.<br>
-In the current implementation the mesh data (the PDE solution at the mesh nodes and the nodal coordinates) have to be written to a text file via the FreeFem++ script. In order to plot the problem with the `patch()` command this file is parsed and processed by the `ffmatlib` library. Basically, the `ffmatlib` library splits and rearranges the continuous vertice data, as `patch()` expects its input data to be clustered patch-wise. A detailed documentation of the `patch()` command can be found at [1](https://de.mathworks.com/help/matlab/ref/patch.html), [2](https://de.mathworks.com/help/matlab/visualize/introduction-to-patch-objects.html) and [3](https://de.mathworks.com/help/matlab/creating_plots/how-patch-data-relates-to-a-colormap.html).
+The purpose of a FEM mesh is to describe a spatial object which can be defined by a CAD object for example. A FEM mesh is built from mesh elements. Mesh elements have the shape of a triangle or rectangle, can vary in size and the nodes (vertices) are not necessarily bound to a rectangular grid. If we look at a meshed object the surface may be colored according to the solution of a PDE which - for the sake of simplicity - shall be given at the mesh nodes only. Finally parts of the FEM mesh may be obscured depending on the point of view.<br>
+At the other hand the `patch()` command which is built into Matlab&copy; and Octave renders a set of polygons (=facets, patches). The patch drawing primitives are defined by a color value and the spatial coordinates at the polygon vertices. We can associate these drawing primitives with FEM mesh elements and looking towards a plot implementation all the prerequisites stated will be met automatically.<br>
+In the current implementation the mesh data (i.e. the PDE solution at the mesh nodes and the nodal coordinates) has to be written to a text file via the FreeFem++ script. In order to plot the problem with the `patch()` command this file must be parsed and processed by the `ffmatlib` library. Basically, the `ffmatlib` library splits and rearranges the continuous vertice data because `patch()` expects its input data to be clustered patch-wise. A detailed documentation of the `patch()` command can be found at [1](https://de.mathworks.com/help/matlab/ref/patch.html), [2](https://de.mathworks.com/help/matlab/visualize/introduction-to-patch-objects.html) and [3](https://de.mathworks.com/help/matlab/creating_plots/how-patch-data-relates-to-a-colormap.html).
 
 ![](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_10.png)
 
@@ -14,7 +14,7 @@ In the current implementation the mesh data (the PDE solution at the mesh nodes 
 
 ### Getting started
 
-Two beginners examples:
+Two minimum examples:
 
   * Run
     * FreeFem++ `demo1_getstarted.edp`
@@ -81,6 +81,17 @@ For 2D problems it is sometimes helpful to have an vector field - plot as well. 
     * From within Matlab/Octave run `demo6_vector_2d.m`
 
 [Screenshot: vectorfields](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dvectorfield.png)  
+
+### Advanced: Interpolation of a 3D tetrahedral mesh on a rectangular grid
+
+  * Run
+    * FreeFem++ `demo7_slice3d.edp`
+    * Build MEX - File `./ffmatlib/fftet2gridfast.c`
+    * From within Matlab/Octave run `demo7_slice3d_2dgrid.m`
+
+[Screenshot: 3D cross section interpolation](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dinterpolation.png)  
+[Screenshot: plane definition](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dplanedefinition.png)  
+
 
 ## Implementation - FreeFem++
 
@@ -155,7 +166,7 @@ for (int i = 0; i < Th.nt; i++){
 
 Hint: The library functions can be found in the folder `ffmatlib`. Use the `addpath(path to ffmatlib)` command if you are working in a different directory.
 
-### General Plots in 2D and 3D Boundary Value Plots
+### General plotting in 2D and 3D Boundary Value Plots
 
 The function `ffread2patch()` reads a file and rearranges its content in such a way that diagrams can be created with the `patch()` command. It's arguments depend on the number of columns and on the separation character. `ffread2patch()` can process 2D mesh elements or 3D boundary data (triangles):
 
@@ -194,6 +205,13 @@ The cut is executed with the following two commands:
 
 The input arguments `S1..S3` contain x,y,z coordinates of three points defining the slicing plane. The output data `(BX,BY,BZ,BC)` and `(SX,SY,SZ,SC)` or the superposition of both `([SX BX],[SY BY],[SZ BZ],[SC BC])` can be plot with the `patch()` command.
 
+Note: The intersection which is consisting of a subset of tetrahedrons can be interpolated onto a rectangular grid (smoothing the cross section). The method used is a Barycentric Coordinate interpolation. To speed up the interpolation the interpolation routine is implemented in MEX and must be compiled before usage. In Octave this can be done by invoking the command `mkoctfile --mex -Wall fftet2gridfast.c`. For further informations see `./ffmatlib/fftet2gridfast.c`. The usage is
+
+```Matlab
+[C] = fftet2gridfast(a,b,c,d,u,X,Y,Z);
+```
+where the matrices a, b, c, d contain the tetrahedron vertex coordinates, u contains a scalar defined on all vertices, and X, Y, Z defines a rectangular grid in 3d to which the scalar is to be interpolated.
+
 ### Advanced: Slicer_GUI
 
 There's a graphical user interface (working in both worlds, Matlab and Octave) that makes it easier to create cross-sections of PDE problems. The function call is:
@@ -223,6 +241,8 @@ The result can be plot with the command:
 [c,h] = contour(X,Y,C,8);
 ```
 
+Note: There is a one to one replacement MEX implementation available for `fftri2grid.m` which can be considered to be approx. x33 faster. See `./ffmatlib/fftri2gridfast.c` for more informations.
+
 ### Advanced: 2D Vector Fields
 
 To create vector field plots with the Matlab / Octave command `quiver()` it is necessary to interpolate the data given on the mesh vertices on a rectangular grid. In a first step load the raw data:
@@ -243,6 +263,7 @@ The result can be plot with the command:
 quiver(X,Y,U,V);
 ```
 
+Note: There is a one to one replacement MEX implementation available for `fftri2grid.m` which can be considered to be approx. x33 faster. See `./ffmatlib/fftri2gridfast.c` for more informations.
 
 ## Files
 
@@ -250,10 +271,12 @@ quiver(X,Y,U,V);
   * `ffreadfile.m` Reads one or two FreeFem++ simulation result files.
   * `fftri2patch.m` Converts vertex/triangle data into patch plot data.
   * `slicetet2patch.m` Cuts 3D mesh elements (tetrahedrons) and converts the cross section into patch plot data.
+  * `fftet2gridfast.c` Interpolates from 3d tetrahedral mesh to a rectangular grid.
   * `slicebd2patch.m` Cuts the boundary data and converts remaining rest into patch plot data.
   * `demo4_start_slicer_gui.m` Starts the slicer graphical user interface (Slicer_GUI) to cut 3D data.
   * `slicer_gui.m` Graphical user interface for cuttig FreeFem++ simulations.
   * `fftri2grid.m` Interpolates from 2D triangular mesh to 2D rectangular grid.
+  * `fftri2gridfast.c` Replacement for `fftri2grid.m` which is approx. x33 faster.
 
 ## Software
 
