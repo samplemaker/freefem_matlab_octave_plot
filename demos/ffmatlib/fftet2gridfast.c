@@ -3,14 +3,14 @@
  * Author: Chloros2 <chloros2@gmx.de>
  * Created: 2018-05-13
  *
- *   [varargout] = fftet2gridfast(a,b,c,d,u,X,Y,Z) interpolates data given on
- *   a tetrahedral mesh to a rectangular grid defined by X, Y and Z. The column
- *   matrices a,b,c and d must contain the tetrahedral mesh node
- *   coordinates. The matrix u must contain the scalar values at
+ *   [varargout] = fftet2gridfast(tdata,X,Y,Z) interpolates data given on
+ *   a tetrahedral mesh to a rectangular grid defined by X, Y and Z. The first
+ *   three columns in tdata must contain the tetrahedral mesh node
+ *   coordinates. The fourth column must contain the scalar values at
  *   the four tetrahedra node points that need to be interpolated.
  *   The return value is the interpolation at the grid points defined by X, Y
  *   and Z. Returns NaN's if an interpolation point is outside the tetrahedral mesh.
- *   Runtime can be considered approx x480 faster than fftet2grid.m.
+ *   Runtime can be considered approx x440 faster than fftet2grid.m.
  *
  *   Octave users compile the mex file with the command:
  *
@@ -72,20 +72,27 @@ Vector minus(Vector a, Vector b){
   return c;
 }
 
-void fftet2gridfast(double *a, double *b, double *c, double *d, double *col,
-                    double *out, double *X, double *Y, double *Z,
-                    mwSize N, mwSize M, mwSize nTet){
+void fftet2gridfast(double *T, double *out, double *X, double *Y, double *Z,
+                    mwSize N, mwSize M, mwSize nNodes){
 
+  mwSize nTet=nNodes/3;
   double *invV0=mxMalloc(nTet*sizeof(double));
   double init=mxGetNaN( );
 
+  double *x, *y, *z, *col;
+  /*Access the 4 columns as a vector */
+  x=&T[0];
+  y=&T[nNodes];
+  z=&T[2*nNodes];
+  col=&T[3*nNodes];
+  
   /*Calculates the volumes of all tetrahedrons and stores their reciprocal value */
+  mwSize j=0;
   for (mwSize i=0; i<nTet; i++) {
-     Vector ap={a[i], a[i+nTet], a[i+2*nTet]}, bp={b[i],b[i+nTet],b[i+2*nTet]},
-            cp={c[i], c[i+nTet], c[i+2*nTet]}, dp={d[i],d[i+nTet],d[i+2*nTet]};
-
+     Vector ap={x[j], y[j], z[j]}, bp={x[j+1], y[j+1], z[j+1]},
+            cp={x[j+2], y[j+2], z[j+2]}, dp={x[j+3], y[j+3], z[j+3]};
      invV0[i]=fabs(1.0/(dotProduct(crossProduct(minus(cp,ap),minus(bp,ap)),minus(dp,ap))));
-     //mexPrintf("%f %f %f %f\n",a[i],a[i+nTet],a[i+2*nTet],invV0[i]);
+     j=j+4;
   }
 
   /*For all grid points (NxM) of the grid */
@@ -93,24 +100,24 @@ void fftet2gridfast(double *a, double *b, double *c, double *d, double *col,
      for (mwSize my=0; my<M; my++){
         mwSize ofs=(mx*M)+my;
         *(out+ofs)=init;
-        mwSize i=0;
+        mwSize i=0, j=0;
         /*Performs a quick search through all TETs with a pre-criteria
           to improve speed */
         bool doSearchTet=true;
-        while (doSearchTet && (i<nTet)){
+        while (doSearchTet && (i<nNodes)){
            mwSize idx=my+M*mx;
-           /*If the point (x, y, z) is outside a cube defined by the TET
+           /*If the grid point is outside a cube defined by the TET
              vertices, the point can not be within the TET */
-           bool presel=((X[idx]<=max4(a[i],b[i],c[i],d[i])) &&
-                        (X[idx]>=min4(a[i],b[i],c[i],d[i])) &&
-                        (Y[idx]<=max4(a[i+nTet],b[i+nTet],c[i+nTet],d[i+nTet])) &&
-                        (Y[idx]>=min4(a[i+nTet],b[i+nTet],c[i+nTet],d[i+nTet])) &&
-                        (Z[idx]<=max4(a[i+2*nTet],b[i+2*nTet],c[i+2*nTet],d[i+2*nTet])) &&
-                        (Z[idx]>=min4(a[i+2*nTet],b[i+2*nTet],c[i+2*nTet],d[i+2*nTet])) );
+           bool presel=((X[idx]<=max4(x[i],x[i+1],x[i+2],x[i+3])) &&
+                        (X[idx]>=min4(x[i],x[i+1],x[i+2],x[i+3])) &&
+                        (Y[idx]<=max4(y[i],y[i+1],y[i+2],y[i+3])) &&
+                        (Y[idx]>=min4(y[i],y[i+1],y[i+2],y[i+3])) &&
+                        (Z[idx]<=max4(z[i],z[i+1],z[i+2],z[i+3])) &&
+                        (Z[idx]>=min4(z[i],z[i+1],z[i+2],z[i+3])) );
            /*Potential candiate - calculate Barycentric Coordinates */
            if (presel) {
-              Vector ap={a[i],a[i+nTet],a[i+2*nTet]}, bp={b[i],b[i+nTet],b[i+2*nTet]},
-                     cp={c[i],c[i+nTet],c[i+2*nTet]}, dp={d[i],d[i+nTet],d[i+2*nTet]},
+              Vector ap={x[i], y[i], z[i]}, bp={x[i+1], y[i+1], z[i+1]},
+                     cp={x[i+2], y[i+2], z[i+2]}, dp={x[i+3], y[i+3], z[i+3]},
                      xp={X[idx],Y[idx],Z[idx]};
               /* Partial volumes */
               double Va=dotProduct(crossProduct(minus(dp,bp), minus(cp,bp)),
@@ -124,12 +131,13 @@ void fftet2gridfast(double *a, double *b, double *c, double *d, double *col,
               /*If point is inside the tetrahedron */
               if ((Va>=0) && (Vb>=0) && (Vc>=0) && (Vd>=0)){
                  /*Interpolate */
-                 *(out+ofs)=invV0[i]*(Va*col[i]+Vb*col[i+nTet]+
-                                      Vc*col[i+2*nTet]+Vd*col[i+3*nTet]);
+                 *(out+ofs)=invV0[j]*(Va*col[i]+Vb*col[i+1]+
+                                      Vc*col[i+2]+Vd*col[i+3]);
                  doSearchTet=false;
               }
            }
-           i=i+1;
+           i=i+4;
+           j=j+1;
         }
      }
   }
@@ -139,63 +147,45 @@ void fftet2gridfast(double *a, double *b, double *c, double *d, double *col,
 void mexFunction(int nlhs, mxArray *plhs[],
                  int nrhs, const mxArray *prhs[]){
 
-  double *inMatrix0, *inMatrix1, *inMatrix2, *inMatrix3,
-         *inMatrix4, *inMatrix5, *inMatrix6, *inMatrix7;
+  double *inMatrix0, *inMatrix1, *inMatrix2, *inMatrix3;
   double *outMatrix;
-  mwSize ncols0, ncols1, ncols2, ncols3, ncols4, ncols5, ncols6, ncols7;
-  mwSize mrows0, mrows1, mrows2, mrows3, mrows4, mrows5, mrows6, mrows7;
+  mwSize ncols0, ncols1, ncols2, ncols3;
+  mwSize mrows0, mrows1, mrows2, mrows3;
 
   //mexPrintf("nrhs: %i\nnlhs: %i\n",nrhs,nlhs);
 
-  inMatrix0 = mxGetPr(prhs[0]); //tet point a(x,y,z)
+  inMatrix0 = mxGetPr(prhs[0]); //mesh data first 3 columns + scalar 4th column
   ncols0 = mxGetN(prhs[0]);
   mrows0 = mxGetM(prhs[0]);
-  inMatrix1 = mxGetPr(prhs[1]); //tet point b(x,y,z)
+  inMatrix1 = mxGetPr(prhs[1]); //X
   ncols1 = mxGetN(prhs[1]);
   mrows1 = mxGetM(prhs[1]);
-  inMatrix2 = mxGetPr(prhs[2]); //tet point c(x,y,z)
+  inMatrix2 = mxGetPr(prhs[2]); //Y
   ncols2 = mxGetN(prhs[2]);
   mrows2 = mxGetM(prhs[2]);
-  inMatrix3 = mxGetPr(prhs[3]); //tet point d(x,y,z)
+  inMatrix3 = mxGetPr(prhs[3]); //Z
   ncols3 = mxGetN(prhs[3]);
   mrows3 = mxGetM(prhs[3]);
-  inMatrix4 = mxGetPr(prhs[4]); //tet color for (a,b,c,d)
-  ncols4 = mxGetN(prhs[4]);
-  mrows4 = mxGetM(prhs[4]);
 
-  inMatrix5 = mxGetPr(prhs[5]); //X
-  ncols5 = mxGetN(prhs[5]);
-  mrows5 = mxGetM(prhs[5]);
-  inMatrix6 = mxGetPr(prhs[6]); //Y
-  ncols6 = mxGetN(prhs[6]);
-  mrows6 = mxGetM(prhs[6]);
-  inMatrix7 = mxGetPr(prhs[7]); //Z
-  ncols7 = mxGetN(prhs[7]);
-  mrows7 = mxGetM(prhs[7]);
+/*  mexPrintf("ncols0: %i\nncols1: %i\nncols2: %i\nncols3: %i\n",
+               ncols0,ncols1,ncols2,ncols3);
+    mexPrintf("mrows0: %i\nmrows1: %i\nmrows2: %i\nmrows3: %i\n",
+               mrows0,mrows1,mrows2,mrows3); */
 
-/*  mexPrintf("ncols0: %i\nncols1: %i\nncols2: %i\nncols3: %i\nncols4 %i\nncols5: %i\nncols6: %i\nncols7: %i\n",
-              ncols0,ncols1,ncols2,ncols3,ncols4,ncols5,ncols6,ncols7);
-    mexPrintf("mrows0: %i\nmrows1: %i\nmrows2: %i\nmrows3: %i\nmrows4: %i\nnmrows5: %i\nmrows6: %i\nmrows7: %i\n",
-              mrows0,mrows1,mrows2,mrows3,mrows4,mrows5,mrows6,mrows7); */
-
-  if (!( (ncols0==ncols1) && (ncols0==ncols2) && (ncols0==ncols3) &&
-         (mrows0==mrows1) && (mrows0==mrows2) && (mrows0==mrows3) && (mrows0==mrows4))){
-     mexErrMsgTxt("TET-coordinates / colors have wrong length and width");
+  if (ncols0!=4){
+     mexErrMsgTxt("Input 1: ncols must be 4");
   }
-
-  if (!((ncols0==3) && (ncols4==4))){
-     mexErrMsgTxt("Coordinates must have 3 and colors 4 columns");
+  if (mrows0%4){
+     mexErrMsgTxt("Input 1: rows must be a multiple of 4");
   }
-
-  if (!((ncols5==ncols6) && (ncols5==ncols7) &&
-        (mrows5==mrows6) && (mrows5==mrows7))){
+  if (!((ncols1==ncols2) && (ncols1==ncols3) &&
+        (mrows1==mrows2) && (mrows1==mrows3))){
      mexErrMsgTxt("Grid must have same length and width");
   }
 
-  plhs[0]=mxCreateDoubleMatrix(mrows5, ncols5, mxREAL);
+  plhs[0]=mxCreateDoubleMatrix(mrows1, ncols1, mxREAL);
   outMatrix=mxGetPr(plhs[0]);
 
-  fftet2gridfast(inMatrix0, inMatrix1, inMatrix2, inMatrix3, inMatrix4,
-                 outMatrix, inMatrix5, inMatrix6, inMatrix7,
-                 ncols5, mrows5, mrows0);
+  fftet2gridfast(inMatrix0, outMatrix, inMatrix1, inMatrix2, inMatrix3,
+                 ncols1, mrows1, mrows0);
 }

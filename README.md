@@ -205,12 +205,12 @@ The cut is executed with the following two commands:
 
 The input arguments `S1..S3` contain x,y,z coordinates of three points defining the slicing plane. The output data `(BX,BY,BZ,BC)` and `(SX,SY,SZ,SC)` or the superposition of both `([SX BX],[SY BY],[SZ BZ],[SC BC])` can be plot with the `patch()` command.
 
-Note: The intersection which is consisting of a subset of tetrahedrons can be interpolated onto a rectangular grid (smoothing the cross section). The method used is a Barycentric Coordinate interpolation. To speed up the interpolation the interpolation routine is implemented in MEX and must be compiled before usage. In Octave this can be done by invoking the command `mkoctfile --mex -Wall fftet2gridfast.c`. For further informations see `./ffmatlib/fftet2gridfast.c`. The usage is
+Note: The intersection [SX,SY,SZ,SC] which is consisting of a subset of tetrahedrons can be interpolated onto a rectangular grid (smoothing the cross section). The method used is a Barycentric Coordinate interpolation. To speed up the interpolation the interpolation routine is implemented in MEX and must be compiled before usage. In Octave this can be done by invoking the command `mkoctfile --mex -Wall fftet2gridfast.c`. For further informations see `./ffmatlib/fftet2gridfast.c`. The usage is
 
 ```Matlab
-[C] = fftet2gridfast(a,b,c,d,u,X,Y,Z);
+[C] = fftet2gridfast(meshdata,X,Y,Z);
 ```
-where the matrices a, b, c, d contain the tetrahedron vertex coordinates, u contains a scalar defined on all vertices, and X, Y, Z defines a rectangular grid in 3d to which the scalar is to be interpolated.
+where meshdata contains the tetrahedron vertex coordinates and a scalar for all tetrahedron vertices. X, Y, Z defines a rectangular grid in 3d to which the scalar value is to be interpolated.
 
 ### Advanced: Slicer_GUI
 
