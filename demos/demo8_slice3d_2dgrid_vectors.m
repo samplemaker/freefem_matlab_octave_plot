@@ -33,8 +33,8 @@ S2=[1 0.1 0];
 S3=[0 1.6 0.5]/2.4;
 
 %Creates the rectangular grid
-N=50;
-M=50;
+N=30;
+M=30;
 [X,Y,Z] = gridplane3d(S1,S2,S3,N,M);
 
 [tdata] = ffreadfile('File1','temp_demo8_tetdata3d_box.txt', ...
@@ -47,7 +47,7 @@ figure;
 quiver3(X,Y,Z,qx,qy,qz,3.0);
 hold on;
 %Shows temperature at cross section
-surf(X,Y,Z,C);
+surf(X,Y,Z,C,'EdgeColor','none');
 colormap(jet(192));
 caxis([min(min(C)) max(max(C))]);
 hcb=colorbar;
