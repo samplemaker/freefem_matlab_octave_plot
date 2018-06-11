@@ -76,7 +76,7 @@ void fftet2gridfast(double *T, double *X, double *Y, double *Z, double **out,
                     int nOuts, mwSize N, mwSize M, mwSize nNodes){
 
   mwSize nTet=nNodes/3;
-  double *invV0=mxMalloc(nTet*sizeof(double));
+  double *invV0=(double *)mxMalloc(nTet*sizeof(double));
   double init=mxGetNaN( );
 
   double *x, *y, *z, *col;
@@ -167,17 +167,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
   }
 
   inMatrix0 = mxGetPr(prhs[0]); //mesh data first 3 columns + scalar 4th column
-  ncols0 = mxGetN(prhs[0]);
-  mrows0 = mxGetM(prhs[0]);
+  ncols0 = (mwSize)mxGetN(prhs[0]);
+  mrows0 = (mwSize)mxGetM(prhs[0]);
   inMatrix1 = mxGetPr(prhs[1]); //X
-  ncols1 = mxGetN(prhs[1]);
-  mrows1 = mxGetM(prhs[1]);
+  ncols1 = (mwSize)mxGetN(prhs[1]);
+  mrows1 = (mwSize)mxGetM(prhs[1]);
   inMatrix2 = mxGetPr(prhs[2]); //Y
-  ncols2 = mxGetN(prhs[2]);
-  mrows2 = mxGetM(prhs[2]);
+  ncols2 = (mwSize)mxGetN(prhs[2]);
+  mrows2 = (mwSize)mxGetM(prhs[2]);
   inMatrix3 = mxGetPr(prhs[3]); //Z
-  ncols3 = mxGetN(prhs[3]);
-  mrows3 = mxGetM(prhs[3]);
+  ncols3 = (mwSize)mxGetN(prhs[3]);
+  mrows3 = (mwSize)mxGetM(prhs[3]);
 
 /*  mexPrintf("ncols0: %i\nncols1: %i\nncols2: %i\nncols3: %i\n",
                ncols0,ncols1,ncols2,ncols3);

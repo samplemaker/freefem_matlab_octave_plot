@@ -89,8 +89,9 @@ For 2D problems it is sometimes helpful to have an vector field - plot as well. 
     * Build MEX - File `./ffmatlib/fftet2gridfast.c`
     * From within Matlab/Octave run `demo7_slice3d_2dgrid.m`
 
-[Screenshot: 3D cross section interpolation](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dinterpolation.png)  
 [Screenshot: plane definition](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dplanedefinition.png)  
+[Screenshot: 3D cross section interpolation](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dinterpolation.png)  
+[Screenshot: 3D cross section projection](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dcrossprojection.png)  
 
 ### Advanced: 3D Vector Fields on Cross Sections
 
@@ -213,7 +214,7 @@ The cut is executed with the following two commands:
 
 The input arguments `S1..S3` contain x,y,z coordinates of three points defining the slicing plane. The output data `(BX,BY,BZ,BC)` and `(SX,SY,SZ,SC)` or the superposition of both `([SX BX],[SY BY],[SZ BZ],[SC BC])` can be plot with the `patch()` command.
 
-Note: The intersection [SX,SY,SZ,SC] which is consisting of a subset of tetrahedrons can be interpolated onto a rectangular grid (smoothing the cross section). The method used is a Barycentric Coordinate interpolation. To speed up the interpolation the interpolation routine is implemented in MEX and must be compiled before usage. In Octave this can be done by invoking the command `mkoctfile --mex -Wall fftet2gridfast.c`. For further informations see `./ffmatlib/fftet2gridfast.c`. The usage is
+Note: The intersection [SX,SY,SZ,SC] which is consisting of a subset of tetrahedrons can be interpolated onto a rectangular grid (smoothing the cross section). The method used is a Barycentric Coordinate interpolation. To speed up the interpolation the interpolation routine is implemented in MEX and must be compiled before usage. You may have a look at the section "Notes on Compilation".
 
 ```Matlab
 [C] = fftet2gridfast(meshdata,X,Y,Z);
@@ -249,7 +250,7 @@ The result can be plot with the command:
 [c,h] = contour(X,Y,C,8);
 ```
 
-Note: There is a one to one replacement MEX implementation available for `fftri2grid.m` which can be considered to be approx. x33 faster. See `./ffmatlib/fftri2gridfast.c` for more informations.
+Note: There is a one to one replacement MEX implementation available for `fftri2grid.m` which can be considered to be approx. x33 faster. See `./ffmatlib/fftri2gridfast.c` and the section "Notes on Compilation" for more informations.
 
 ### Advanced: 2D Vector Fields
 
@@ -281,6 +282,16 @@ The function `fftet2gridfast()` is able to create cross sections of higher order
 [V1,V2, ...] = fftet2gridfast(meshdata,X,Y,Z);
 ```
 For more information see section "Cutting 3D Problems".
+
+### Notes on Compilation
+
+Octave:
+
+In Octave seek to the folder `./ffmatlib/` and invoke the command `mkoctfile --mex -Wall fftet2gridfast.c`.
+
+Windows:
+
+Under Windows with Microsoft Visual Studio invoke `mex fftet2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`. It is to mention that C99 standart must be used and which must be configured in advance. If your build fails with Microsoft Visual Studio 10 you can try to change the filename into *.cpp which forces MVSD to use a c++ compiler.
 
 ## Files
 

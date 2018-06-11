@@ -27,31 +27,40 @@ addpath('ffmatlib');
 
 %%%%%% Interpolation of a cross section on a rectangular grid
 
+[M] = ffreadfile('File1','temp_demo8_tetdata3d_box.txt', ...
+                 'Delimiter',';','Format','%f %f %f %f %f %f %f');
+
+tetVectorData=M(:,1:6);
+tetTempData=[M(:,1:3), M(:,7)];
+
 %Slicing plane definition - three points defining a plane
 S1=[-0 -0 0.2];
 S2=[1 0.1 0];
 S3=[0 1.6 0.5]/2.4;
 
-%Creates the rectangular grid
-N=30;
-M=30;
+%Creates a rectangular grid to draw the vector field
+N=20;
+M=20;
 [X,Y,Z] = gridplane3d(S1,S2,S3,N,M);
-
-[tdata] = ffreadfile('File1','temp_demo8_tetdata3d_box.txt', ...
-                     'Delimiter',';','Format','%f %f %f %f %f %f %f');
-
-[qx qy qz C] = fftet2gridfast(tdata,X,Y,Z);
+[qx qy qz] = fftet2gridfast(tetVectorData,X,Y,Z);
 
 figure;
 %Shows heat flux vector field at cross section
-quiver3(X,Y,Z,qx,qy,qz,3.0);
+quiver3(X,Y,Z,qx,qy,qz,2.0);
 hold on;
+
+%Run again to create a finer cross section to show the temperature
+%Note: We could speed up here if we would invoke slicetet2tet()
+N=120;
+M=120;
+[X,Y,Z] = gridplane3d(S1,S2,S3,N,M);
+[C] = fftet2gridfast(tetTempData,X,Y,Z);
 %Shows temperature at cross section
 surf(X,Y,Z,C,'EdgeColor','none');
 colormap(jet(192));
 caxis([min(min(C)) max(max(C))]);
 hcb=colorbar;
-title(hcb,'Temp');
+title(hcb,'dT');
 hold on;
 zlabel('z');
 ylabel('y');

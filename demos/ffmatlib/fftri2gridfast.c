@@ -56,7 +56,7 @@ fftri2gridfast(double *M, double *X, double *Y, double **out,
                int nOuts, mwSize nNodes, mwSize nX,  mwSize nY){
 
   mwSize nTri=nNodes/3;
-  double *invA0=mxMalloc(nTri*sizeof(double));
+  double *invA0=(double *)mxMalloc(nTri*sizeof(double));
   double init=mxGetNaN( );
   //mexPrintf("nodes: %i\ntriangles: %i\n",nNodes,nTri);
 
@@ -137,14 +137,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
   }
 
   inMatrix0 = mxGetPr(prhs[0]); //trigrid with cols (x_tri,y_tri,c1,c2,c3 ...)
-  ncols0 = mxGetN(prhs[0]);
-  mrows0 = mxGetM(prhs[0]);
+  ncols0 = (mwSize)mxGetN(prhs[0]);
+  mrows0 = (mwSize)mxGetM(prhs[0]);
   inMatrix1 = mxGetPr(prhs[1]); //rectgrid X
-  ncols1 = mxGetN(prhs[1]);
-  mrows1 = mxGetM(prhs[1]);
+  ncols1 = (mwSize)mxGetN(prhs[1]);
+  mrows1 = (mwSize)mxGetM(prhs[1]);
   inMatrix2 = mxGetPr(prhs[2]); //rectgrid Y
-  ncols2 = mxGetN(prhs[2]);
-  mrows2 = mxGetM(prhs[2]);
+  ncols2 = (mwSize)mxGetN(prhs[2]);
+  mrows2 = (mwSize)mxGetM(prhs[2]);
 
   //mexPrintf("ncols0: %i\nncols1: %i\nncols2: %i\n",ncols0,ncols1,ncols2);
   //mexPrintf("mrows0: %i\nmrows1: %i\nmrows2: %i\n",mrows0,mrows1,mrows2);

@@ -73,7 +73,7 @@ macro Grad(u) [dx(u),dy(u),dz(u)] // EOM
 
 problem Poisson(u,v,solver=CG) =
                int3d(Th3d)( Grad(u)'*Grad(v) )
-               + on(2,u=0)
+               + on(1,u=0)
                - int2d(Th3d,3)(1*v)
                - int2d(Th3d,4)(1*v)
                - int2d(Th3d,5)(1*v)
