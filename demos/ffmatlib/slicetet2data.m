@@ -1,13 +1,13 @@
-%slicetet2patch.m Cuts 3D mesh data (tetrahedrons) and converts the
-%                 cross section into patch plot data.
+%slicetet2data.m Cuts 3D mesh elements (tetrahedrons) and returns
+%                all affected tetrahedrons
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
 %
-%   [varargout] = slicetet2patch (tdata,S1,S2,S3) The mesh data is cut
+%   [varargout] = slicetet2data (tdata,S1,S2,S3) The mesh data is cut
 %   by a cutting plane defined by the three points S1, S2, S3. tdata must
-%   contain the coordinates (x,y,z) in the first three columns and in the
-%   following columns scalar values.
+%   contain the coordinates in the first three columns and in the following
+%   colums scalar values.
 %
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
@@ -26,7 +26,7 @@
 % along with this program.  If not, see
 % <https://www.gnu.org/licenses/>.
 %
-function [varargout] = slicetet2patch(fdata,S1,S2,S3)
+function [fdataout] = slicetet2data(fdata,S1,S2,S3)
     switch nargin
         case {4}
         otherwise
@@ -54,9 +54,11 @@ function [varargout] = slicetet2patch(fdata,S1,S2,S3)
 % i.)   in the plane          --> dot(N,(X-Xp)) == 0
 % ii.)  in front of the plane --> dot(N,(X-Xp)) > 0
 % iii.) behind of the plane   --> dot(N,(X-Xp)) < 0
+%
 
     %Nodal coordinates
     M=fdata(:,1:3);
+    [npts,~]=size(M);
     Xn=cross((S2-S1),(S3-S1));
     Xn0=repmat(Xn',npts,1);
     S10=repmat(S1',npts,1);
@@ -69,31 +71,13 @@ function [varargout] = slicetet2patch(fdata,S1,S2,S3)
     isin=any((pos==0));
     %Boolarray indicating sliced or touched tetrahedra
     keep=(((behind==1) & (front==1)) | (isin==1));
-    %Extracts the cut and converts to triangles - don't care about doublicates
-    varargout=cell(1,nvars);
+    %Extracts all affected triangles
+    nTotTets=sum(keep);
+    fdataout=zeros(4*nTotTets,nvars);
     for i=1:nvars
       tmp=arrangecols(fdata(:,i),4);
-      varargout{i}=tet2tri(tmp(:,keep));
+      fdataout(:,i)=reshape(tmp(:,keep),4*nTotTets,1);
     end
-
-    %Idea to eliminate duplicate triangles:
-    %T=[SX;SY;SZ;SC]'; %Combine in order to find identical triangles
-    %[C,ia,ic]=unique(T(:,1:9),'rows'); %Find the unique rows of A based on the data in the first 9 cols
-    %TU=T(ia,:); %Use ia to index into T and retrieve the rows
-    %SX=TU(:,1:3)';
-    %SY=TU(:,4:6)';
-    %SZ=TU(:,7:9)';
-    %SC=TU(:,10:12)';
-end
-
-%Converts tetrahedrons into vertex/triangles
-function [Y] = tet2tri(X)
-    [~,sz2] = size(X);
-    M=[[X(1,:); X(2,:); X(3,:)]; ...
-      [X(1,:); X(2,:); X(4,:)]; ...
-      [X(1,:); X(3,:); X(4,:)]; ...
-      [X(2,:); X(3,:); X(4,:)]];
-    Y=reshape(M,3,4*sz2);
 end
 
 function [M] = arrangecols(V,c)
@@ -108,6 +92,6 @@ function [S] = colvec(S)
 end
 
 function printhelp()
-    fprintf('%s\n\n','Invalid call to slicetet2patch. Correct usage is:');
-    fprintf('%s\n',' -- [X, Y, Z, C, ...] = slicetet2patch (tdata, S1, S2, S3)');
+    fprintf('%s\n\n','Invalid call to slicetet2tet. Correct usage is:');
+    fprintf('%s\n',' -- [X, Y, Z, C] = slicetet2tet (tdata, S1, S2, S3)');
 end

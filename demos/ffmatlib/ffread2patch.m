@@ -4,8 +4,8 @@
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
 %
-%   [varargout] = ffread2patch (filename,varargin) arranges vertex coordinates
-%   and color data in such order that a patch command can be invoked. Each
+%   [varargout] = ffread2patch (filename,varargin) arranges nodal coordinates
+%   and scalar data in such order that a patch command can be invoked. Each
 %   column of the input file is processed and returned as a separate variable.
 %   Can handle 2d mesh elements (triangles) or 3D boundary data (triangles).
 %

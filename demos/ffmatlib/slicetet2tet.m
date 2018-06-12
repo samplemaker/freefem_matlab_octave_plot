@@ -1,13 +1,13 @@
 %slicetet2tet.m Cuts 3D mesh elements (tetrahedrons) and returns
-%                 all affected tetrahedrons
+%               all affected tetrahedrons
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
 %
-%   [X,Y,Z,C] = slicetet2tet (tdata,S1,S2,S3) The mesh data is cut
+%   [varargout] = slicetet2tet (tdata,S1,S2,S3) The mesh data is cut
 %   by a cutting plane defined by the three points S1, S2, S3. tdata must
-%   contain the coordinates in the first three columns and in the forth
-%   column a scalar value. 
+%   contain the coordinates in the first three columns and in the following
+%   colums scalar values.
 %
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
@@ -26,19 +26,28 @@
 % along with this program.  If not, see
 % <https://www.gnu.org/licenses/>.
 %
-function [SX,SY,SZ,SC] = slicetet2tet(fdata,S1,S2,S3)
+function [varargout] = slicetet2tet(fdata,S1,S2,S3)
     switch nargin
         case {4}
         otherwise
             printhelp();
-            error('wrong number arguments');
+            error('4 input arguments required');
+    end
+    [npts,nvars]=size(fdata);
+    if mod(npts,4) ~= 0
+        printhelp();
+        error('number of tet points not a multiple of 4');
+    end
+    if nvars < 4
+        printhelp();
+        error('wrong number of columns - must be > 3');
     end
 
     S1=colvec(S1);
     S2=colvec(S2);
     S3=colvec(S3);
 
-%%%%%%% Theory
+% Theory
 %
 % let Xn:=cross((S2-S1),(S3-S1)) be perpendicular to the slicing plane
 % and Xp a point in the plane. it turns out that for any point X,
@@ -47,9 +56,8 @@ function [SX,SY,SZ,SC] = slicetet2tet(fdata,S1,S2,S3)
 % iii.) behind of the plane   --> dot(N,(X-Xp)) < 0
 %
 
-    %Finds tetrahedra cut or touched by the cutting plane
-    x=fdata(:,1);y=fdata(:,2);z=fdata(:,3);c=fdata(:,4);
-    M=[x y z];
+    %Nodal coordinates
+    M=fdata(:,1:3);
     [npts,~]=size(M);
     Xn=cross((S2-S1),(S3-S1));
     Xn0=repmat(Xn',npts,1);
@@ -63,15 +71,12 @@ function [SX,SY,SZ,SC] = slicetet2tet(fdata,S1,S2,S3)
     isin=any((pos==0));
     %Boolarray indicating sliced or touched tetrahedra
     keep=(((behind==1) & (front==1)) | (isin==1));
-    %Extracts all affected triangles and removes the rest
-    tmpX=arrangecols(x,4);
-    SX=tmpX(:,keep);
-    tmpY=arrangecols(y,4);
-    SY=tmpY(:,keep);
-    tmpZ=arrangecols(z,4);
-    SZ=tmpZ(:,keep);
-    tmpC=arrangecols(c,4);
-    SC=tmpC(:,keep);
+    %Extracts all affected triangles
+    varargout=cell(1,nvars);
+    for i=1:nvars
+      tmp=arrangecols(fdata(:,i),4);
+      varargout{i}=tmp(:,keep);
+    end
 end
 
 function [M] = arrangecols(V,c)

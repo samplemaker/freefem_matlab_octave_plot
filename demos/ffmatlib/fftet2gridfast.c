@@ -1,4 +1,4 @@
-/*fftet2gridfast.c Interpolates from 3d tetrahedral mesh to a rectangular grid
+/*fftet2gridfast.c Interpolates from 3D tetrahedral mesh to a rectangular grid
  *
  * Author: Chloros2 <chloros2@gmx.de>
  * Created: 2018-05-13
@@ -15,6 +15,10 @@
  *   Octave users compile the mex file with the command:
  *
  *       mkoctfile --mex -Wall fftet2gridfast.c
+ *
+ *   Windows users compile the mex file with the command:
+ *
+ *       mex fftet2gridfast.cpp -largeArrayDims
  *
  * Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
  *
@@ -86,7 +90,7 @@ void fftet2gridfast(double *T, double *X, double *Y, double *Z, double **out,
   z=&T[2*nNodes];
   col=&T[3*nNodes];
 
-  /*Calculates the volumes of all tetrahedrons and stores their reciprocal value */
+  /*Volumes of all tetrahedrons */
   mwSize j=0;
   for (mwSize i=0; i<nTet; i++) {
      Vector ap={x[j], y[j], z[j]}, bp={x[j+1], y[j+1], z[j+1]},
@@ -95,17 +99,15 @@ void fftet2gridfast(double *T, double *X, double *Y, double *Z, double **out,
      j=j+4;
   }
 
-  /*For all grid points (NxM) of the grid */
+  /*For all grid points of the grid */
   for (mwSize mx=0; mx<N; mx++){
      for (mwSize my=0; my<M; my++){
         mwSize ofs=(mx*M)+my;
-        /*Variable number of output matrices */ 
+        /*Variable number of output matrices */
         for (mwSize ncols=0; ncols<nOuts; ncols++){
            *(out[ncols]+ofs) = init;
         }
         mwSize i=0, j=0;
-        /*Performs a quick search through all TETs with a pre-criteria
-          to improve speed */
         bool doSearchTet=true;
         while (doSearchTet && (i<nNodes)){
            mwSize idx=my+M*mx;
@@ -122,7 +124,7 @@ void fftet2gridfast(double *T, double *X, double *Y, double *Z, double **out,
               Vector ap={x[i], y[i], z[i]}, bp={x[i+1], y[i+1], z[i+1]},
                      cp={x[i+2], y[i+2], z[i+2]}, dp={x[i+3], y[i+3], z[i+3]},
                      xp={X[idx],Y[idx],Z[idx]};
-              /* Partial volumes */
+              /* Sub-tet volumes */
               double Va=dotProduct(crossProduct(minus(dp,bp), minus(cp,bp)),
                                                 minus(xp,bp));
               double Vb=dotProduct(crossProduct(minus(cp,ap), minus(dp,ap)),
@@ -133,7 +135,7 @@ void fftet2gridfast(double *T, double *X, double *Y, double *Z, double **out,
                                                 minus(xp,ap));
               /*If point is inside the tetrahedron */
               if ((Va>=0) && (Vb>=0) && (Vc>=0) && (Vd>=0)){
-                 /*Interpolate */
+                 /*Interpolates and stores to the output matrices */
                  for (mwSize ncols=0; ncols<nOuts; ncols++){
                     mwSize colofs=ncols*nNodes;
                     *(out[ncols]+ofs)=invV0[j]*(Va*col[colofs+i]+Vb*col[colofs+i+1]+
@@ -158,7 +160,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   mwSize ncols0, ncols1, ncols2, ncols3;
   mwSize mrows0, mrows1, mrows2, mrows3;
 
-  //mexPrintf("nrhs: %i\nnlhs: %i\n",nrhs,nlhs);
+  /*mexPrintf("nrhs: %i\nnlhs: %i\n",nrhs,nlhs);*/
   if (nrhs!=4) {
      mexErrMsgTxt("4 input arguments required");
   }
@@ -179,11 +181,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
   ncols3 = (mwSize)mxGetN(prhs[3]);
   mrows3 = (mwSize)mxGetM(prhs[3]);
 
-/*  mexPrintf("ncols0: %i\nncols1: %i\nncols2: %i\nncols3: %i\n",
-               ncols0,ncols1,ncols2,ncols3);
-    mexPrintf("mrows0: %i\nmrows1: %i\nmrows2: %i\nmrows3: %i\n",
-               mrows0,mrows1,mrows2,mrows3); */
-
   if (ncols0<4){
      mexErrMsgTxt("Input 1: ncols must be > 3");
   }
@@ -195,7 +192,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
      mexErrMsgTxt("Grid arguments must have same length and width");
   }
 
-  /*Create output matrices */
   for (mwSize i=0; i<nlhs; i++){
     plhs[i]=mxCreateDoubleMatrix(mrows1, ncols1, mxREAL);
     outMatrix[i]=mxGetPr(plhs[i]);

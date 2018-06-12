@@ -1,4 +1,4 @@
-%fftri2grid.m Interpolates from 2d triangular mesh to 2d rectangular grid
+%fftri2grid.m Interpolates from 2D triangular mesh to 2D rectangular grid
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
@@ -45,24 +45,16 @@ function [varargout] = fftri2grid(tridata, X, Y)
     end
     if nvars < 3
         printhelp();
-        error('wrong number of columns - must be > 3');
+        error('wrong number of columns - must be >= 3');
     end
     %Splitting into triangles
     tx=arrangecols(tridata(:,1),3);
     ty=arrangecols(tridata(:,2),3);
     uvarin=cell(1,nvars-2);
-    %ntriangles=npts/3;
-    %It would be faster if we only had one column but to support
-    %vector plots, we need to convert (nvars-2) columns.
     varargout=cell(1,nvars-2);
-    for i=3:nvars
-        %tu=arrangecols(tridata(:,3),3);
-        %ua=tu(1,:);
-        %ub=tu(2,:);
-        %uc=tu(3,:);
-        uvarin{i-2}=arrangecols(tridata(:,i),3);
-        %C=NaN(numel(Y),numel(X));
-        varargout{i-2}=NaN(numel(Y),numel(X));
+    for i=1:nvars-2
+        uvarin{i}=arrangecols(tridata(:,i+2),3);
+        varargout{i}=NaN(numel(Y),numel(X));
     end
     %Making copies saves 50% of running time instead of using
     %tx(1,:) directly
@@ -72,13 +64,11 @@ function [varargout] = fftri2grid(tridata, X, Y)
     by=ty(2,:);
     cx=tx(3,:);
     cy=ty(3,:);
-    %Calculates barycentric coordinates
     fac=(1.0)./((by-cy).*(ax-cx)+(cx-bx).*(ay-cy));
     for mx=1:numel(X)
         for my=1:numel(Y)
             px=X(mx);
             py=Y(my);
-            %Calculates barycentric coordinates
             wa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*fac;
             wb=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*fac;
             wc=1.0-wa-wb;
@@ -87,11 +77,10 @@ function [varargout] = fftri2grid(tridata, X, Y)
             pos=find(((wa>=0) & (wb>=0) & (wc>=0)),1,'first');
             %Out of triangle: No else because varargout contains already NaN's
             if ~isempty(pos)
-                for i=3:nvars
-                    %C(my,mx)=wa(pos).*ua(pos)+wb(pos).*ub(pos)+wc(pos).*uc(pos);
-                    varargout{i-2}(my,mx)=wa(pos).*uvarin{i-2}(1,pos)+ ...
-                                          wb(pos).*uvarin{i-2}(2,pos)+ ...
-                                          wc(pos).*uvarin{i-2}(3,pos);
+                for i=1:nvars-2
+                    varargout{i}(my,mx)=wa(pos).*uvarin{i}(1,pos)+ ...
+                                        wb(pos).*uvarin{i}(2,pos)+ ...
+                                        wc(pos).*uvarin{i}(3,pos);
                 end
             end
         end
