@@ -10,101 +10,159 @@ In the current implementation the mesh data (i.e. the PDE solution at the mesh n
 
 ![](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_10.png)
 
-## Source Code Snippets
+## Getting started
 
-### Getting started
+  * Click on the button "Clone or download" and then on the button `Download ZIP`
+  * Unzip and change to the directory `demos` and run all FreeFem++ *.epd scripts to create simulation data for plotting
+  * Run the matlab `*.m` demo files with Matlab / Octave
 
-Two minimum examples:
+Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpath(path to ffmatlib)` command if you are working in a different directory.
 
-  * Run
-    * FreeFem++ `demo1_getstarted.edp`
-    * From within Matlab/Octave run `demo1_getstarted1.m`
-    * From within Matlab/Octave run `demo1_getstarted2.m`
+## Overview
 
-[Screenshot: minimum example](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dgetstarted1.png)  
-[Screenshot: minimum example](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dgetstarted2.png)  
+**Plot Examples**
 
-### Creating 2D Plots
+| Plot type | Description |
+| --- | --- |
+| [2D Map Plot](#2ddensity) | Creates a 2D color "density" plot of a function R<sup>2</sup> &rarr; R |
+| [Surf Plot of 2D functions](#2dsurf) | Creates a 3D surface plot of a function R<sup>2</sup> &rarr; R |
+| [2D Mesh Plot](#2dmesh) | Creates a 2D mesh plot |
+| [2D Contour Plot](#2dcontour) | Interpolation to a rectangular grid and 2D isovalue plot |
+| [2D Vector Plot](#2dvector) | Interpolation to a rectangular grid and 2D quiver plot of a 2D vector field |
+| [3D Boundary Plot](#3dboundaryplot) | Creates a plot of a 3D domain boundary colored by a function R<sup>3</sup> &rarr; R |
+| [3D Crop Boundary Plot](#3dslice) | Creates a plot of a 3D domain boundary cross section |
+| [3D Boundary Mesh Plot](#3dboundaryplot) | Creates a mesh plot of a 3D domain boundary |
+| [3D Slice Plot](#3dslice) | Creates the plot of a cross section of a 3D mesh colored by a function R<sup>3</sup> &rarr; R |
+| [3D Slice (smoothed) Plot](#3dipocrosssection) | Interpolation of a 3D cross section to a 2D rectangular grid colored by a value |
+| [3D Slice Vectorfield](#3dvectorcrosssection)  | Interpolation of a 3D cross section to a 2D rectangular grid including quiver3 vector plot |
 
-The 2D plot examples focus on displaying functions of the type R<sup>2</sup> &rarr; R or 2D meshes:
+**Functions**
 
-  * Run
-    * FreeFem++ `demo2_plot2d.edp`
-    * From within Matlab/Octave run `demo2_plot2d.m`
+| Name | Description |
+| --- | --- |
+| [ffread2patch()](#general2d3dboundaryplots) | Reads FreeFem++ simulation results and converts the vertex data into patch plot data |
+| [ffreadfile()](#readingffsimulationresults) | Reads one or two FreeFem++ simulation result files |
+| [fftri2patch()](#general2d3dboundaryplots) | Converts vertex/triangle data into patch plot data |
+| [slicetet2patch()](#cutting3dproblems) | Cuts 3D mesh elements (tetrahedrons) and converts the cross section into patch plot data |
+| [slicetet2data()](#3dcrosssectioninterpolation) | Cuts 3D mesh elements (tetrahedrons) and returns all affected tetrahedrons |
+| [fftet2grid()](#3dcrosssectioninterpolation) | Interpolates from 3d tetrahedral mesh to a rectangular grid |
+| [fftet2gridfast()](#3dcrosssectioninterpolation) | MEX replacement for `fftet2grid.m` which is much faster |
+| [slicebd2patch()](#cutting3dproblems) | Cuts the boundary data and converts remaining rest into patch plot data |
+| [slicer_gui()](#slicergui) | Graphical user interface for cuttig FreeFem++ simulations |
+| [fftri2grid()](#2dinterpolationcountourquiver) | Interpolates from 2D triangular mesh to 2D rectangular grid |
+| [fftri2gridfast()](#2dinterpolationcountourquiver) | MEX replacement for `fftri2grid.m` which is much faster |
 
-[Screenshot: density plot](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2ddensity.png)  
-[Screenshot: surf plot](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dsurf.png)  
-[Screenshot: 2D-mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dmesh.png)  
+## Matlab / Octave Plot Examples
 
-### Creating 3D Plots
+<a name="2ddensity"></a>
 
-The 3D plot examples focus on displaying functions of the type R<sup>3</sup> &rarr; R (i.e. a 3D object boundary colored with a scalar value like a temperature) or 3D mesh surfaces:
+### 2D Map (Density) Plot of a 2D Function
 
-  * Run
-    * FreeFem++ `demo3_plot3d_cyl.edp`
-    * FreeFem++ `demo3_plot3d_box.edp`
-    * From within Matlab/Octave run `demo3_plot3dbd.m`
+The 2D plot examples focus on displaying functions of the type R<sup>2</sup> &rarr; R or 2D meshes.
 
-[Screenshot: surf plot](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_2.png)  
-[Screenshot: surface of a 3D-mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dmesh.png)
+[demo1_getstarted1.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/demo1_getstarted1.m)  
 
-### Advanced: Cutting 3D Simulations
+[Screenshot: Density](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dgetstarted1.png)  
 
-To make the inside visible it is also possible to cut a 3D FreeFem++ simulation along a slicing plane. You have to write the mesh elements as well as the boundary information to use this feature:
+<a name="2dsurf"></a>
 
-  * Run
-    * From within Matlab/Octave run `demo4_start_slicer_gui.m`
-    * A minimum example: `demo4_slice3d.m`
+### Surf Plot (3D Plot of a 2D Function)
 
-[Screenshot: slice3d](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_slice7.png)  
-[Screenshot: boundary](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_slice8.png)  
-[Screenshot: cross section](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_slice9.png)  
+The 2D plot examples focus on displaying functions of the type R<sup>2</sup> &rarr; R or 2D meshes.
+
+[demo1_getstarted2.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/demo1_getstarted2.m)  
+
+[Screenshot: Surf](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dgetstarted2.png)  
+
+<a name="2dmesh"></a>
+
+### Various 2D Plots and 2D Mesh Plots
+
+The 2D plot examples focus on displaying functions of the type R<sup>2</sup> &rarr; R or 2D meshes.
+
+[demo2_plot2d.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/demo2_plot2d.m)  
+
+[Screenshot: Density](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2ddensity.png)  
+[Screenshot: Surf](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dsurf.png)  
+[Screenshot: Mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dmesh.png)  
+
+<a name="3dboundaryplot"></a>
+
+### 3D Boundary Plots and 3D Mesh Plots
+
+The 3D plot examples focus on displaying functions of the type R<sup>3</sup> &rarr; R (i.e. a 3D object boundary colored with a scalar value like a temperature) or 3D mesh surfaces.
+
+[demo3_plot3dbd.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/demo3_plot3dbd.m)  
+
+[Screenshot: Surf Plot](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_2.png)  
+[Screenshot: Mesh Surface](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dmesh.png)
+
+<a name="3dslice"></a>
+
+### 3D Cross Sections without Interpolation
+
+To make the inside visible it is possible to cut a 3D FreeFem++ simulation along a slicing plane.
+
+[demo4_slice3d.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/demo4_slice3d.m)  
+[demo4_start_slicer_gui.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/demo4_start_slicer_gui.m)  
+
+[Screenshot: Slice](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_slice7.png)  
+[Screenshot: Boundary](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_slice8.png)  
+[Screenshot: Cross Section](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_slice9.png)  
 [Screenshot: GUI-Slicer](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/GUI_Slicer.png)  
 
-### Advanced: 2D Contour
+<a name="2dcontour"></a>
 
-For 2D problems it is sometimes helpful to have an isovalue - plot which will be created in the following example:<br>
+### 2D Isovalue Plot (Contour)
 
-  * Run
-    * FreeFem++ `demo5_isovalues_2d.edp`
-    * From within Matlab/Octave run `demo5_isovalues_2d.edp`
+The following example creates an Isolevel or Isovalue diagram. The actual plot is made with the Matlab / Octave command `contour()`.
 
-[Screenshot: isovalues](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dsurf_isovalues.png)  
-[Screenshot: surf](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dsurf_surf.png)  
+[demo5_isovalues_2d.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/demo5_isovalues_2d.m)  
 
-### Advanced: 2D Vector Fields
+[Screenshot: Isovalues](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dsurf_isovalues.png)  
+[Screenshot: Surf](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dsurf_surf.png)  
 
-For 2D problems it is sometimes helpful to have an vector field - plot as well. Such a plot  will be created in the following example:<br>
+Note: Consider using a Mex file for significant runtime improvement: `./ffmatlib/fftri2gridfast.c`
 
-  * Run
-    * FreeFem++ `demo6_vector_2d.edp`
-    * From within Matlab/Octave run `demo6_vector_2d.m`
+<a name="2dvector"></a>
 
-[Screenshot: vectorfields](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dvectorfield.png)  
+### 2D Vector Fields (Quiver)
 
-### Advanced: Interpolation of a 3D Mesh on a Rectangular Grid
+A 2D vector field plot shows arrows of a 2D vector field. Such a plot will be created in the following example. The actual plot is done with the Matlab / Octave command `quiver()`.
 
-  * Run
-    * FreeFem++ `demo7_slice3d.edp`
-    * Build MEX - File `./ffmatlib/fftet2gridfast.c`
-    * From within Matlab/Octave run `demo7_slice3d_2dgrid.m`
+[demo6_vector_2d.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/demo6_vector_2d.m)  
 
-[Screenshot: plane definition](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dplanedefinition.png)  
-[Screenshot: 3D cross section interpolation](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dinterpolation.png)  
-[Screenshot: 3D cross section projection](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dcrossprojection.png)  
+[Screenshot: Quiverplot](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/2dvectorfield.png)  
 
-### Advanced: 3D Vector Fields on Cross Sections
+<a name="3dipocrosssection"></a>
 
-  * Run
-    * FreeFem++ `demo8_slice3d_vectors.edp`
-    * Build MEX - File `./ffmatlib/fftet2gridfast.c`
-    * From within Matlab/Octave run `demo8_slice3d_2dgrid_vectors.m`
+### Interpolation of a 3D Mesh on a Cross Section
 
-[Screenshot: 3D cross section vector field](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dvectorfield.png)  
+The cross section of a 3D mesh basically returns tetrahedra that are cut or touched by the slicing plane. However, the surface of such a cross section is rough. The following example interpolates the cross section on a rectangular gridded slicing plane and thus creates a smooth representation of the PDE solution on the slicing plane. The cross section can be plotted using the Matlab / Octave command `surf()`.
 
-## Implementation - FreeFem++
+[demo7_slice3d_2dgrid.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/demo7_slice3d_2dgrid.m)  
 
-Hint: The `patch()` command draws and colors flat facets based on the coordinates and color values given on each vertex. If a higher order FE-space (e.g. P2 elements) was choosen the PDE solution can have a higher degree of freedom as can be visualized.
+[Screenshot: Plane](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dplanedefinition.png)  
+[Screenshot: Cross section](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dinterpolation.png)  
+[Screenshot: Projection](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dcrossprojection.png)  
+
+Note: Consider using a Mex file for significant runtime improvement: `./ffmatlib/fftet2gridfast.c`
+
+<a name="3dvectorcrosssection"></a>
+
+### 3D Vector Fields on Cross Sections (Quiver3)
+
+A 3D vector field can be visualized with the Matlab / Octave command `quiver3()`. The following example creates a cross section of a 3D FreeFem++ simulation result. The vector field is displayed at the cross section with the `quiver3()` command.
+
+[demo8_slice3d_2dgrid_vectors.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/demo8_slice3d_2dgrid_vectors.m)  
+
+[Screenshot: 3D Vector](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dvectorfield.png)  
+
+Note: Consider using a Mex file for significant runtime improvement: `./ffmatlib/fftet2gridfast.c`
+
+<a name="exportfromff"></a>
+
+## Writing simulation results with FreeFem++ scripts
 
 ### 2D Problems
 
@@ -121,9 +179,25 @@ for (int i=0; i<Th.nt; i++){
 }
 ```
 
-### 3D Boundary Value Problems
+### 2D Vector Fields
 
-If the domain boundary (surface) is to be displayed it is enough to write the boundary elements only:
+Typically used in order to produce quiver plots:
+
+```Matlab
+ofstream file ("temp_demo6_vector.txt");
+for (int i = 0; i < Th.nt; i++){
+  for (int j = 0; j < 3; j++){
+    file << Th[i][j].x << ";"
+         << Th[i][j].y << ";"
+         << uh[][Vh(i,j)] << ";"
+         << vh[][Vh(i,j)] << "\n";
+  }
+}
+```
+
+### 3D Boundary Values
+
+If the domain boundary (surface) is to be displayed write the boundary elements:
 
 ```Matlab
 int idx;
@@ -140,44 +214,67 @@ for (int k=0;k<nbelement;++k){
 }
 ```
 
-### Advanced: Cutting 3D Problems
-If a cross section is to be made it is necessary to write the mesh elements (tetrahedra) as well as the boundary data:
+### 3D Cross Sections (Slicing)
+
+A cross section can be made from 3D boundary data as well as from 3D mesh data. Mesh elements (tetrahedra) can be written as:
 
 ```Matlab
-ofstream tetdata ("export_tet.txt");
+ofstream tetdata ("tet_file.txt");
 for (int i=0; i<Th3d.nt; i++){
   for (int j=0; j<4; j++){
     tetdata << Th3d[i][j].x << ";"
             << Th3d[i][j].y << ";"
             << Th3d[i][j].z << ";"
             << u[][Vh(i,j)] << "\n";
+
   }
 }
+
 ```
 
-### Advanced: 2D Vector Fields
+### Higher order Vector Fields in 3D
 
-In order to plot 2D vector fields just write multiple columns:
+If multiple components have to be exported they can be append at the end (here a temperature u and a heat flux vector field (qx,qy,qz) is exported):
 
 ```Matlab
-ofstream file ("export_tri_ncols.txt");
-for (int i = 0; i < Th.nt; i++){
-  for (int j = 0; j < 3; j++){
-    file << Th[i][j].x << ";"
-         << Th[i][j].y << ";"
-         << uh[][Vh(i,j)] << ";"
-         << vh[][Vh(i,j)] << "\n";
+ofstream tetdata ("tet_file.txt");
+for (int i=0; i<Th3d.nt; i++){
+  for (int j=0; j<4; j++){
+    tetdata << Th3d[i][j].x << ";"
+            << Th3d[i][j].y << ";"
+            << Th3d[i][j].z << ";"
+            << qx[][Vh(i,j)] << ";"
+            << qy[][Vh(i,j)] << ";"
+            << qz[][Vh(i,j)] << ";"
+            << u[][Vh(i,j)] << "\n";
   }
 }
 ```
 
-## Implementation - Matlab&copy;/Octave
+## FFMATLIB Function Reference
 
-Hint: The library functions can be found in the folder `ffmatlib`. Use the `addpath(path to ffmatlib)` command if you are working in a different directory.
+<a name="readingffsimulationresults"></a>
 
-### General plotting in 2D and 3D Boundary Value Plots
+### Reading FreeFem++ Simulation Results
 
-The function `ffread2patch()` reads a file and rearranges its content in such a way that diagrams can be created with the `patch()` command. It's arguments depend on the number of columns and on the separation character. `ffread2patch()` can process 2D mesh elements or 3D boundary data (triangles):
+The `ffreadfile()` command can be used to read FreeFem++ ascii log files previously written in FreeFem++ simulation runs. It is possible to read one or two files. The `ffreadfile()` command does not interpret the input data, the data is merely passed through. Hence the data can be a 3D border, a 2D mesh or 3D mesh data. The output data is stored in one or two matrices, which can be processed with further ffmatlib commands. The number of columns to be read is determined by the format identifier. The following call reads a 3D mesh as well as 3D boundary data, both of the form (x,y,z,c):
+
+```Matlab
+[file1data,file2data] = ffreadfile ('File1','filename1.txt','File2','filename2.txt', ...
+                                    'Delimiter',';','Format','%f %f %f %f')');
+```
+
+Read 2D mesh data of the form (x,y,c):
+
+```Matlab
+[filedata] = ffreadfile('File1','filename.txt','Delimiter',';','Format','%f %f %f');
+```
+
+<a name="general2d3dboundaryplots"></a>
+
+### General 2D plotting and 3D Boundary Value Plots
+
+The function `ffread2patch()` reads a FreeFem++ simulation log file and rearranges its content in such a way that diagrams can be created with the `patch()` command. It's arguments depend on the number of columns and on the separation character. `ffread2patch()` can process 2D mesh elements or 3D boundary data (triangles):
 
 ```Matlab
 [X,Y,C, ...] = ffread2patch('filename.txt','Delimiter',';','Format','auto');
@@ -189,122 +286,111 @@ The number of columns can be set explicitly via the format identifier:
 ```
 X, Y and C are matrices which can be supplied to `patch()`.
 
-Hint: You can split the reading and conversion process into two different entities:
+Instead of using the `ffread2patch()` command, the reading and conversion process can be divided into two different steps by the following commands:
 
 ```Matlab
 [tridata] = ffreadfile('File1','filename.txt','Delimiter',';','Format','%f %f %f');
+```
+
+```Matlab
 [X,Y,C] = fftri2patch(tridata);
 ```
 
-### Advanced: Cutting 3D Problems
+<a name="cutting3dproblems"></a>
 
-To make a cut from a 3D problem, both the edge data and the mesh element data must be loaded. This can be achieved with the following function call:
+### Cutting 3D Problems without interpolation
 
-```Matlab
-[file1data,file2data] = ffreadfile ('File1','filename1.txt','File2','filename2.txt', ...
-                                    'Delimiter',';','Format','%f %f %f %f')');
-```
-
-The cut is executed with the following two commands:
+It is possible to cut both 3D boundary and 3D mesh element data. When the boundary data of a problem is cropped, all triangles before the cutting plane are removed. Slicing of a 3D mesh data yields a set of tetrahedrons cut or touched by the slicing plane (cross section). The command `slicebd2patch()` cuts the boundary data and `slicetet2patch()` intersects the 3D mesh data. Both commands convert the output data into patch plot data.
 
 ```Matlab
 [BX,BY,BZ,BC] = slicebd2patch (boundarydata,S1,S2,S3);
+```
+
+```Matlab
 [SX,SY,SZ,SC] = slicetet2patch (meshdata,S1,S2,S3);
 ```
 
-The input arguments `S1..S3` contain x,y,z coordinates of three points defining the slicing plane. The output data `(BX,BY,BZ,BC)` and `(SX,SY,SZ,SC)` or the superposition of both `([SX BX],[SY BY],[SZ BZ],[SC BC])` can be plot with the `patch()` command.
+The input arguments `S1..S3` contain (x,y,z) coordinates of three points defining the slicing plane. The output data `(BX,BY,BZ,BC)` and `(SX,SY,SZ,SC)` or the superposition of both `([SX BX],[SY BY],[SZ BZ],[SC BC])` can be plot with the `patch()` command.<br>
+The cross section, which consists of a set of tetrahedra, has a rough surface. Note that it is also possible to smooth the cross section with the `fftet2grid()` command.
 
-Note: The intersection [SX,SY,SZ,SC] which is consisting of a subset of tetrahedrons can be interpolated onto a rectangular grid (smoothing the cross section). The method used is a Barycentric Coordinate interpolation. To speed up the interpolation the interpolation routine is implemented in MEX and must be compiled before usage. You may have a look at the section "Notes on Compilation".
+<a name="slicergui"></a>
 
-```Matlab
-[C] = fftet2gridfast(meshdata,X,Y,Z);
-```
-where meshdata contains the tetrahedron vertex coordinates and a scalar for all tetrahedron vertices. X, Y, Z defines a rectangular grid in 3d to which the scalar value is to be interpolated.
+### Slicer_GUI
 
-### Advanced: Slicer_GUI
-
-There's a graphical user interface (working in both worlds, Matlab and Octave) that makes it easier to create cross-sections of PDE problems. The function call is:
+There's a graphical user interface that makes it easier to create cross sections of PDE problems. The function call is:
 
 ```Matlab
 slicer_gui(bddatafile,tetdatafile);
 ```
-You may also have a look at `demo4_start_slicer_gui.m`.
 
-### Advanced: 2D Contour
+<a name="2dinterpolationcountourquiver"></a>
 
-To create iso-level curve plots with the Matlab / Octave `contour ()` command, the data must be interpolated on a rectangular grid. In a first step load the raw data:
+### 2D Mesh Interpolation on a Rectangular Grid
 
-```Matlab
-[tridata] = ffreadfile('File1','filename.txt','Delimiter',';','Format','%f %f %f');
-```
-
-Then interpolate the third column in `tridata` on a rectangular grid defined by X and Y. If grid points are outside from any triangles the function will return NaN's.
+In order to create 2D iso-level curve plots with the Matlab / Octave command `contour()` or vector field plots with the command `quiver()`, the simulation data must be interpolated on a rectangular grid. First load the data with the `ffreadfile()` command into a matrix - lets say `tridata`. Let X and Y define rectangular mesh grid. `tridata` can be interpolated on the grid with the command `fftri2grid()`.
 
 ```Matlab
 C = fftri2grid(tridata,X,Y);
 ```
 
-The result can be plot with the command:
-
-```Matlab
-[c,h] = contour(X,Y,C,8);
-```
-
-Note: There is a one to one replacement MEX implementation available for `fftri2grid.m` which can be considered to be approx. x33 faster. See `./ffmatlib/fftri2gridfast.c` and the section "Notes on Compilation" for more informations.
-
-### Advanced: 2D Vector Fields
-
-To create vector field plots with the Matlab / Octave command `quiver()` it is necessary to interpolate the data given on the mesh vertices on a rectangular grid. In a first step load the raw data:
-
-```Matlab
-[tridata] = ffreadfile('File1','filename.txt','Delimiter',';','Format','%f %f %f');
-```
-
-Then interpolate the data columns in `tridata` on a rectangular grid defined by X and Y. If grid points are outside from triangles the function will return NaN's.
-
 ```Matlab
 [U,V] = fftri2grid(tridata,X,Y);
 ```
 
-The result can be plot with the command:
+If grid points are outside from any triangles the function will return NaN's. The method used is a Barycentric Coordinate interpolation.
+
+Hint: To significantly speed up `fftri2grid()`, the interpolation routine is available as MEX implementation. The source code must be compiled before use. Take a look at the section [Notes on compilation](#notesoncompilation). The function is a 1:1 replacement and can be called via `fftri2gridfast(meshdata,X,Y,Z)`.
+
+<a name="3dcrosssectioninterpolation"></a>
+
+### 3D Mesh Interpolation on a Rectangular Grid
+
+To create plots with a smooth cross section or 3D vector field plots using the `quiver3()` 3D command, the simulation data must be interpolated on a rectangular 3D grid in advance. Single value simulation results as well as higher order vector fields can be processed:
 
 ```Matlab
-quiver(X,Y,U,V);
+[C] = fftet2grid(meshdata,X,Y,Z);
 ```
 
-Note: There is a one to one replacement MEX implementation available for `fftri2grid.m` which can be considered to be approx. x33 faster. See `./ffmatlib/fftri2gridfast.c` for more informations.
-
-### Advanced: 3D Vector Fields and Cross Section Interpolation
-
-The function `fftet2gridfast()` is able to create cross sections of higher order vector fields as well. Multiple columns in `meshdata` can be written and the function can be simply called via:
+If `meshdata` contains multiple data columns the function is to be called via:
 
 ```Matlab
-[V1,V2, ...] = fftet2gridfast(meshdata,X,Y,Z);
+[V1,V2, ...] = fftet2grid(meshdata,X,Y,Z);
 ```
-For more information see section "Cutting 3D Problems".
 
-### Notes on Compilation
+The set (X, Y, Z) defines a rectangular 3D grid to which the PDE solution is to be interpolated. `meshdata` is a FreeFem++ simulation result that can be read with `ffreadfile()`. To improve runtime, it is better to call `slicetet2data()` before in order to reduce the mesh data. The method used is a Barycentric Coordinate interpolation. 
 
-Octave:
+Hint: To significantly speed up `fftet2grid()`, the interpolation routine is available as MEX implementation. The source code must be compiled before use. Take a look at the section [Notes on compilation](#notesoncompilation). The function is a 1:1 replacement and can be called via `fftet2gridfast(meshdata,X,Y,Z)`.
 
-In Octave seek to the folder `./ffmatlib/` and invoke the command `mkoctfile --mex -Wall fftet2gridfast.c`.
+For more information see section [Cutting 3D Problems](#cutting3dproblems)
 
-Windows:
+<a name="notesoncompilation"></a>
 
-Under Windows with Microsoft Visual Studio invoke `mex fftet2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`. It is to mention that C99 standart must be used and which must be configured in advance. If your build fails with Microsoft Visual Studio 10 you can try to change the filename into *.cpp which forces MVSD to use a c++ compiler.
+## Notes on Compilation
 
-## Files
+Octave:<br>
+In Octave seek to the folder `./ffmatlib/` and invoke the command 
 
-  * `ffread2patch.m` Reads FreeFem++ simulation results and converts the vertex/triangle data into patch plot data.
-  * `ffreadfile.m` Reads one or two FreeFem++ simulation result files.
-  * `fftri2patch.m` Converts vertex/triangle data into patch plot data.
-  * `slicetet2patch.m` Cuts 3D mesh elements (tetrahedrons) and converts the cross section into patch plot data.
-  * `fftet2gridfast.c` Interpolates from 3d tetrahedral mesh to a rectangular grid.
-  * `slicebd2patch.m` Cuts the boundary data and converts remaining rest into patch plot data.
-  * `demo4_start_slicer_gui.m` Starts the slicer graphical user interface (Slicer_GUI) to cut 3D data.
-  * `slicer_gui.m` Graphical user interface for cuttig FreeFem++ simulations.
-  * `fftri2grid.m` Interpolates from 2D triangular mesh to 2D rectangular grid.
-  * `fftri2gridfast.c` Replacement for `fftri2grid.m` which is approx. x33 faster.
+`mkoctfile --mex -Wall fftet2gridfast.c`  
+`mkoctfile --mex -Wall fftri2gridfast.c`
+
+Windows:<br>
+Under Windows with Microsoft Visual Studio invoke 
+
+`mex fftet2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`  
+`mex fftri2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`
+
+It should be noted that the C99 standard must be used. If your build fails with Microsoft Visual Studio 10, you can try changing the file name to * .cpp, forcing MVSD to use a C ++ compiler.
+
+## Notes on Hardware Acceleration
+
+It should be emphasized that the responsiveness of the plots is highly dependent on the degree of freedom of the PDE problem and the capabilities of the graphics hardware. For larger problems (lots of thousand of vertices), a dedicated graphics card rather than on board graphics should be preferred. Make use of hardware acceleration extensively. Some notes on trouble shooting and tweaking:<br><br>
+ If `get(gcf,'RendererMode')` is set to auto Matlab/Octave will decide on its own which renderer is the best for the current graphic task.
+
+  * `get(figure_handle,'Renderer')` returns the current figure() renderer
+  * `set(figure_handle,'Renderer','OpenGL')` forces a figure() to switch to OpenGL
+  * `set(figure_handle,'Renderer','painters')` forces a figure() to switch to vector graphics
+
+Generally OpenGL can be considered to be faster than painters. To get an OpenGL info you can type `opengl info` within Matlab. Ensure the line `Software` shows `false` otherwise OpenGL will run in software mode. If hardware-accelerated OpenGL is available on the system, you can manually change the modes using the `opengl software` and `opengl hardware` commands.
 
 ## Software
 
@@ -318,17 +404,6 @@ Under Windows with Microsoft Visual Studio invoke `mex fftet2gridfast.c -v -larg
              "GNU Octave scientific programming language"
 [matlab]:     https://www.mathworks.com/
              "Matlab scientific programming language"
-
-## Hardware Acceleration
-
-It should be emphasized that the responsiveness of the plots is highly dependent on the degree of freedom of the PDE problem and the capabilities of the graphics hardware. For larger problems (lots of thousand of vertices), a dedicated graphics card rather than on board graphics should be preferred. Make use of hardware acceleration extensively. Some notes on trouble shooting and tweaking:<br><br>
- If `get(gcf,'RendererMode')` is set to auto Matlab/Octave will decide on its own which renderer is the best for the current graphic task.
-
-  * `get(figure_handle,'Renderer')` returns the current figure() renderer
-  * `set(figure_handle,'Renderer','OpenGL')` forces a figure() to switch to OpenGL
-  * `set(figure_handle,'Renderer','painters')` forces a figure() to switch to vector graphics
-
-Generally OpenGL can be considered to be faster than painters. To get an OpenGL info you can type `opengl info` within Matlab. Ensure the line `Software` shows `false` otherwise OpenGL will run in software mode. If hardware-accelerated OpenGL is available on the system, you can manually change the modes using the `opengl software` and `opengl hardware` commands.
 
 ## The License
 
