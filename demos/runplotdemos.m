@@ -1,6 +1,8 @@
 clear all;
 fprintf('Running FreeFem++ scripts ...\n');
 tic;
+fprintf('demo_pdeplot.edp\n');
+system('FreeFem++ -ns -nw -v 0 demo_pdeplot.edp');
 fprintf('demo1_getstarted.edp\n');
 system('FreeFem++ -ns -nw -v 0 demo1_getstarted.edp');
 fprintf('demo2_plot2d.edp\n');
@@ -21,6 +23,9 @@ fprintf('demo8_slice3d_vectors.edp\n');
 system('FreeFem++ -ns -nw -v 0 demo8_slice3d_vectors.edp');
 toc;
 fprintf('Starting demo ...\n');
+demo_pdeplot
+pause(5);
+close all;
 demo1_getstarted1
 pause(5);
 close all;
