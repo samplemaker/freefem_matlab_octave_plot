@@ -3,7 +3,7 @@
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
 %
-%   [nv,nt,ns,points,tri,bd]=readffmesh(filename) reads a FreeFem++
+%   [nv,nt,ns,points,tri,bd]=ffreadmesh(filename) reads a FreeFem++
 %   mesh file created with the FreeFem++ savemesh(Th,"mesh.msh") command.
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>

@@ -3,10 +3,12 @@
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
 %
-%   [handles] = pdeplot2dff (points,triangles,boundary,varargin) is a
-%   FreeFem++ customized clone of pdeplot(). The input arguments area
-%   the vertex coordinates, the triangle- and the boundary definition
-%   provided by the FreeFem++ savemesh(Th,"mesh.msh") command.
+%   [handles] = pdeplot2dff (points,triangles,boundary,varargin)
+%   is a customized FreeFem++ wrapper function to implement some
+%   of the classic pdeplot() features. The input arguments
+%   include the vertex coordinates, the triangles and the boundary
+%   definition as provided by the FreeFem++ savemesh(Th,"mesh.msh")
+%   command.
 %
 %   [handles] = pdeplot2dff (...,'PARAM1',val1,'PARAM2',val2,...)
 %   specifies parameter name/value pairs to control the input file format
