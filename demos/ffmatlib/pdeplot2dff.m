@@ -16,7 +16,6 @@
 %
 %       Parameter       Value
 %      'XYData'     Scalar value in order to colorize the plot
-%                      (default='off')
 %      'ZStyle'     3D surface instead of 2D Map plot
 %                      (default='off')
 %      'ColorMap'   Specifies the colormap
@@ -191,7 +190,7 @@ function printhelp()
     fprintf('%s\n',' -- [handles] = pdeplot2dff (points,triangles,boundary,''XYData'',u,''ZStyle'',''on'')');
     fprintf('%s\n',' -- [handles] = pdeplot2dff (points,triangles,boundary,''XYData'',u,''Edge'',''on'',''Contour'',''on'',''Levels'',10)');
     fprintf('\n');
-    fprintf('''XYData''     Scalar value in order to colorize the plot (default=''off'')\n');
+    fprintf('''XYData''     Scalar value in order to colorize the plot\n');
     fprintf('''ZStyle''     3D surface instead of 2D Map plot (default=''off'')\n');
     fprintf('''ColorMap''   Specifies the colormap (default=''jet'')\n');
     fprintf('''ColorBar''   Indicator in order to include a colorbar (default=''on'')\n');
