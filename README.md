@@ -58,7 +58,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 <a name="pdeplot2dffexample"></a>
 
-### PDEplot2dff()
+### pdeplot2dff()
 
 `pdeplot2dff()` is a customized FreeFem++ wrapper function to implement some of the classic `pdeplot()` features.
 
@@ -267,9 +267,9 @@ for (int i=0; i<Th3d.nt; i++){
 
 <a name="pdeplot2dfffct"></a>
 
-### PDEplot2dff()
+### pdeplot2dff()
 
-pdeplot2dff() is a FreeFem ++ compatible clone of the classic pdeplot function. The input arguments include the vertex coordinates, the triangles and the boundary definition as provided by the FreeFem++ `savemesh(Th,"mesh.msh")` command.
+`pdeplot2dff()` is a FreeFem ++ compatible clone of the classic pdeplot() function. The input arguments include the vertex coordinates, the triangles and the boundary definition as provided by the FreeFem++ `savemesh(Th,"mesh.msh")` command.
 
 | Parameter | Value |
 | --- | --- |
@@ -283,19 +283,23 @@ pdeplot2dff() is a FreeFem ++ compatible clone of the classic pdeplot function. 
 | 'Levels' | Number of isovalues for contour plot (default=10) |
 
 ```Matlab
-[handles] = pdeplot2dff (points,triangles,boundary,varargin)
+[handles] = pdeplot2dff(points,triangles,boundary,varargin)
 ```
 
 In order to read a mesh file create by `savemesh(Th,"mesh.msh")` use the command:
 
 ```Matlab
-[nv,nt,ns,points,triangles,boundary]=ffreadmesh(filename)
+[nv,nt,ns,points,triangles,boundary] = ffreadmesh(filename)
 ```
 
-Examples:
+Example:
 
 ```Matlab
-figure();
+[nv,nt,ns,points,triangles,boundary]=ffreadmesh('demo_mesh.msh');
+fid=fopen('demo_data.txt','r');
+data=textscan(fid,'%f','Delimiter','\n');
+fclose(fid);
+u=cell2mat(data);
 pdeplot2dff(points,triangles,boundary,'XYData',u,'Mesh','on');
 ylabel('y');
 xlabel('x');

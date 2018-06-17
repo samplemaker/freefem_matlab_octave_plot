@@ -1,4 +1,5 @@
-%pdeplot2dff.m FreeFem++ - Wrapper Function for PDEplot()
+%pdeplot2dff.m Wrapper function reading and plotting FreeFem++
+%              2D mesh and FreeFem++ data
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
@@ -16,15 +17,15 @@
 %       Parameter       Value
 %      'XYData'     Scalar value in order to colorize the plot
 %                      (default='off')
-%      'ZStyle'     Appear as 3D surface instead of 2D Map plot
+%      'ZStyle'     3D surface instead of 2D Map plot
 %                      (default='off')
 %      'ColorMap'   Specifies the colormap
 %                      (default='jet')
-%      'ColorBar'   Indicator to include a colorbar
+%      'ColorBar'   ndicator in order to include a colorbar
 %                      (default='on')
-%      'Mesh'       Switch mesh off/on 
+%      'Mesh'       Switches the mesh off/on
 %                      (default='off')
-%      'Edge'       Show PDE boundary
+%      'Edge'       Shows the PDE boundary
 %                      (default='off')
 %      'Contour'    Isovalue plot
 %                      (default='off')
@@ -73,80 +74,84 @@ function [hh] = pdeplot2dff(points,triangles,boundary,varargin)
             error('wrong number arguments');
     end
     [xydata,setcolormap,showmesh,showedge,zstyle,contourplt,isolevels,showcolbar] = vararginval{:};
+    points=rowvec(points);
+    triangles=rowvec(triangles);
     xpts=points(1,:);
     ypts=points(2,:);
-    triDataX=[xpts(triangles(1,:)); xpts(triangles(2,:)); xpts(triangles(3,:))];
-    triDataY=[ypts(triangles(1,:)); ypts(triangles(2,:)); ypts(triangles(3,:))];
+    dataX=[xpts(triangles(1,:)); xpts(triangles(2,:)); xpts(triangles(3,:))];
+    dataY=[ypts(triangles(1,:)); ypts(triangles(2,:)); ypts(triangles(3,:))];
     if (~isempty(xydata))
         cpts=rowvec(xydata);
-        colData=[cpts(triangles(1,:)); cpts(triangles(2,:)); cpts(triangles(3,:))];
+        dataC=[cpts(triangles(1,:)); cpts(triangles(2,:)); cpts(triangles(3,:))];
         if strcmp(contourplt,'off')
             if strcmp(showmesh,'off')
                 if strcmp(zstyle,'off')
-                    hh=patch(triDataX,triDataY,colData,'EdgeColor','none');
+                    hh=patch(dataX,dataY,dataC,'EdgeColor','none');
                     view(2);
                 else
-                    hh=patch(triDataX,triDataY,colData,colData,'EdgeColor','none');
-                    daspect([1 1 3.0*(max(max(colData))-min(min(colData)))]);
+                    hh=patch(dataX,dataY,dataC,dataC,'EdgeColor','none');
+                    daspect([1 1 2.5*(max(max(dataC))-min(min(dataC)))]);
                     view(3);
                 end
             else
                 if strcmp(zstyle,'off')
-                    hh=patch(triDataX,triDataY,colData,'EdgeColor',[0 0 0],'LineWidth',1);
+                    hh=patch(dataX,dataY,dataC,'EdgeColor',[0 0 0],'LineWidth',1);
                     view(2);
                 else
-                    hh=patch(triDataX,triDataY,colData,colData,'EdgeColor',[0 0 0],'LineWidth',1);
-                    daspect([1 1 3.0*(max(max(colData))-min(min(colData)))]);
+                    hh=patch(dataX,dataY,dataC,dataC,'EdgeColor',[0 0 0],'LineWidth',1);
+                    daspect([1 1 2.5*(max(max(dataC))-min(min(dataC)))]);
                     view(3);
                 end
             end
         else
-            hh=patch(triDataX,triDataY,colData,'EdgeColor','none');
+            hh=patch(dataX,dataY,dataC,'EdgeColor','none');
             view(2);
             hold on;
-            [~,sz2]=size(triDataX);
+            [~,sz2]=size(dataX);
             N=sqrt(sz2);
             if (N > 150)
                 N=150;
             end
-            ymin=min(min(triDataY));
-            ymax=max(max(triDataY));
-            xmin=min(min(triDataX));
-            xmax=max(max(triDataX));
+            ymin=min(min(dataY));
+            ymax=max(max(dataY));
+            xmin=min(min(dataX));
+            xmax=max(max(dataX));
             x=linspace(xmin,xmax,N);
             y=linspace(ymin,ymax,N);
             [X,Y]=meshgrid(x,y);
-            C=tri2grid(triDataX,triDataY,colData,x,y);
+            C=tri2grid(dataX,dataY,dataC,x,y);
             [~,hhc]=contour(X,Y,C,isolevels,'LineColor',[0 0 0]);
             hh=[hh; hhc];
             hold off;
         end
         colormap(setcolormap);
-        caxis([min(min(colData)) max(max(colData))]);
+        caxis([min(min(dataC)) max(max(dataC))]);
         if strcmp(showcolbar,'on')
             hcb=colorbar;
             hh=[hh; hcb];
         end
     else
         if ~strcmp(showmesh,'off')
-            hh=patch(triDataX,triDataY,[1 1 1],'EdgeColor',[0 0 1],'LineWidth',1);
+            hh=patch(dataX,dataY,[1 1 1],'EdgeColor',[0 0 1],'LineWidth',1);
             view(2);
         end
     end
     if ~strcmp(showedge,'off')
+        boundary=rowvec(boundary);
         line([xpts(boundary(1,:));xpts(boundary(2,:))], ...
-             [ypts(boundary(1,:)); ypts(boundary(2,:))],'Color','red','LineWidth',2);
+             [ypts(boundary(1,:));ypts(boundary(2,:))],'Color','red','LineWidth',2);
     end
 end
 
 function [S] = rowvec(S)
-    if size(S,1)>1
+    [sz1,sz2]=size(S);
+    if sz1>sz2
         S=S';
     end
 end
 
-function [colout] = tri2grid(tx, ty, colin, X, Y)
-    colout=NaN(numel(Y),numel(X));
+function [u] = tri2grid(tx, ty, tc, X, Y)
+    u=NaN(numel(Y),numel(X));
     ax=tx(1,:);
     ay=ty(1,:);
     bx=tx(2,:);
@@ -163,9 +168,9 @@ function [colout] = tri2grid(tx, ty, colin, X, Y)
             Ac=1.0-Aa-Ab;
             pos=find(((Aa>=0) & (Ab>=0) & (Ac>=0)),1,'first');
             if ~isempty(pos)
-               colout(my,mx)=Aa(pos).*colin(1,pos)+ ...
-                             Ab(pos).*colin(2,pos)+ ...
-                             Ac(pos).*colin(3,pos);
+                u(my,mx)=Aa(pos).*tc(1,pos)+ ...
+                         Ab(pos).*tc(2,pos)+ ...
+                         Ac(pos).*tc(3,pos);
             end
         end
     end
