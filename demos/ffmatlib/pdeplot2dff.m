@@ -50,7 +50,7 @@
 %
 function [hh] = pdeplot2dff(points,triangles,boundary,varargin)
     switch nargin
-        case {3,5,7,9,11,13}
+        case {3,5,7,9,11,13,15}
         otherwise
             printhelp();
             error('wrong number arguments');
@@ -60,14 +60,22 @@ function [hh] = pdeplot2dff(points,triangles,boundary,varargin)
     vararginval = {[],'jet','off','off','off','off',10,'on'};
     switch numvarargs
         case 0
-        case {2,4,6,8,10}
+        case {2,4,6,8,10,12}
             optargs(1:numvarargs) = varargin;
-            for j = 1:length(optsnames)
-                for i = 1:length(varargin)
+            i=1;
+            while (i<numvarargs)
+                found=false;
+                for j=1:length(optsnames)
                     if strcmp(optsnames(j),optargs(i))
-                        vararginval(j) = optargs(i+1);
+                        vararginval(j)=optargs(i+1);
+                        found=true;
                     end
                 end
+                if (~found)
+                    printhelp();
+                    error('''%s'' unknown parameter',char(optargs(i)));
+                end
+                i=i+2;
             end
         otherwise
             printhelp();
@@ -182,5 +190,14 @@ function printhelp()
     fprintf('%s\n',' -- [handles] = pdeplot2dff (points,triangles,boundary,''XYData'',u,''ColorMap'',''jet'',''Mesh'',''on'')');
     fprintf('%s\n',' -- [handles] = pdeplot2dff (points,triangles,boundary,''XYData'',u,''ZStyle'',''on'')');
     fprintf('%s\n',' -- [handles] = pdeplot2dff (points,triangles,boundary,''XYData'',u,''Edge'',''on'',''Contour'',''on'',''Levels'',10)');
+    fprintf('\n');
+    fprintf('''XYData''     Scalar value in order to colorize the plot (default=''off'')\n');
+    fprintf('''ZStyle''     3D surface instead of 2D Map plot (default=''off'')\n');
+    fprintf('''ColorMap''   Specifies the colormap (default=''jet'')\n');
+    fprintf('''ColorBar''   ndicator in order to include a colorbar (default=''on'')\n');
+    fprintf('''Mesh''       Switches the mesh off/on (default=''off'')\n');
+    fprintf('''Edge''       Shows the PDE boundary (default=''off'')\n');
+    fprintf('''Contour''    Isovalue plot (default=''off'')\n');
+    fprintf('''Levels''     Number of isovalues for contour plot (default=10)\n');
     fprintf('\n');
 end
