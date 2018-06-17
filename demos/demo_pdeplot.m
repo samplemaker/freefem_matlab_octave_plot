@@ -76,6 +76,14 @@ xlabel('x');
 zlabel('u');
 title('3D Plot');
 
+%3D Surface with Mesh
+figure();
+pdeplot2dff(points,triangles,boundary,'XYData',u,'ZStyle','on','Mesh','on');
+ylabel('y');
+xlabel('x');
+zlabel('u');
+title('3D Plot with Mesh');
+
 %Contour Plot
 figure();
 pdeplot2dff(points,triangles,boundary,'XYData',u,'Edge','on','Contour','on','Levels',15);
