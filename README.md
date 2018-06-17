@@ -24,7 +24,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 | Plot type | Description |
 | --- | --- |
-| [pdeplot2dff()](#pdeplot2dffexample) | Wrapper function reading and plotting FreeFem++ 2D mesh and data |
+| [pdeplot2dff()](#pdeplot2dffexample) | Wrapper function reading and plotting FreeFem++ 2D mesh and FreeFem++ data |
 | [2D Map Plot](#2ddensity) | Creates a 2D color "density" plot of a function R<sup>2</sup> &rarr; R |
 | [Surf Plot of 2D functions](#2dsurf) | Creates a 3D surface plot of a function R<sup>2</sup> &rarr; R |
 | [2D Mesh Plot](#2dmesh) | Creates a 2D mesh plot |
@@ -41,7 +41,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 | Name | Description |
 | --- | --- |
-| [pdeplot2dff()](#pdeplot2dff) | Wrapper function reading and plotting FreeFem++ 2D mesh and data |
+| [pdeplot2dff()](#pdeplot2dfffct) | Wrapper function reading and plotting FreeFem++ 2D mesh and FreeFem++ data |
 | [ffread2patch()](#general2d3dboundaryplots) | Reads FreeFem++ simulation results and converts the vertex data into patch plot data |
 | [ffreadfile()](#readingffsimulationresults) | Reads one or two FreeFem++ simulation result files |
 | [fftri2patch()](#general2d3dboundaryplots) | Converts vertex/triangle data into patch plot data |
@@ -60,7 +60,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 ### PDEplot2dff()
 
-`pdeplot2dff()` is a FreeFem++ customized wrapper function in order to implement some of the classical `pdeplot()` functions. It is used to plot 2D problems.
+`pdeplot2dff()` is a customized FreeFem++ wrapper function to implement some of the classic `pdeplot()` features.
 
 [demo_pdeplot.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/demo_pdeplot.m)  
 
@@ -265,20 +265,20 @@ for (int i=0; i<Th3d.nt; i++){
 
 ## FFMATLIB Function Reference
 
-<a name="pdeplot2dffexample"></a>
+<a name="pdeplot2dfffct"></a>
 
 ### PDEplot2dff()
 
-pdeplot2dff() is a FreeFem++ customized clone of pdeplot(). The input arguments area the vertex coordinates, the triangle- and the boundary definition provided by the FreeFem++ savemesh(Th,"mesh.msh") command.
+pdeplot2dff() is a FreeFem ++ compatible clone of the classic pdeplot function. The input arguments include the vertex coordinates, the triangles and the boundary definition as provided by the FreeFem++ `savemesh(Th,"mesh.msh")` command.
 
 | Parameter | Value |
 | --- | --- |
 | 'XYData' | Scalar value in order to colorize the plot (default='off') |
-| 'ZStyle' | Appear as 3D surface instead of 2D Map plot (default='off') |
+| 'ZStyle' | 3D surface instead of 2D Map plot (default='off') |
 | 'ColorMap' | Specifies the colormap (default='jet') |
-| 'ColorBar' | Indicator to include a colorbar (default='on') |
-| 'Mesh' |  Switch mesh off/on (default='off') |
-| 'Edge' | Show PDE boundary (default='off') |
+| 'ColorBar' | Indicator in order to include a colorbar (default='on') |
+| 'Mesh' |  Switches the mesh off/on (default='off') |
+| 'Edge' | Shows the PDE boundary (default='off') |
 | 'Contour' | Isovalue plot (default='off') |
 | 'Levels' | Number of isovalues for contour plot (default=10) |
 
@@ -286,7 +286,7 @@ pdeplot2dff() is a FreeFem++ customized clone of pdeplot(). The input arguments 
 [handles] = pdeplot2dff (points,triangles,boundary,varargin)
 ```
 
-In order to read a mesh file use the command:
+In order to read a mesh file create by `savemesh(Th,"mesh.msh")` use the command:
 
 ```Matlab
 [nv,nt,ns,points,triangles,boundary]=ffreadmesh(filename)
