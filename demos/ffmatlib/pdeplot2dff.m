@@ -21,7 +21,7 @@
 %                      (default='off')
 %      'ColorMap'   Specifies the colormap
 %                      (default='jet')
-%      'ColorBar'   ndicator in order to include a colorbar
+%      'ColorBar'   Indicator in order to include a colorbar
 %                      (default='on')
 %      'Mesh'       Switches the mesh off/on
 %                      (default='off')
@@ -174,7 +174,7 @@ function [u] = tri2grid(tx, ty, tc, X, Y)
             Aa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*invA0;
             Ab=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*invA0;
             Ac=1.0-Aa-Ab;
-            pos=find(((Aa>=0) & (Ab>=0) & (Ac>=0)),1,'first');
+            pos=find(((Aa>=0) && (Ab>=0) && (Ac>=0)),1,'first');
             if ~isempty(pos)
                 u(my,mx)=Aa(pos).*tc(1,pos)+ ...
                          Ab(pos).*tc(2,pos)+ ...
@@ -194,7 +194,7 @@ function printhelp()
     fprintf('''XYData''     Scalar value in order to colorize the plot (default=''off'')\n');
     fprintf('''ZStyle''     3D surface instead of 2D Map plot (default=''off'')\n');
     fprintf('''ColorMap''   Specifies the colormap (default=''jet'')\n');
-    fprintf('''ColorBar''   ndicator in order to include a colorbar (default=''on'')\n');
+    fprintf('''ColorBar''   Indicator in order to include a colorbar (default=''on'')\n');
     fprintf('''Mesh''       Switches the mesh off/on (default=''off'')\n');
     fprintf('''Edge''       Shows the PDE boundary (default=''off'')\n');
     fprintf('''Contour''    Isovalue plot (default=''off'')\n');
