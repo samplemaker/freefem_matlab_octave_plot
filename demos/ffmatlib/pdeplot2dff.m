@@ -174,7 +174,7 @@ function [u] = tri2grid(tx, ty, tc, X, Y)
             Aa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*invA0;
             Ab=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*invA0;
             Ac=1.0-Aa-Ab;
-            pos=find(((Aa>=0) && (Ab>=0) && (Ac>=0)),1,'first');
+            pos=find(((Aa>=0) & (Ab>=0) & (Ac>=0)),1,'first');
             if ~isempty(pos)
                 u(my,mx)=Aa(pos).*tc(1,pos)+ ...
                          Ab(pos).*tc(2,pos)+ ...

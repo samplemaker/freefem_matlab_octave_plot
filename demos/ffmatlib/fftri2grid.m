@@ -64,23 +64,23 @@ function [varargout] = fftri2grid(tridata, X, Y)
     by=ty(2,:);
     cx=tx(3,:);
     cy=ty(3,:);
-    fac=(1.0)./((by-cy).*(ax-cx)+(cx-bx).*(ay-cy));
+    invA0=(1.0)./((by-cy).*(ax-cx)+(cx-bx).*(ay-cy));
     for mx=1:numel(X)
         for my=1:numel(Y)
             px=X(mx);
             py=Y(my);
-            wa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*fac;
-            wb=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*fac;
-            wc=1.0-wa-wb;
+            Aa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*invA0;
+            Ab=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*invA0;
+            Ac=1.0-Aa-Ab;
             %Is inside which triangle?
             %Can possibly sit on a border (multiple output)
-            pos=find(((wa>=0) & (wb>=0) & (wc>=0)),1,'first');
+            pos=find(((Aa>=0) & (Ab>=0) & (Ac>=0)),1,'first');
             %Out of triangle: No else because varargout contains already NaN's
             if ~isempty(pos)
                 for i=1:nvars-2
-                    varargout{i}(my,mx)=wa(pos).*uvarin{i}(1,pos)+ ...
-                                        wb(pos).*uvarin{i}(2,pos)+ ...
-                                        wc(pos).*uvarin{i}(3,pos);
+                    varargout{i}(my,mx)=Aa(pos).*uvarin{i}(1,pos)+ ...
+                                        Ab(pos).*uvarin{i}(2,pos)+ ...
+                                        Ac(pos).*uvarin{i}(3,pos);
                 end
             end
         end
