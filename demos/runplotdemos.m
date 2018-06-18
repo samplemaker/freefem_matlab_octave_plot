@@ -1,8 +1,9 @@
 clear all;
 fprintf('Running FreeFem++ scripts ...\n');
 tic;
-fprintf('demo_pdeplot.edp\n');
-system('FreeFem++ -ns -nw -v 0 demo_pdeplot.edp');
+fprintf('demo_pdeplot_vector.edp\n');
+%fprintf('demo_pdeplot.edp\n');
+system('FreeFem++ -ns -nw -v 0 demo_pdeplot_vector.edp');
 fprintf('demo1_getstarted.edp\n');
 system('FreeFem++ -ns -nw -v 0 demo1_getstarted.edp');
 fprintf('demo2_plot2d.edp\n');
