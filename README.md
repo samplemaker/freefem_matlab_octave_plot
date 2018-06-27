@@ -269,42 +269,91 @@ for (int i=0; i<Th3d.nt; i++){
 
 ### pdeplot2dff()
 
-`pdeplot2dff()` is a FreeFem ++ compatible clone of the classic pdeplot() function. The input arguments include the vertex coordinates, the triangles and the boundary definition as provided by the FreeFem++ `savemesh(Th,"mesh.msh")` command.
+`pdeplot2dff()` is a function specially tailored to FreeFem++ simulation data that offers most of the features of the classic `pdeplot()` command. The FEM-Mesh is entered by vertex coordinates, the boundary values, and the triangle definition as provided by the `savemesh(Th, "mesh_file.msh")` command. The simulation data can be entered either as point data (native support for P1 simulation data) or as interpolation at the nodes (workaround for
+P1, P2 and other FEM simulation results).
+
+```Matlab
+[handles] = pdeplot2dff(points,boundary,triangles,varargin)
+```
 
 | Parameter | Value |
 | --- | --- |
-| 'XYData' | Scalar value in order to colorize the plot (default='off') |
-| 'ZStyle' | 3D surface instead of 2D Map plot (default='off') |
-| 'ColorMap' | Specifies the colormap (default='jet') |
-| 'ColorBar' | Indicator in order to include a colorbar (default='on') |
-| 'Mesh' |  Switches the mesh off/on (default='off') |
-| 'Edge' | Shows the PDE boundary (default='off') |
-| 'Contour' | Isovalue plot (default='off') |
-| 'Levels' | Number of isovalues for contour plot (default=10) |
+| 'XYData' |     Data in order to colorize the plot |
+|           |       FreeFem++ point data \| FreeFem++ triangle data |
+| 'XYStyle' |    Coloring choice |
+|           |       'interp' \| (default) \| 'off' |
+| 'ZStyle' |     Draws 3D surface plot instead of flat 2D Map plot |
+|           |       'continuous' \| 'off' |(default) |
+| 'ColorMap' |   ColorMap value or matrix of such values |
+|           |       'cool' \| (default) \| colormap name \| three-column matrix of RGB triplets |
+| 'ColorBar' |   Indicator in order to include a colorbar |
+|            |      'on' \| (default) \| 'off' |
+| 'ColorRange' | Range of values to ajust the color thresholds |
+|          |        'minmax' \| (default) \| [min,max] |
+| 'Mesh' |       Switches the mesh off / on |
+|         |         'on' \| 'off' \| (default) |
+| 'Edge' |       Shows the PDE boundary / edges |
+|          |        'on' \| 'off' \| (default) |
+| 'Contour' |    Isovalue plot |
+|           |       'off' \| (default) \| 'on' |
+| 'CColor' |     Color if level curves |
+|           |       'off' \| (default) \| 'on' |
+| 'CLevels' |    Number of isovalues used in the contour plot |
+|           |       (default=10) |
+| 'CGridParam' | Number of grid points used for the contour plot |
+|         |         'auto' \| (default) \| [N,M] |
+| 'Title' |      Title |
+|          |        (default=[]) |
+| 'XLim' |       Range for the x-axis |
+|        |          'minmax' \| (default) \| [min,max] |
+| 'YLim' |       Range for the y-axis |
+|        |         'minmax' \| (default) \| [min,max] |
+| 'ZLim' |       Range for the z-axis |
+|         |         'minmax' \| (default) \| [min,max] |
+| 'DAspect' |    Data unit length of the xy- and z-axes |
+|          |        'off' \| 'xyequal' \| (default) \| [ux,uy,uz] |
+| 'FlowData' |   Data for quiver plot |
+|            |      FreeFem++ point data \| FreeFem++ triangle data |
+| 'FGridParam' | Number of grid points used for quiver plot |
+|             |     'auto' \| (default) \| [N,M] |
+
+
+Examples:
+
+In order to read a mesh file created by `savemesh(Th,"mesh.msh")` use the command:
 
 ```Matlab
-[handles] = pdeplot2dff(points,triangles,boundary,varargin)
+[nv,nbe,nt,points,boundary,triangles] = ffreadmesh(filename)
 ```
 
-In order to read a mesh file create by `savemesh(Th,"mesh.msh")` use the command:
-
+A 2D Patch Plot:
 ```Matlab
-[nv,nt,ns,points,triangles,boundary] = ffreadmesh(filename)
-```
-
-Example:
-
-```Matlab
-[nv,nt,ns,points,triangles,boundary]=ffreadmesh('demo_mesh.msh');
+[nv,nbe,nt,points,boundary,triangles]=ffreadmesh('demo_mesh.msh');
 fid=fopen('demo_data.txt','r');
 data=textscan(fid,'%f','Delimiter','\n');
 fclose(fid);
 u=cell2mat(data);
-pdeplot2dff(points,triangles,boundary,'XYData',u,'Mesh','on');
-ylabel('y');
-xlabel('x');
-title('2D Density Plot with Mesh');
-axis tight equal;
+pdeplot2dff(points,boundary,triangles,'XYData',u,'Mesh','on','Edge','on');
+```
+
+A Plot of the Domain Boundary:
+```Matlab
+pdeplot2dff(points,boundary,triangles,'Edge','on');
+```
+
+A 3D Surf plot:
+```Matlab
+pdeplot2dff(points,boundary,triangles,'XYData',u,'ZStyle','continuous');
+```
+
+Contour Plot:
+```Matlab
+pdeplot2dff(points,boundary,triangles,'XYData',u,'Edge','on','Contour','on');
+```
+
+Quiver Plot:
+```Matlab
+pdeplot2dff(points,boundary,triangles,'FlowData',v,'Edge','on');
 ```
 
 <a name="readingffsimulationresults"></a>

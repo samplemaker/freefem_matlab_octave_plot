@@ -1,9 +1,14 @@
 clear all;
 fprintf('Running FreeFem++ scripts ...\n');
 tic;
-fprintf('demo_pdeplot_vector.edp\n');
-%fprintf('demo_pdeplot.edp\n');
-system('FreeFem++ -ns -nw -v 0 demo_pdeplot_vector.edp');
+fprintf('capacitor_2d_p1.edp\n');
+system('FreeFem++ -ns -nw -v 0 capacitor_2d_p1.edp');
+fprintf('capacitor_2d_p2.edp\n');
+system('FreeFem++ -ns -nw -v 0 capacitor_2d_p2.edp');
+fprintf('demo_pdeplot_2d_p1.edp\n');
+system('FreeFem++ -ns -nw -v 0 demo_pdeplot_2d_p1.edp');
+fprintf('demo_pdeplot_2d_p2.edp\n');
+system('FreeFem++ -ns -nw -v 0 demo_pdeplot_2d_p2.edp');
 fprintf('demo1_getstarted.edp\n');
 system('FreeFem++ -ns -nw -v 0 demo1_getstarted.edp');
 fprintf('demo2_plot2d.edp\n');
@@ -24,6 +29,9 @@ fprintf('demo8_slice3d_vectors.edp\n');
 system('FreeFem++ -ns -nw -v 0 demo8_slice3d_vectors.edp');
 toc;
 fprintf('Starting demo ...\n');
+capacitor_2d
+pause(5);
+close all;
 demo_pdeplot
 pause(5);
 close all;

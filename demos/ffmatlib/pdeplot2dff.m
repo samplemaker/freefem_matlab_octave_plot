@@ -1,51 +1,65 @@
-%pdeplot2dff.m Wrapper function reading and plotting FreeFem++
-%              2D mesh and FreeFem++ data
+%pdeplot2dff.m Plot FreeFem ++ 2D mesh- and 2d simulation data
 %
 % Author: Chloros2 <chloros2@gmx.de>
-% Created: 2018-05-13
+% Created: 2018-06-15
 %
-%   [handles] = pdeplot2dff (points,boundary,triangles,varargin)
-%   is a customized FreeFem++ wrapper function to implement some
-%   of the classic pdeplot() features. The input arguments
-%   include the vertex coordinates, the triangles and the boundary
-%   definition as provided by the FreeFem++ savemesh(Th,"mesh.msh")
-%   command.
+%   This file is a part of the ffmatlib which is hosted at
+%   https://github.com/samplemaker/freefem_matlab_octave_plot
 %
-%   [handles] = pdeplot2dff (...,'PARAM1',val1,'PARAM2',val2,...)
+%   [varargout] = pdeplot2dff (points, boundary, triangles, varargin)
+
+%   is a function specially tailored to FreeFem++ simulation data that
+%   offers most of the features of the classic pdeplot() command. The FEM-Mesh
+%   is entered by vertex coordinates, the boundary values, and the triangle
+%   definition as provided by the savemesh(Th, "mesh_file.msh") command.
+%   The simulation data can be entered either as point data (native support
+%   for P1 simulation data) or as interpolation at the nodes (workaround for
+%   P1, P2 and other FEM simulation results).
+%
+%   [varargout] = pdeplot2dff (...,'PARAM1',val1,'PARAM2',val2,...)
 %   specifies parameter name/value pairs to control the input file format
 %
 %       Parameter       Value
-%      'XYData'     Scalar value in order to colorize the plot
-%      'ZStyle'     3D surface instead of 2D Map plot
-%                      (default='off')
-%      'ColorMap'   Specifies the colormap
-%                      (default='jet')
-%      'ColorBar'   Indicator in order to include a colorbar
-%                      (default='on')
-%      'Mesh'       Switches the mesh off/on
-%                      (default='off')
-%      'Edge'       Shows the PDE boundary
-%                      (default='off')
-%      'Contour'    Isovalue plot
-%                      (default='off' ; accepted values : 'on', 'off' or 'value')
-%      'Levels'     Number of isovalues for contour plot
-%                      (default=10)
-%      'ColorRange' Range of values to ajust the colormap
-%                      (default='minmax', or specify [min,max])
-%      'Title'      Title
-%                      (default=[])
-%      'XLim'       Range for the x-axis
-%                      (default='minmax')
-%      'YLim'       Range for the y-axis
-%                      (default='minmax')
-%      'ZLim'       Range for the z-axis
-%                      (default='minmax')
-%      'ZAspect'    3D Plot aspect ratio
-%                      (default='on' ; accepted values : 'on' or [a1,a2,a3]))
-%      'FlowData'   Data for quiver plot
-%      'GridParam'  Number of grid points used for contour() and quiver() plots 
-%                      (default='off' ; accepted values : 'off' or [N,M])
-
+%      'XYData'      Data in order to colorize the plot
+%                       FreeFem++ point data | FreeFem++ triangle data
+%      'XYStyle'     Coloring choice
+%                       'interp' (default) | 'off'
+%      'ZStyle'      Draws 3D surface plot instead of flat 2D Map plot
+%                       'continuous' | 'off' (default)
+%      'ColorMap'    ColorMap value or matrix of such values
+%                       'cool' (default) | colormap name | three-column matrix of RGB triplets
+%      'ColorBar'    Indicator in order to include a colorbar
+%                       'on' (default) | 'off'
+%      'ColorRange'  Range of values to ajust the color thresholds
+%                       'minmax' (default) | [min,max]
+%      'Mesh'        Switches the mesh off / on
+%                       'on' | 'off' (default)
+%      'Edge'        Shows the PDE boundary / edges
+%                       'on' | 'off' (default)
+%      'Contour'     Isovalue plot
+%                       'off' (default) | 'on'
+%      'CColor'      Color if level curves
+%                       'off' (default) | 'on'
+%      'CData'       Use extra (overlay) data to draw the contour plot
+%                       FreeFem++ points | FreeFem++ triangle data
+%      'CLevels'     Number of isovalues used in the contour plot
+%                       (default=10)
+%      'CGridParam'  Number of grid points used for the contour plot
+%                       'auto' (default) | [N,M]
+%      'Title'       Title
+%                       (default=[])
+%      'XLim'        Range for the x-axis
+%                       'minmax' (default) | [min,max]
+%      'YLim'        Range for the y-axis
+%                       'minmax' (default) | [min,max]
+%      'ZLim'        Range for the z-axis
+%                       'minmax' (default) | [min,max]
+%      'DAspect'     Data unit length of the xy- and z-axes
+%                       'off' | 'xyequal' (default) | [ux,uy,uz]
+%      'FlowData'    Data for quiver plot
+%                       FreeFem++ point data | FreeFem++ triangle data
+%      'FGridParam'  Number of grid points used for quiver plot
+%                       'auto' (default) | [N,M]
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %
@@ -63,7 +77,7 @@
 % along with this program.  If not, see
 % <https://www.gnu.org/licenses/>.
 %
-function [hh] = pdeplot2dff(points,boundary,triangles,varargin)
+function [varargout] = pdeplot2dff(points,boundary,triangles,varargin)
 
     if (~mod(nargin,2) || (nargin<3))
         printhelp();
@@ -71,28 +85,28 @@ function [hh] = pdeplot2dff(points,boundary,triangles,varargin)
     end
 
     numvarargs = length(varargin);
-    optsnames = {'XYData','ColorMap','Mesh','Edge','ZStyle','Contour','Levels', ...
-                 'ColorBar','ColorRange','Title','XLim','YLim','ZLim','ZAspect','FlowData','GridParam'};
-    vararginval = {[],'jet','off','off','off','off',10,'on','minmax',[], ...
-                   'minmax','minmax','minmax','on',[],'off'};
+    optsnames = {'XYData', 'XYStyle', 'Mesh', 'Edge', 'ZStyle', ...
+                 'Contour', 'CGridParam', 'CColor', 'CLevels', ...
+                 'ColorMap', 'ColorBar', 'ColorRange', ...
+                 'Title', 'XLim', 'YLim', 'ZLim', 'DAspect', ...
+                 'FlowData', 'FGridParam'};
+
+    vararginval = {[], 'interp', 'off', 'off', 'off', ...
+                   'off', 'auto', 'off', 10, ...
+                   'cool', 'on', 'minmax', ...
+                   [], 'minmax', 'minmax', 'minmax', 'xyequal', ...
+                   [], 'auto'};
 
     if (numvarargs>0)
         if (~mod(numvarargs,2))
-            optargs(1:numvarargs) = varargin;
-            i=1;
-            while (i<numvarargs)
-                found=false;
-                for j=1:length(optsnames)
-                    if strcmpi(optargs(i),optsnames(j))
-                        vararginval(j)=optargs(i+1);
-                        found=true;
-                    end
-                end
-                if (~found)
+            for i=1:2:(numvarargs-1)
+                pos=find(strcmpi(optsnames,varargin(i)));
+                if ~isempty(pos)
+                    vararginval(pos)=varargin(i+1);
+                else
                     printhelp();
-                    error('''%s'' unknown parameter',char(optargs(i)));
+                    error('''%s'' unknown input parameter',char(varargin(i)));
                 end
-                i=i+2;
             end
         else
             printhelp();
@@ -100,66 +114,89 @@ function [hh] = pdeplot2dff(points,boundary,triangles,varargin)
         end
     end
 
-    [xydata,setcolormap,showmesh,showedge,zstyle, contourplt,isolevels, ...
-     showcolbar,colorrange,plottitle,plotxlim,plotylim,plotzlim,zaspect, ...
-     flowdata,gridparam] = vararginval{:};
+    [xydata, xystyle, showmesh, showedge, zstyle, ...
+     contourplt, cgridparam, ccolor, isolevels, ...
+     setcolormap, showcolbar, colorrange, ...
+     plottitle, plotxlim, plotylim, plotzlim, axisaspect, ...
+     flowdata, fgridparam] = vararginval{:};
 
+    hh=[];
+    clab=0;
+    is2dmode=true;
     points=rowvec(points);
     triangles=rowvec(triangles);
     xpts=points(1,:);
     ypts=points(2,:);
     dataX=[xpts(triangles(1,:)); xpts(triangles(2,:)); xpts(triangles(3,:))];
     dataY=[ypts(triangles(1,:)); ypts(triangles(2,:)); ypts(triangles(3,:))];
-    %All types of xydata-plots
-    if (~isempty(xydata))
-        cpts=rowvec(xydata);
-        dataC=[cpts(triangles(1,:)); cpts(triangles(2,:)); cpts(triangles(3,:))];
-        if strcmpi(contourplt,'off')
-            %2D Map/Density Plots with Color
+    %All types of xydata-plots (all but quiver)
+    if ~isempty(xydata)
+       [dataC]=preparedata(points,triangles,xydata);
+       %3D and 2D Plots invoking patch() command
+       if strcmpi(contourplt,'off')
+            %2D Map/Density Plot
             if strcmpi(zstyle,'off')
-                if strcmpi(showmesh,'off')
-                    hh=patch(dataX,dataY,dataC,'EdgeColor','none');
+                %A colored Plot
+                if (strcmpi(xystyle,'interp'))
+                    %With Mesh
+                    if ~strcmpi(showmesh,'off')
+                        hh=patch(dataX,dataY,dataC,'EdgeColor',[0 0 1],'LineWidth',1);
+                    else
+                        %Without Mesh
+                        hh=patch(dataX,dataY,dataC,'EdgeColor','none');
+                    end
+                %Uncolored Plot (Mesh only). Case is dublicate.
+                %But here xydata + color supression is explicitely requested
                 else
-                    hh=patch(dataX,dataY,dataC,'EdgeColor',[0 0 0],'LineWidth',1);
+                    hh=patch(dataX,dataY,[1 1 1],'FaceColor','none', ...
+                             'EdgeColor',[0 0 1],'LineWidth',1);
                 end
+                %Once xydata is given there is no way to create an empty plot
                 view(2);
-            %3D Surface Plots with Color
+            %3D Surface Plots
             else
-                if strcmpi(showmesh,'off')
-                    hh=patch(dataX,dataY,dataC,dataC,'EdgeColor','none');
+                is2dmode=false;
+                %A colored Plot
+                if (strcmpi(xystyle,'interp'))
+                    %With Mesh
+                    if ~strcmpi(showmesh,'off')
+                        hh=patch(dataX,dataY,dataC,dataC,'EdgeColor',[0 0 1],'LineWidth',1);
+                    else
+                        %Without Mesh
+                        hh=patch(dataX,dataY,dataC,dataC,'EdgeColor','none');
+                    end
+                %Uncolored Plot (Mesh only)
                 else
-                    hh=patch(dataX,dataY,dataC,dataC,'EdgeColor',[0 0 0],'LineWidth',1);
+                    hh=patch(dataX,dataY,dataC,[1 1 1],'FaceColor','none', ...
+                             'EdgeColor',[0 0 1],'LineWidth',1);
                 end
-                zfactor=2.0;
+                %Once xydata is given there is no way to create an empty plot
                 if (~strcmpi(plotzlim,'minmax'))
                      zlim(plotzlim);
-                     zfactor=zfactor*(max(plotzlim)-min(plotzlim));
+                     zf=1.3*(max(plotzlim)-min(plotzlim));
                 else
-                     zfactor=zfactor*(max(max(dataC))-min(min(dataC)));
+                     zf=1.3*(max(max(dataC))-min(min(dataC)));
                 end
-                if (~strcmpi(zaspect,'on'))
-                     daspect(zaspect);
+                if strcmpi(axisaspect,'xyequal')
+                    yf=(max(max(dataY))-min(min(dataY)));
+                    xf=(max(max(dataX))-min(min(dataX)));
+                    daspect([max(xf,yf) max(xf,yf) zf]);
                 else
-                     daspect([1 1 zfactor]);
+                    if isnumeric(axisaspect)
+                        daspect(axisaspect);
+                    end
                 end
                 view(3);
             end
-        %Contour Plot with Color
+        %Contour Plot
         else
-            hh=patch(dataX,dataY,dataC,'EdgeColor','none');
-            view(2);
-            hold on;
-            [~,sz2]=size(dataX);
-            if (strcmpi(gridparam,'off'))
-                N=sqrt(sz2);
-                M=N;
-                if (N > 150)
-                   N=150;
-                   M=150;
-                end
+            if (~strcmpi(cgridparam,'auto') && isnumeric(cgridparam))
+                N=cgridparam(1);
+                M=cgridparam(2);
             else
-                N=gridparam(1);
-                M=gridparam(2);
+                [~,nt]=size(triangles);
+                N=sqrt(nt);
+                M=N;
             end
             ymin=min(min(dataY));
             ymax=max(max(dataY));
@@ -168,16 +205,40 @@ function [hh] = pdeplot2dff(points,boundary,triangles,varargin)
             x=linspace(xmin,xmax,N);
             y=linspace(ymin,ymax,M);
             [X,Y]=meshgrid(x,y);
-            C=scalartri2grid(dataX,dataY,dataC,x,y);
-            [lab,hhc]=contour(X,Y,C,isolevels,'LineColor',[0 0 0]);
-            if strcmpi(contourplt,'value')
-                 clabel(lab,hhc);
+            %\TODO: What is happening if pdeplot() is called with CData but without XYData?
+            %if ~isempty(contourdata)
+            %    [dataCC]=preparedata(points,triangles,contourdata);
+            %else
+                dataCC=dataC;
+            %end
+            if exist('plottri2grid','file')
+                C=plottri2grid(x,y,dataX,dataY,dataCC);
+            else
+                if (N>100)
+                    fprintf('Note: To improve runtime compile MEX function plottri2grid()\n');
+                end
+                C=plottri2grid1int(x,y,dataX,dataY,dataCC);
             end
-            hh=[hh; hhc];
-            hold off;
+            %Contour + Patch
+            if strcmpi(xystyle,'interp')
+                hh=patch(dataX,dataY,dataC,'EdgeColor','none');
+                hold on;
+                [clab,hhc]=contour(X,Y,C,isolevels,'LineColor',[0 0 1]);
+                hh=[hh; hhc];
+                hold off;
+            %Isovalues only
+            else
+                if strcmpi(ccolor,'off')
+                    [clab,hhc]=contour(X,Y,C,isolevels,'LineColor',[0 0 1]);
+                else
+                    [clab,hhc]=contour(X,Y,C,isolevels);
+                end
+                hh=hhc;
+            end
+            view(2);
         end
         colormap(setcolormap);
-        if(isnumeric(colorrange))
+        if (isnumeric(colorrange))
             caxis(colorrange);
         else
             caxis([min(min(dataC)) max(max(dataC))]);
@@ -189,7 +250,7 @@ function [hh] = pdeplot2dff(points,boundary,triangles,varargin)
     %Uncolored, flat 2D mesh plot (no xydata)
     else
         if ~strcmpi(showmesh,'off')
-            hh=patch(dataX,dataY,[1 1 1],'EdgeColor',[0 0 1],'LineWidth',1);
+            hh=patch(dataX,dataY,[1 1 1],'FaceColor','none','EdgeColor',[0 0 1],'LineWidth',1);
             view(2);
         end
     end
@@ -197,17 +258,14 @@ function [hh] = pdeplot2dff(points,boundary,triangles,varargin)
     %Finally, the Quiver- and Border Plot is executed. These can potentially
     %be additive, therefore ...
     hold on;
-    if (~isempty(flowdata))
-        cpts=rowvec(flowdata);
-        upts=cpts(1,:); vpts=cpts(2,:);
-        dataU=[upts(triangles(1,:)); upts(triangles(2,:)); upts(triangles(3,:))];
-        dataV=[vpts(triangles(1,:)); vpts(triangles(2,:)); vpts(triangles(3,:))];
-        if (strcmpi(gridparam,'off'))
+    if ~isempty(flowdata)
+        [dataU,dataV]=preparedata(points,triangles,flowdata);
+        if (~strcmpi(fgridparam,'auto') && isnumeric(fgridparam))
+            N=fgridparam(1);
+            M=fgridparam(2);
+        else
             N=15;
             M=15;
-        else
-            N=gridparam(1);
-            M=gridparam(2);
         end
         ymin=min(min(dataY));
         ymax=max(max(dataY));
@@ -216,9 +274,18 @@ function [hh] = pdeplot2dff(points,boundary,triangles,varargin)
         x=linspace(xmin,xmax,N);
         y=linspace(ymin,ymax,M);
         [X,Y]=meshgrid(x,y);
-        [U,V]=flowtri2grid(dataX,dataY,dataU,dataV,x,y);
-        idx = ~isnan(U) & ~isnan(V);
-        quiver(X(idx),Y(idx),U(idx),V(idx));
+        if exist('plottri2grid','file')
+            [U,V]=plottri2grid(x,y,dataX,dataY,dataU,dataV);
+        else
+            [U,V]=plottri2grid2int(x,y,dataX,dataY,dataU,dataV);
+        end
+        idx=(~isnan(U)) & (~isnan(V));
+        hq=quiver(X(idx),Y(idx),U(idx),V(idx));
+        if ~isempty(hh)
+            hh=[hh; hq];
+        else
+            hh=hq;
+        end
     end
 
     %Adds the domain boundary (border) to all plot types
@@ -228,16 +295,26 @@ function [hh] = pdeplot2dff(points,boundary,triangles,varargin)
              [ypts(boundary(1,:));ypts(boundary(2,:))],'Color','red','LineWidth',2);
     end
 
-    if (~isempty(plottitle))
+    if ~isempty(plottitle)
         title(plottitle);
     end
-    if (~strcmpi(plotxlim,'minmax'))
+    if ~strcmpi(plotxlim,'minmax')
         xlim(plotxlim);
     end
-    if (~strcmpi(plotylim,'minmax'))
+    if ~strcmpi(plotylim,'minmax')
         ylim(plotylim);
     end
-
+    if (is2dmode) && (~strcmpi(axisaspect,'off'))
+        if strcmpi(axisaspect,'xyequal')
+            daspect([1 1 1]);
+        else
+            if isnumeric(axisaspect)
+                daspect(axisaspect);
+            end
+        end
+    end
+    varargout{1}=hh;
+    varargout{2}=clab;
 end
 
 function [S] = rowvec(S)
@@ -249,7 +326,7 @@ end
 
 %To improve the runtime, the interpolation functions for contour() and
 %quiver() are doubled, rather than merging everything into one function
-function [u,v] = flowtri2grid(tx, ty, tu, tv, X, Y)
+function [u,v] = plottri2grid2int(X, Y, tx, ty, tu, tv)
     u=NaN(numel(Y),numel(X));
     v=NaN(numel(Y),numel(X));
     ax=tx(1,:);
@@ -279,7 +356,7 @@ function [u,v] = flowtri2grid(tx, ty, tu, tv, X, Y)
     end
 end
 
-function [u] = scalartri2grid(tx, ty, tc, X, Y)
+function [u] = plottri2grid1int(X, Y, tx, ty, tc)
     u=NaN(numel(Y),numel(X));
     ax=tx(1,:);
     ay=ty(1,:);
@@ -305,28 +382,57 @@ function [u] = scalartri2grid(tx, ty, tc, X, Y)
     end
 end
 
+function [varargout] = preparedata(points,triangles,data)
+    M=rowvec(data);
+    [ndim,ndof]=size(M);
+    [~,nv]=size(points);
+    varargout=cell(1,ndim);
+    if (ndof==nv)
+        %Data in points/vertex format (P1-Simulation): Works for P1 FE-space only
+        for i=1:ndim
+            cols=M(i,:);
+            varargout{i}=[cols(triangles(1,:)); cols(triangles(2,:)); cols(triangles(3,:))];
+        end
+    else
+        %Data in triangle format (work around): Works for P1 as well as for other Elements
+        [~,nt]=size(triangles);
+        if ~((nt*3)==ndof)
+            error('unable to recognize input data format');
+        end
+        for i=1:ndim
+            varargout{i}=reshape(M(i,:),3,nt);
+        end
+    end
+end
+
 function printhelp()
     fprintf('%s\n\n','Invalid call to pdeplot2dff.  Correct usage is:');
     fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,varargin)');
-    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,''XYData'',u,''ColorMap'',''jet'',''Mesh'',''on'')');
-    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,''XYData'',u,''ZStyle'',''on'')');
-    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,''XYData'',u,''Edge'',''on'',''Contour'',''on'',''Levels'',10)');
+    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,''Edge'',''on'')');
+    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,''Edge'',''on'',''Mesh'',''on'')');
+    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,''XYData'',u)');
+    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,''XYData'',u,''ZStyle'',''continuous'')');
+    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,''XYData'',u,''Contour'',''on'')');
+    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,''FlowData'',v,''Edge'',''on'')');
     fprintf('\n');
-    fprintf('''XYData''     Scalar value in order to colorize the plot\n');
-    fprintf('''ZStyle''     3D surface instead of 2D Map plot (default=''off'')\n');
-    fprintf('''ColorMap''   Specifies the colormap (default=''jet'')\n');
-    fprintf('''ColorBar''   Indicator in order to include a colorbar (default=''on'')\n');
-    fprintf('''Mesh''       Switches the mesh off/on (default=''off'')\n');
-    fprintf('''Edge''       Shows the PDE boundary (default=''off'')\n');
-    fprintf('''Contour''    Isovalue plot (default=''off'' ; accepted values : ''on'', ''off'' or ''value'')\n');
-    fprintf('''Levels''     Number of isovalues for contour plot (default=10)\n');
-    fprintf('''ColorRange'' Range of values to ajust the colormap (default=''minmax'', or specify [min,max])\n');
-    fprintf('''Title''      Title (default=[])\n');
-    fprintf('''XLim''       Range for the x-axis (default=''minmax'')\n');
-    fprintf('''YLim''       Range for the y-axis (default=''minmax'')\n');
-    fprintf('''ZLim''       Range for the z-axis (default=''minmax'')\n');
-    fprintf('''ZAspect''    3D Plot aspect ratio (default=''on'' ; accepted values : ''on'' or [a1,a2,a3])\n');
-    fprintf('''FlowData''   Data for quiver plot\n');
-    fprintf('''GridParam''  Number of grid points used for contour() and quiver() plots (''off'' or [N,M])\n');
+    fprintf('''XYData''      Data in order to colorize the plot\n');
+    fprintf('''XYStyle''     Coloring choice (default=''interp'')\n');
+    fprintf('''ZStyle''      Draws 3D surface plot instead of flat 2D Map plot (default=''off'')\n');
+    fprintf('''ColorMap''    ColorMap value or matrix of such values (default=''on'')\n');
+    fprintf('''ColorBar''    Indicator in order to include a colorbar\n');
+    fprintf('''ColorRange''  Range of values to ajust the color thresholds (default=''minmax'')\n');
+    fprintf('''Mesh''        Switches the mesh off / on (default=''off'')\n');
+    fprintf('''Edge''        Shows the PDE boundary / edges (default=''off'')\n');
+    fprintf('''Contour''     Isovalue plot (default=''off'')\n');
+    fprintf('''CData''       Use extra (overlay) data to draw the contour plot\n');
+    fprintf('''CLevels''     Number of isovalues used in the contour plot (default=10)\n');
+    fprintf('''CGridParam''  Number of grid points used for the contour plot (default=''off'')\n');
+    fprintf('''Title''       Title (default=[])\n');
+    fprintf('''XLim''        Range for the x-axis (default=''minmax'')\n');
+    fprintf('''YLim''        Range for the y-axis (default=''minmax'')\n');
+    fprintf('''ZLim''        Range for the z-axis (default=''minmax'')\n');
+    fprintf('''DAspect''     Data unit length of the xy- and z-axes (default=''xyequal'')\n');
+    fprintf('''FlowData''    Data for quiver plot\n');
+    fprintf('''FGridParam''  Number of grid points used for quiver plot (default=''off'')\n');
     fprintf('\n');
 end

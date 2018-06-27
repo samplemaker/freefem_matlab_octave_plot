@@ -1,10 +1,32 @@
-%ffreadmesh.m Reads FreeFem++ Mesh File
+%ffreadmesh.m Reads FreeFem++ Mesh Files into Matlab / Octave
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
 %
-%   [nv,nt,ns,points,tri,bd]=ffreadmesh(filename) reads a FreeFem++
-%   mesh file created with the FreeFem++ savemesh(Th,"mesh.msh") command.
+%   This file is a part of the ffmatlib which is hosted at
+%   https://github.com/samplemaker/freefem_matlab_octave_plot
+%
+%   [nv,nbe,nt,p,b,t] = ffreadmesh(filename) reads a FreeFem++
+%   mesh file created by the FreeFem++ savemesh(Th,"2dmesh.msh") or
+%   savemesh(Th3d,"3dmesh.mesh") command.
+%   2D FreeFem++ Format:
+%      nv:  Number of points/vertices (nbvx, Th.nv) in the Mesh
+%      nt:  Number of tetrahedra (nbtet, Th.nt) in the Mesh
+%      nbe: Number of (boundary) triangles (nbtri, Th.nbe)
+%      p: Matrix containing the points coordinates
+%      b: Matrix containing the edges
+%      t: Matrix containing the triangles
+%   3D GMSH Format:
+%      nv:  Number of points/vertices (Th.nv) in the Mesh
+%      nt:  Number of triangles (Th.nt) in the Mesh
+%      nbe: Number of (boundary) edges (Th.nbe)
+%      p: Matrix containing the points coordinates
+%      b: Matrix containing the edges
+%      t: Matrix containing the triangles
+%
+%   savemesh(Th,"2d.msh"); FreeFem++ format
+%   savemesh(Th,"2d.mesh"); writes two files ??
+%   savemesh(Th3d,"3d.mesh"); GMSH format
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %
@@ -22,12 +44,9 @@
 % along with this program.  If not, see
 % <https://www.gnu.org/licenses/>.
 %
+%
 
-%savemesh(Th,"2d.msh"); FreeFem++ format
-%savemesh(Th,"2d.mesh"); writes two files
-%savemesh(Th3d,"3d.mesh"); GMSH format
-
-function [nv,nt,ns,p,t,b]=ffreadmesh(filename)
+function [nv,nbe,nt,p,b,t]=ffreadmesh(filename)
 
     mesh_format_FF=1;
     mesh_format_GMSH=2;
@@ -57,35 +76,35 @@ function [nv,nt,ns,p,t,b]=ffreadmesh(filename)
 
     switch meshformat
         case mesh_format_FF
-          
+
               fline = fgetl(fid);
               dimension=numel(strsplit(strtrim(fline),' '))-1;
-              fprintf('mesh_format_FF; dimension=%i\n',dimension);
+              fprintf('FreeFem++ .msh; dimension=%i\n',dimension);
               frewind(fid);
               if ~(dimension==2)
                    error('only supported dimension is 2');
               end
               %start over
               headerline=textscan(fid,'%f %f %f',1,'Delimiter','\n');
-              %n vertex
+              %points/vertices
               nv=headerline{1};
-              %n triangle
+              %triangles
               nt=headerline{2};
-              %n edges
-              ns=headerline{3};
+              %boundary/edges
+              nbe=headerline{3};
               tmp=textscan(fid,repmat('%f ',[1, 3]),nv,'Delimiter','\n');
               %vertex coordinates [x,y] and boundary label
               p=cell2mat(tmp)';
               %triangle definition - vertex numbers (counter clock wise) and region label
               tmp=textscan(fid,repmat('%f ',[1, 4]),nt,'Delimiter','\n');
               t=cell2mat(tmp)';
-              %boundary definition
-              tmp=textscan(fid,repmat('%f ',[1, 3]),ns,'Delimiter','\n');
+              %boundary definition (a set of edges)
+              tmp=textscan(fid,repmat('%f ',[1, 3]),nbe,'Delimiter','\n');
               b=cell2mat(tmp)';
               fclose(fid);
-              fprintf('nvertex:%i ntriangle:%i nboundary:%i\n',nv,nt,ns);
-              fprintf('NaNs %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
-              fprintf('sizes %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));
+              fprintf('[Vertices nv:%i; Triangles nt:%i; Edge (Boundary) nbe:%i]\n',nv,nt,nbe);
+              fprintf('NaNs: %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
+              fprintf('Sizes: %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));
 
         case mesh_format_GMSH
 
@@ -94,10 +113,11 @@ function [nv,nt,ns,p,t,b]=ffreadmesh(filename)
                  fline = fgetl(fid);
                  i=i+1;
               end
+              %points/vertices (nbvx, Th.nv)
               nv=str2double(fgetl(fid));
               fline=fgetl(fid);
               dimension=numel(strsplit(strtrim(fline),' '))-1;
-              fprintf('mesh_format_GMSH; dimension %i\n',dimension);
+              fprintf('GMSH .mesh; dimension=%i\n',dimension);
               if ~(dimension==3)
                   error('only supported dimension is 3');
               end
@@ -110,23 +130,25 @@ function [nv,nt,ns,p,t,b]=ffreadmesh(filename)
                  fline = fgetl(fid);
                  i=i+1;
               end
+              %ntetrahedra (nbtet, Th.nt)
               nt=str2double(fgetl(fid));
               %(1_1, 1_2, 1_3, 1_4, Rlabel1), (2_1, 2_2, 2_3, 2_4, Rlabel2) ...
               tmp=textscan(fid,repmat('%f ',[1, 5]),nt,'Delimiter','\n');
-              t=cell2mat(tmp)'; 
+              t=cell2mat(tmp)';
 
               i=1;
               while (isempty(regexpi(fline,'^(Triangles)\s*$','tokens')) && ~feof(fid))
                  fline = fgetl(fid);
                  i=i+1;
               end
-              ns=str2double(fgetl(fid));
+              %nboundary/ntriangle (nbtri, Th.nbe)
+              nbe=str2double(fgetl(fid));
               %(1_1, 1_2, 1_3, Blabel1), (2_1, 2_2, 2_3, Blabel2) ...
-              tmp=textscan(fid,repmat('%f ',[1, 4]),ns,'Delimiter','\n');
+              tmp=textscan(fid,repmat('%f ',[1, 4]),nbe,'Delimiter','\n');
               b=cell2mat(tmp)';
-              fprintf('vertex nbvx:%i tetrahedra nbtet:%i ntriangle boundary nbtri:%i\n',nv,nt,ns);
-              fprintf('NaNs %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
-              fprintf('sizes %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));
+              fprintf('[Vertices nv:%i; Tetrahedras nt:%i; Triangles (Boundary) nbe:%i]\n',nv,nt,nbe);
+              fprintf('NaNs: %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
+              fprintf('Sizes: %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));
               fclose(fid);
 
         otherwise
