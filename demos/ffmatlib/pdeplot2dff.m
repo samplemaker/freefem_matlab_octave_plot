@@ -38,7 +38,7 @@
 %                       'on' | 'off' (default)
 %      'Contour'     Isovalue plot
 %                       'off' (default) | 'on'
-%      'CColor'      Color if level curves
+%      'CColor'      Enables isovalue colors
 %                       'off' (default) | 'on'
 %      'CData'       Use extra (overlay) data to draw the contour plot
 %                       FreeFem++ points | FreeFem++ triangle data
@@ -140,7 +140,7 @@ function [varargout] = pdeplot2dff(points,boundary,triangles,varargin)
                 if (strcmpi(xystyle,'interp'))
                     %With Mesh
                     if ~strcmpi(showmesh,'off')
-                        hh=patch(dataX,dataY,dataC,'EdgeColor',[0 0 1],'LineWidth',1);
+                        hh=patch(dataX,dataY,dataC,'EdgeColor',[0 0 0],'LineWidth',1);
                     else
                         %Without Mesh
                         hh=patch(dataX,dataY,dataC,'EdgeColor','none');
@@ -160,7 +160,7 @@ function [varargout] = pdeplot2dff(points,boundary,triangles,varargin)
                 if (strcmpi(xystyle,'interp'))
                     %With Mesh
                     if ~strcmpi(showmesh,'off')
-                        hh=patch(dataX,dataY,dataC,dataC,'EdgeColor',[0 0 1],'LineWidth',1);
+                        hh=patch(dataX,dataY,dataC,dataC,'EdgeColor',[0 0 0],'LineWidth',1);
                     else
                         %Without Mesh
                         hh=patch(dataX,dataY,dataC,dataC,'EdgeColor','none');
@@ -223,7 +223,7 @@ function [varargout] = pdeplot2dff(points,boundary,triangles,varargin)
             if strcmpi(xystyle,'interp')
                 hh=patch(dataX,dataY,dataC,'EdgeColor','none');
                 hold on;
-                [clab,hhc]=contour(X,Y,C,isolevels,'LineColor',[0 0 1]);
+                [clab,hhc]=contour(X,Y,C,isolevels,'LineColor',[0 0 0]);
                 hh=[hh; hhc];
                 hold off;
             %Isovalues only
@@ -407,13 +407,13 @@ end
 
 function printhelp()
     fprintf('%s\n\n','Invalid call to pdeplot2dff.  Correct usage is:');
-    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,varargin)');
-    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,''Edge'',''on'')');
-    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,''Edge'',''on'',''Mesh'',''on'')');
-    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,''XYData'',u)');
-    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,''XYData'',u,''ZStyle'',''continuous'')');
-    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,''XYData'',u,''Contour'',''on'')');
-    fprintf('%s\n',' -- [handles] = pdeplot2dff (points,boundary,triangles,''FlowData'',v,''Edge'',''on'')');
+    fprintf('%s\n',' -- [varargout] = pdeplot2dff (points,boundary,triangles,varargin)');
+    fprintf('%s\n',' -- [varargout] = pdeplot2dff (points,boundary,triangles,''Edge'',''on'')');
+    fprintf('%s\n',' -- [varargout] = pdeplot2dff (points,boundary,triangles,''Edge'',''on'',''Mesh'',''on'')');
+    fprintf('%s\n',' -- [varargout] = pdeplot2dff (points,boundary,triangles,''XYData'',u)');
+    fprintf('%s\n',' -- [varargout] = pdeplot2dff (points,boundary,triangles,''XYData'',u,''ZStyle'',''continuous'')');
+    fprintf('%s\n',' -- [varargout] = pdeplot2dff (points,boundary,triangles,''XYData'',u,''Contour'',''on'')');
+    fprintf('%s\n',' -- [varargout] = pdeplot2dff (points,boundary,triangles,''FlowData'',v,''Edge'',''on'')');
     fprintf('\n');
     fprintf('''XYData''      Data in order to colorize the plot\n');
     fprintf('''XYStyle''     Coloring choice (default=''interp'')\n');
@@ -424,6 +424,7 @@ function printhelp()
     fprintf('''Mesh''        Switches the mesh off / on (default=''off'')\n');
     fprintf('''Edge''        Shows the PDE boundary / edges (default=''off'')\n');
     fprintf('''Contour''     Isovalue plot (default=''off'')\n');
+    fprintf('''CColor''      Enables isovalue colors (default=''off'')\n');
     fprintf('''CData''       Use extra (overlay) data to draw the contour plot\n');
     fprintf('''CLevels''     Number of isovalues used in the contour plot (default=10)\n');
     fprintf('''CGridParam''  Number of grid points used for the contour plot (default=''off'')\n');

@@ -10,19 +10,19 @@
 %   mesh file created by the FreeFem++ savemesh(Th,"2dmesh.msh") or
 %   savemesh(Th3d,"3dmesh.mesh") command.
 %   2D FreeFem++ Format:
-%      nv:  Number of points/vertices (nbvx, Th.nv) in the Mesh
-%      nt:  Number of tetrahedra (nbtet, Th.nt) in the Mesh
-%      nbe: Number of (boundary) triangles (nbtri, Th.nbe)
-%      p: Matrix containing the points coordinates
-%      b: Matrix containing the edges
-%      t: Matrix containing the triangles
-%   3D GMSH Format:
 %      nv:  Number of points/vertices (Th.nv) in the Mesh
 %      nt:  Number of triangles (Th.nt) in the Mesh
 %      nbe: Number of (boundary) edges (Th.nbe)
 %      p: Matrix containing the points coordinates
 %      b: Matrix containing the edges
 %      t: Matrix containing the triangles
+%   3D GMSH Format:
+%      nv:  Number of points/vertices (nbvx, Th.nv) in the Mesh
+%      nt:  Number of tetrahedra (nbtet, Th.nt) in the Mesh
+%      nbe: Number of (boundary) triangles (nbtri, Th.nbe)
+%      p: Matrix containing the points coordinates
+%      b: Matrix containing the triangles
+%      t: Matrix containing the tetrahedra
 %
 %   savemesh(Th,"2d.msh"); FreeFem++ format
 %   savemesh(Th,"2d.mesh"); writes two files ??
