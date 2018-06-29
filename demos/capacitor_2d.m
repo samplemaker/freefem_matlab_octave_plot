@@ -83,22 +83,6 @@ zlabel('u');
 title(handles(2),'U[V]');
 grid;
 
-%%%%%% 3D Surf Plot nice jet and interpolation problem
-
-figure;
-
-handles=pdeplot2dff(points,boundary,triangles, ...
-                    'XYData',u, ...
-                    'ZStyle','continuous', ...
-                    'ColorMap','jet', ...
-                    'Mesh','off', ...
-                    'Title','3D Patch Plot (Electrostatic Potential)');
-ylabel('y');
-xlabel('x');
-zlabel('u');
-title(handles(2),'U[V]');
-grid;
-
 %%%%%% 3D Surf Plot Gouroud lighting
 
 figure;
@@ -115,8 +99,6 @@ title(handles(2),'U[V]');
 grid;
 
 lighting gouraud;
-%h=light;
-% lightangle(h,-50,60);
 view([-47,24]);
 camlight('headlight');
 

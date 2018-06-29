@@ -89,19 +89,6 @@ pdeplot2dff(points,boundary,triangles, ...
             'XYData',u,'ZStyle','continuous', ...
             'Title','Classic 3D Surf Plot');
 
-%%%%%%% 3D Surface
-figure();
-pdeplot2dff(points,boundary,triangles, ...
-            'XYData',u,'ZStyle','continuous', ...
-            'Title','Classic 3D Surf Plot');
-
-lighting gouraud;
-h=light;
-lightangle(h,-180,60);
-view([-166,40]);
-%camlight('left');
-grid;
-
 %%%%%%% 3D Surface with Mesh
 figure();
 pdeplot2dff(points,boundary,triangles, ...
