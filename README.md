@@ -2,11 +2,11 @@
 
 Once you have successfully simulated a PDE problem using FreeFem++ you may want to have a look at your simulation results from within Matlab&copy; or Octave. `ffmatlib` provides some useful commands in order to load FreeFem++ meshes and simulation data and to call the underlying Matlab/Octave plot routines like `contour()`, `quiver()` as well as `patch()`.
 
-![](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/3dsurf_10.png)
+![](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_3d_gouraud.png)
 
 ## Getting started
 
-  * Click on the button `Clone or download` and then on the button `Download ZIP`
+  * Click on the button `Clone or download` (see above) and then on the button `Download ZIP`
   * Unzip and change to the directory `demos` and run all FreeFem++ *.epd scripts to create simulation data for plotting
   * Run the matlab `*.m` demo files with Matlab or Octave
 
@@ -40,7 +40,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 | Name | Description |
 | --- | --- |
-| [pdeplot2dff()](#pdeplot2dfffct) | Creates contour(), quiver() as well as patch() plots from FreeFem++ simulation data |
+| [pdeplot2dff()](#pdeplot2dfffct) | Creates contour(), quiver() as well as patch() plots from FreeFem++ 2D simulation data |
 | [ffreadmesh()](#ffreadmeshfct) | Reads FreeFem++ Mesh Files into Matlab/Octave |
 | [plottri2grid()](#plottri2gridfct) | Interpolates from 2D triangular mesh to 2D rectangular grid |
 
@@ -72,16 +72,22 @@ The content of the points `p`, boundary conditions `b` and triangles `t` argumen
 |           |       'cool' (default) \| colormap name \| three-column matrix of RGB triplets |
 | 'ColorBar' |   Indicator in order to include a colorbar |
 |            |      'on' (default) \| 'off' |
-| 'ColorRange' | Range of values to ajust the color thresholds |
+| 'ColorRange' | Range of values to adjust the color thresholds |
 |          |        'minmax' (default) \| [min,max] |
 | 'Mesh' |       Switches the mesh off / on |
 |         |         'on' \| 'off' (default) |
-| 'Edge' |       Shows the PDE boundary / edges |
+| 'Edge' |       Shows the boundary / edges |
 |          |        'on' \| 'off' (default) |
+| 'ELabs' |    Draws boundary / edges with a specific label |
+|          |        [] (default) | [label1,label2,...] |
 | 'Contour' |    Isovalue plot |
 |           |       'off' (default) \| 'on' |
-| 'CColor' |     Enables isovalue colors |
-|           |       'off' (default) \| 'on' |
+| 'CColor' |     Isovalue color |
+|           |       [0,0,0] (default) \| 'auto' \| RGB triplet \| 'r' \| 'g' \| 'b' \| |
+| 'CXYData' |    Use extra (overlay) data to draw the contour plot |
+|           |       FreeFem++ points \| FreeFem++ triangle data |
+| 'CStyle'  |    Contour line style |
+|           |     'plain' (default) \| 'dashed' |
 | 'CLevels' |    Number of isovalues used in the contour plot |
 |           |       (default=10) |
 | 'CGridParam' | Number of grid points used for the contour plot |
@@ -106,8 +112,8 @@ The content of the points `p`, boundary conditions `b` and triangles `t` argumen
 To create a plot first read the mesh data and the simulation data:
 
 ```Matlab
-[nv,nbe,nt,p,b,t]=ffreadmesh('demo_mesh.msh');
-fid=fopen('demo_data.txt','r');
+[nv,nbe,nt,p,b,t]=ffreadmesh('capacitorp1.msh');
+fid=fopen('capacitor_potential_p1only.txt','r');
 data=textscan(fid,'%f','Delimiter','\n');
 fclose(fid);
 u=cell2mat(data);
@@ -123,7 +129,7 @@ Plot of the Domain Boundary:
 pdeplot2dff(p,b,t,'Edge','on');
 ```
 
-3D Surf plot:
+3D Surf Plot:
 ```Matlab
 pdeplot2dff(p,b,t,'XYData',u,'ZStyle','continuous');
 ```
@@ -186,32 +192,56 @@ These three blocks are stored in the variables p,b and t.
 
 Read a mesh file and simulation data into the Matlab/Octave workspace:
 ```Matlab
-[nv,nbe,nt,points,boundary,triangles]=ffreadmesh('demo_mesh.msh');
-fid=fopen('demo_data.txt','r');
+[nv,nbe,nt,points,boundary,triangles]=ffreadmesh('capacitorp1.msh');
+fid=fopen('capacitor_potential_p1only.txt','r');
 data=textscan(fid,'%f','Delimiter','\n');
 fclose(fid);
 u=cell2mat(data);
+[sz1,sz2]=size(u);
+fprintf('Size of data (nDof): %i %i\n',sz1,sz2);
 ```
 
 <a name="plottri2gridfct"></a>
 
 ## plottri2grid()
 
-interpolates the data `tu[,tv]` given on a triangular mesh defined by `tx` and `ty` on a rectangular mesh grid defined by `X` and `Y`. To create contour or quiver plots `pdeplot2dff()` has its own interpolation routine in vectorized Matlab code. However to improve runtime there is an additional MEX implementation for the interpolation routine. If Matlab/Octave finds an executable of `plottri2grid.c` within its search path the faster C-implementation is used automatically.
+interpolates the data `tu[,tv]` given on a triangular mesh defined by `tx` and `ty` on a rectangular mesh grid defined by the two vectors `x` and `y`.<br>
+To create contour or quiver plots `pdeplot2dff()` has its own interpolation routine in the form of a vectorized Matlab/Octave code. However to improve runtime there is an external MEX implementation of this code section. If Matlab/Octave finds an executable file of `plottri2grid.c` within its search path the faster C-implementation is used instead of the internal interpolation routine.
 
 #### Syntax
 
 ```Matlab
-[u] = plottri2grid (X, Y, tx, ty, tu)
+[u] = plottri2grid (x, y, tx, ty, tu)
 ```
 
 ```Matlab
-[u,v] = plottri2grid (X, Y, tx, ty, tu, tv)
+[u,v] = plottri2grid (x, y, tx, ty, tu, tv)
 ```
 
 #### Description
 
-`plottri2grid()` is using barycentric interpolation. `tx`, `ty`, `tu`, `tv` must have a size of 3xnTriangles. `tv` and `v` is optional and used for quiver plots only. The return value `u[,v]` is the interpolation at the grid points `X`, `Y`. The function returns `NaN's` if an interpolation point is outside the triangle mesh. For more information see also [Notes on MEX Compilation](#notesoncompilation).
+`plottri2grid()` uses a barycentric interpolation. `tx`, `ty` are 3xnTriangles matrices containing the triangle vertice coordinates. `tu`, `tv` must be the same size and contain the data at the triangle vertices. `tv` and `v` is optional and used only for quiver plots. The return value `u[,v]` is the interpolation at the grid points `x`, `y`. The function returns `NaN's` if an interpolation point is outside the triangle mesh. For more information see also [Notes on MEX Compilation](#notesoncompilation).
+
+#### Examples
+
+```Matlab
+[nv,nbe,nt,p,b,t]=ffreadmesh('capacitorp1.msh');
+fid=fopen('capacitor_potential_p1only.txt','r');
+data=textscan(fid,'%f','Delimiter','\n');
+fclose(fid);
+u=cell2mat(data)';
+x=linspace(-5,5,500);
+y=linspace(-5,5,500);
+xpts=p(1,:);
+ypts=p(2,:);
+xdata=[xpts(t(1,:)); xpts(t(2,:)); xpts(t(3,:))];
+ydata=[ypts(t(1,:)); ypts(t(2,:)); ypts(t(3,:))];
+udata=[u(t(1,:)); u(t(2,:)); u(t(3,:))];
+U=plottri2grid(x,y,xdata,ydata,udata);
+[X,Y]=meshgrid(x,y);
+surf(X,Y,U,'EdgeColor','none');
+view(3);
+```
 
 <a name="exportfromff"></a>
 
@@ -222,25 +252,31 @@ There are two different possibilities to store data and create plots with the `f
 1.) Points Data  
 2.) Triangle Data  
 
-The first one is especially suitable for P1 FE-Space simulation results because the amount of data to be written is very small. But this concept does not work for higher order simulations. In order to be able to plot higher order FE-Space simulations as well the simulation data must be converted to P1 data or must be interpolated on the triangle vertices before storage (case 2).
+The first method is the prefered one and especially suitable for P1 FE-Space simulations because the amount of data to be written is very small. In order to be able to plot higher order FE-Space simulations as well the simulation data must be converted into P1 data or must be interpolated on the triangle vertices (method 2).
 
 From within the FreeFem++ script write the simulation data with the following statement sequence:
 
 ### 2D Problems (P1-Elements)
 
-Scalar data:
+Writes the Mesh:
 
 ```Matlab
-ofstream file("data_file.txt"); 
+savemesh(Th,"capacitorp1.msh");
+```
+
+Writes scalar data:
+
+```Matlab
+ofstream file("capacitor_potential_p1only.txt"); 
 for (int j=0; j<Vh.ndof; j++)
    file << u[][j] << endl;
 }
 ```
 
-Vector fields:
+Writes 2D vector fields:
 
 ```Matlab
-ofstream file("data_file.txt");
+ofstream file("capacitor_field_p1only.txt");
 for (int j=0; j<Vh.ndof; j++)
    file << Ex[][j] << " " << Ey[][j] << endl;
 }

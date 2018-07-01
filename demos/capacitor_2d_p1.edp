@@ -24,6 +24,7 @@
  *
  */
 
+verbosity=0;
 int CA=1, CK=2;
 
 //width, height, distance
@@ -99,14 +100,14 @@ cout << endl;
 cout << "NbBoundaryElements:\t" <<  Th.nbe << endl;
 cout << "NbTriangles:\t\t" <<  Th.nt << endl;
 cout << "NbVertices:\t\t" <<  Th.nv << endl;
-cout << "nDoF:\t\t\t" << Vh.ndof << endl; 
+cout << "nDoF:\t\t\t" << Vh.ndof << endl;
 cout << endl;
 
 savemesh(Th,"capacitorp1.msh");
 
 //Import points data will work with P1 data only
 {
-ofstream file("capacitor_potential_p1only.txt"); 
+ofstream file("capacitor_potential_p1only.txt");
 for (int j=0; j<Vh.ndof; j++)
    file << u[][j] << endl;
 }

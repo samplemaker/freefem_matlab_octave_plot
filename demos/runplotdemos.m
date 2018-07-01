@@ -5,6 +5,8 @@ fprintf('capacitor_2d_p1.edp\n');
 system('FreeFem++ -ns -nw -v 0 capacitor_2d_p1.edp');
 fprintf('demo_pdeplot_2d_p1.edp\n');
 system('FreeFem++ -ns -nw -v 0 demo_pdeplot_2d_p1.edp');
+fprintf('convective_rolls.edp\n');
+system('FreeFem++ -ns -nw -v 0 convective_rolls.edp');
 fprintf('demo1_getstarted.edp\n');
 system('FreeFem++ -ns -nw -v 0 demo1_getstarted.edp');
 fprintf('demo2_plot2d.edp\n');

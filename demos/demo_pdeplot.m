@@ -106,18 +106,24 @@ figure();
 pdeplot2dff(points,boundary,triangles, ...
             'XYData',u,'Edge','on','Contour','on', 'XYStyle','off', ...
             'ColorBar','off', ...
-            'Title','Contour');
+            'Title','Contour BW');
 
 %%%%%%% Contour Plot with colors
 figure();
 pdeplot2dff(points,boundary,triangles, ...
-            'XYData',u,'Edge','on','Contour','on','CColor','on', 'XYStyle','off', ...
+            'XYData',u,'Edge','on','Contour','on','CColor','auto', 'XYStyle','off', ...
             'Title','Contour with colors');
 
 %%%%%%% Contour Plot Mixed with 2D Patch
 figure();
 pdeplot2dff(points,boundary,triangles, ...
             'XYData',u,'Edge','on','Contour','on', ...
+            'Title','Contour mixed with Patch Plot');
+
+%%%%%%% Contour Plot Mixed with 2D Patch and dashed lines
+figure();
+pdeplot2dff(points,boundary,triangles, ...
+            'XYData',u,'Edge','on','Contour','on', 'CStyle','dashed', ...
             'Title','Contour mixed with Patch Plot');
 
 %%%%%%% Contour Plot
@@ -141,7 +147,7 @@ for i=1:size(texth)
     textstrnew=sprintf('%0.3f', textnum);
     set(texth(i),'String',textstrnew);
 end
-       
+
 %%%%%%% 2D PDE Map Plot axis limits
 figure();
 pdeplot2dff(points,boundary,triangles, ...
@@ -191,5 +197,16 @@ pdeplot2dff(points,boundary,triangles, ...
 
 axis tight;
 
-% pause(10);
-% close all;
+%%%%%%% 3D Surface Lighting - possibly available on Matlab only
+figure();
+pdeplot2dff(points,boundary,triangles, ...
+            'XYData',u,'ZStyle','continuous', ...
+            'Title','Classic 3D Surf Plot Gouraud');
+
+lighting gouraud;
+view([-166,40]);
+camlight('left');
+grid;
+
+pause(10);
+close all;

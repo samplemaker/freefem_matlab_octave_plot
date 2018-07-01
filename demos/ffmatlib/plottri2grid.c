@@ -3,11 +3,11 @@
  * Author: Chloros2 <chloros2@gmx.de>
  * Created: 2018-05-13
  *
- *   [u,[v]] = plottri2grid (X, Y, tx, ty, tu[, tv]) interpolates the data [tu,tv]
- *   which is given on a triangular mesh defined by tx, ty onto a rectangular grid defined
- *   by X and Y. tx, ty, tu, tv must have a size of 3xnTriangle. tv, v is optional.
- *   The return value [u,v] is the interpolation at the grid points
- *   X, Y. Returns NaN's if an interpolation point is outside the triangle mesh.
+ *   [u,[v]] = plottri2grid (x, y, tx, ty, tu[, tv]) interpolates the data [tu,tv]
+ *   which is given on a triangular mesh defined by tx, ty onto a rectangular grid
+ *   defined by x and y. tx, ty, tu, tv must have a size of 3xnTriangle. tv, v is
+ *   optional. The return value [u,v] is the interpolation at the grid points
+ *   x, y. Returns NaN's if an interpolation point is outside the triangle mesh.
  *   Runtime can be considered approx x33 faster than the Matlab version.
  *
  *   Octave users compile the mex file with the command:
@@ -48,8 +48,8 @@
 #define max3(a,b,c) ( ((a)>(b)) ? (((a)>(c)) ? (a):(c)) : (((b)>(c)) ? (b):(c)) )
 
 void
-plottri2grid(double *X, double *Y, double *x, double *y, double *u, double *v,
-             double **out,int nOuts, mwSize nTri, mwSize nX,  mwSize nY){
+plottri2grid(double *x, double *y, double *tx, double *ty, double *tu, double *tv,
+             double **out,int nOuts, mwSize nTri, mwSize nx,  mwSize ny){
 
   double *invA0=(double *)mxMalloc(nTri*sizeof(double));
   double init=mxGetNaN( );
@@ -58,14 +58,14 @@ plottri2grid(double *X, double *Y, double *x, double *y, double *u, double *v,
   mwSize j=0;
   mwSize nNodes=3*nTri;
   for (mwSize i=0; i<nTri; i++) {
-     invA0[i]=1.0/((y[j+1]-y[j+2])*(x[j]-x[j+2])+(x[j+2]-x[j+1])*(y[j]-y[j+2]));
+     invA0[i]=1.0/((ty[j+1]-ty[j+2])*(tx[j]-tx[j+2])+(tx[j+2]-tx[j+1])*(ty[j]-ty[j+2]));
      j=j+3;
   }
 
   /*For all grid points of the grid */
-  for (mwSize mx=0; mx<nX; mx++){
-     for (mwSize my=0; my<nY; my++){
-        mwSize ofs = (mx*nY)+my;
+  for (mwSize mx=0; mx<nx; mx++){
+     for (mwSize my=0; my<ny; my++){
+        mwSize ofs = (mx*ny)+my;
         for (mwSize ncols=0; ncols<nOuts; ncols++){
           *(out[ncols]+ofs) = init;
         }
@@ -74,24 +74,24 @@ plottri2grid(double *X, double *Y, double *x, double *y, double *u, double *v,
         while (doSearchTri && (i<nNodes)){
            /*If the point (X,Y) is outside a square defined by the TRI
              vertices, the point can not be within the TRI */
-           bool presel=((X[mx]<=max3(x[i],x[i+1],x[i+2])) &&
-                        (X[mx]>=min3(x[i],x[i+1],x[i+2])) &&
-                        (Y[my]<=max3(y[i],y[i+1],y[i+2])) &&
-                        (Y[my]>=min3(y[i],y[i+1],y[i+2])));
+           bool presel=((x[mx]<=max3(tx[i],tx[i+1],tx[i+2])) &&
+                        (x[mx]>=min3(tx[i],tx[i+1],tx[i+2])) &&
+                        (y[my]<=max3(ty[i],ty[i+1],ty[i+2])) &&
+                        (y[my]>=min3(ty[i],ty[i+1],ty[i+2])));
            /*Potential candiate - calculate Barycentric Coordinates */
            if (presel) {
               /* Sub-triangle areas */
-              double Aa=((y[i+1]-y[i+2])*(X[mx]-x[i+2])+
-                         (x[i+2]-x[i+1])*(Y[my]-y[i+2]))*invA0[j];
-              double Ab=((y[i+2]-y[i])*(X[mx]-x[i+2])+
-                         (x[i]-x[i+2])*(Y[my]-y[i+2]))*invA0[j];
+              double Aa=((ty[i+1]-ty[i+2])*(x[mx]-tx[i+2])+
+                         (tx[i+2]-tx[i+1])*(y[my]-ty[i+2]))*invA0[j];
+              double Ab=((ty[i+2]-ty[i])*(x[mx]-tx[i+2])+
+                         (tx[i]-tx[i+2])*(y[my]-ty[i+2]))*invA0[j];
               double Ac=1.0-Aa-Ab;
               /*If point is inside the triangle */
               if ((Aa>=0) && (Ab>=0) && (Ac>=0)){
                  /*Interpolates */
-                 *(out[0]+ofs) = Aa*u[i]+Ab*u[i+1]+Ac*u[i+2];
+                 *(out[0]+ofs) = Aa*tu[i]+Ab*tu[i+1]+Ac*tu[i+2];
                  if (nOuts==2){
-                    *(out[1]+ofs) = Aa*v[i]+Ab*v[i+1]+Ac*v[i+2];
+                    *(out[1]+ofs) = Aa*tv[i]+Ab*tv[i+1]+Ac*tv[i+2];
                  }
                  doSearchTri=false;
               }
@@ -111,20 +111,20 @@ void mexFunction(int nlhs, mxArray *plhs[],
   mwSize mrows[6], ncols[6];
 
   switch(nrhs) {
-    //[u,v] = tri2gridfst (X, Y, tx, ty, tu, tv)
+    //[u,v] = tri2gridfst (x, y, tx, ty, tu, tv)
     case 6:
       if (nlhs!=2){
          mexErrMsgTxt("2 output arguments required");
       }
     break;
-    //c = tri2gridfst (X, Y, tx, ty, tu) 
+    //u = tri2gridfst (x, y, tx, ty, tu)
     case 5:
       if (nlhs!=1){
          mexErrMsgTxt("1 output arguments required");
       }
       inMatrix[5] = NULL;
     break;
-    default: 
+    default:
       mexErrMsgTxt("wrong number of input arguments");
     break;
   }
@@ -137,7 +137,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   }
 
   if (!((min1(mrows[0],ncols[0])==1) && (min1(mrows[1],ncols[1])==1))){
-     mexErrMsgTxt("Input 1, 2: must be a vector");  
+     mexErrMsgTxt("Input 1, 2: must be a vector");
   }
   mwSize nX=max1(mrows[0],ncols[0]);
   mwSize nY=max1(mrows[1],ncols[1]);
