@@ -1,4 +1,4 @@
-%capacitor_2d.m The parallel plate capacitor problem
+%vortex_rolls.m Free convection problem between to flat plates
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13
@@ -25,16 +25,23 @@ clear all;
 addpath('ffmatlib');
 
 %Reads a FreeFem++ mesh created with the savemesh(Th,"mesh.msh"); command
-[nv,nbe,nt,points,boundary,triangles]=ffreadmesh('capacitorp1.msh');
+[nv,nbe,nt,points,boundary,triangles]=ffreadmesh('convective_rolls.msh');
 
-fid=fopen('capacitor_potential_p1only.txt','r');
+fid=fopen('convective_rolls_temperature.txt','r');
 data=textscan(fid,'%f','Delimiter','\n');
 fclose(fid);
 u=cell2mat(data);
 [sz1,sz2]=size(u);
 fprintf('Size of data (nDof): %i %i\n', sz1,sz2);
 
-fid=fopen('capacitor_field_p1only.txt','r');
+fid=fopen('convective_rolls_stream.txt','r');
+data=textscan(fid,'%f','Delimiter','\n');
+fclose(fid);
+psi=cell2mat(data);
+[sz1,sz2]=size(psi);
+fprintf('Size of data (nDof): %i %i\n', sz1,sz2);
+
+fid=fopen('convective_rolls_velocity.txt','r');
 data=textscan(fid,'%f %f','Delimiter','\n');
 fclose(fid);
 v=cell2mat(data)';
@@ -42,28 +49,18 @@ v=cell2mat(data)';
 
 %%%%%% 2D Patch (density map) Plot
 
+figure('Position', [20 50 1200 400]);
 handles=pdeplot2dff(points,boundary,triangles, ...
                     'XYData',u, ...
                     'Mesh','on', ...
                     'Edge','on', ...
-                    'XLim',[-2 2],'YLim',[-2 2], ...
-                    'Title','2D Patch Plot (Electrostatic Potential)');
+                    'Title','Temperature');
 
-title(handles(2),'U[V]');
+title(handles(2),'T[degC]');
 ylabel('y');
 xlabel('x');
+axis tight;
 
-%%%%%% Mesh Plot
-
-figure;
-
-handles=pdeplot2dff(points,boundary,triangles, ...
-                    'Mesh','on', ...
-                    'Edge','on', ...
-                    'Title','Boundary/Edge (Capacitor Electrodes) and 2D Mesh');
-
-ylabel('y');
-xlabel('x');
 
 %%%%%% 3D Surf Plot
 
@@ -72,66 +69,73 @@ figure;
 handles=pdeplot2dff(points,boundary,triangles, ...
                     'XYData',u, ...
                     'ZStyle','continuous', ...
-                    'Mesh','on', ...
-                    'Title','3D Patch Plot (Electrostatic Potential)');
+                    'Mesh','off', ...
+                    'Title','Temperature');
 ylabel('y');
 xlabel('x');
 zlabel('u');
-title(handles(2),'U[V]');
+title(handles(2),'T[degC]');
 grid;
 
-%%%%%% 3D Surf Plot nice jet and interpolation problem
 
-figure;
+%%%%%% Combine Patch and Contour
 
+figure('Position', [20 50 1200 400]);
 handles=pdeplot2dff(points,boundary,triangles, ...
                     'XYData',u, ...
-                    'ZStyle','continuous', ...
-                    'ColorMap','jet', ...
                     'Mesh','off', ...
-                    'Title','3D Patch Plot (Electrostatic Potential)');
+                    'Edge','on', ...
+                    'Contour','on', ...
+                    'CXYData',psi, ...
+                    'CStyle','plain', ...
+                    'XYStyle','interp', ...
+                    'CGridParam',[150, 150], ...
+                    'ColorMap','jet', ...
+                    'Title','Stream lines overlayed Temperature');
+
 ylabel('y');
 xlabel('x');
-zlabel('u');
-title(handles(2),'U[V]');
-grid;
+title(handles(3),'T[degC]');
+axis tight;
 
-%%%%%% Combine Quiver and Contour
+%%%%%% Contour
 
-figure;
+figure('Position', [20 50 1200 400]);
+handles=pdeplot2dff(points,boundary,triangles, ...
+                    'Mesh','off', ...
+                    'Edge','on', ...
+                    'Contour','on', ...
+                    'CColor','auto', ...
+                    'XYData',psi, ...
+                    'CStyle','plain', ...
+                    'XYStyle','off', ...
+                    'CGridParam',[150, 150], ...
+                    'ColorMap','jet', ...
+                    'Title','Streamlines');
+
+ylabel('y');
+xlabel('x');
+title(handles(2),'Psi[(m^3/s)/m]');
+axis tight;
+
+%%%%%% Combine Quiver and Patch
+
+figure('Position', [20 50 1200 400]);
 
 handles=pdeplot2dff(points,boundary,triangles, ...
                     'XYData',u, ...
                     'Mesh','off', ...
                     'Edge','on', ...
-                    'XLim',[-2 2],'YLim',[-2 2], ...
-                    'Contour','on', ...
-                    'CColor',[0 0 1], ...
-                    'XYStyle','off', ...
-                    'CGridParam',[150, 150], ...
-                    'ColorBar','off', ...
+                    'ColorMap','jet', ...
                     'FlowData',v, ...
-                    'FGridParam',[60, 60], ...
-                    'Title','Quiver+Contour Interpolation Plot');
+                    'FGridParam',[60, 15], ...
+                    'Title','Velocity + Temperature');
 
 ylabel('y');
 xlabel('x');
+title(handles(2),'T[degC]');
 
-%%%%%% 3D Surf Plot Gouraud lighting
+axis tight;
 
-figure;
-
-handles=pdeplot2dff(points,boundary,triangles, ...
-                    'XYData',u, ...
-                    'ZStyle','continuous', ...
-                    'Mesh','off', ...
-                    'Title','');
-ylabel('y');
-xlabel('x');
-zlabel('u');
-title(handles(2),'U[V]');
-grid;
-
-lighting gouraud;
-view([-47,24]);
-camlight('headlight');
+% pause(20);
+% close all;

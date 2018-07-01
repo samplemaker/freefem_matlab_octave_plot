@@ -4,11 +4,9 @@ clear all;
 addpath('ffmatlib');
 
 %Reads a FreeFem++ mesh created with the savemesh(Th,"mesh.msh"); command
-%[nv,nbe,nt,points,boundary,triangles]=ffreadmesh('demo_meshp2.msh');
 [nv,nbe,nt,points,boundary,triangles]=ffreadmesh('demo_meshp1.msh');
 
 %Reads the PDE data
-%fid=fopen('demo_data_triangle.txt','r');
 fid=fopen('demo_data_points_p1.txt','r');
 data=textscan(fid,'%f','Delimiter','\n');
 fclose(fid);
@@ -16,7 +14,6 @@ u=cell2mat(data);
 [sz1,sz2]=size(u);
 fprintf('size of data (nDof): %i %i\n', sz1,sz2);
 
-%fid=fopen('demo_flowdata_triangle.txt','r');
 fid=fopen('demo_flowdata_points_p1.txt','r');
 data=textscan(fid,'%f %f','Delimiter','\n');
 fclose(fid);
