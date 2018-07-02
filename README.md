@@ -247,7 +247,7 @@ To create contour or quiver plots `ffpdeplot()` has its own interpolation routin
 #### Examples
 
 ```Matlab
-[nv,nbe,nt,p,b,t]=ffreadmesh('capacitorp1.msh');
+[p,b,t]=ffreadmesh('capacitorp1.msh');
 u=ffreaddata('capacitor_potential_p1only.txt')';
 x=linspace(-5,5,500);
 y=linspace(-5,5,500);
