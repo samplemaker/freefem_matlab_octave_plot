@@ -28,7 +28,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 <a name="pdeplotexample"></a>
 
-### 2D-Various pdeplot2dff() Examples
+### 2D-Various ffpdeplot() Examples
 
 [demo_pdeplot.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/demo_pdeplot.m)  
 
@@ -40,25 +40,25 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 | Name | Description |
 | --- | --- |
-| [pdeplot2dff()](#pdeplot2dfffct) | Creates contour(), quiver() as well as patch() plots from FreeFem++ 2D simulation data |
+| [ffpdeplot()](#ffpdeplotfct) | Creates contour(), quiver() as well as patch() plots from FreeFem++ 2D simulation data |
 | [ffreadmesh()](#ffreadmeshfct) | Reads FreeFem++ Mesh Files into Matlab/Octave |
 | [plottri2grid()](#plottri2gridfct) | Interpolates from 2D triangular mesh to 2D rectangular grid |
 
-<a name="pdeplot2dfffct"></a>
+<a name="ffpdeplotfct"></a>
 
-## pdeplot2dff()
+## ffpdeplot()
 
-`pdeplot2dff()` is a function specially tailored to FreeFem++ that offers most of the features of the classic `pdeplot()` command. The FEM-Mesh is entered by vertex coordinates, the boundary values, and the triangle definition as provided by the FreeFem++ `savemesh(Th, "mesh_file.msh")` command. The simulation data can be entered either as point data (native support for P1 simulation data) or as interpolation at the nodes.
+`ffpdeplot()` is a function specially tailored to FreeFem++ that offers most of the features of the classic `pdeplot()` command. The FEM-Mesh is entered by vertex coordinates, the boundary values, and the triangle definition as provided by the FreeFem++ `savemesh(Th, "mesh_file.msh")` command. The simulation data can be entered either as point data (native support for P1 simulation data) or as interpolation at the nodes.
 
 #### Syntax
 
 ```Matlab
-[vargout] = pdeplot2dff(p,b,t,varargin)
+[vargout] = ffpdeplot(p,b,t,varargin)
 ```
 
 #### Description / Name-Value Pair Arguments
 
-The content of the points `p`, boundary conditions `b` and triangles `t` arguments are explained in section [ffreadmesh()](#ffreadmeshfct). `pdeplot2dff()` can be called with name-value pair arguments as per following table:
+The content of the points `p`, boundary conditions `b` and triangles `t` arguments are explained in section [ffreadmesh()](#ffreadmeshfct). `ffpdeplot()` can be called with name-value pair arguments as per following table:
 
 | Parameter | Value |
 | --- | --- |
@@ -121,27 +121,27 @@ u=cell2mat(data);
 
 2D Patch (2D Map or Density) Plot:
 ```Matlab
-pdeplot2dff(p,b,t,'XYData',u,'Mesh','on','Edge','on');
+ffpdeplot(p,b,t,'XYData',u,'Mesh','on','Edge','on');
 ```
 
 Plot of the Domain Boundary:
 ```Matlab
-pdeplot2dff(p,b,t,'Edge','on');
+ffpdeplot(p,b,t,'Edge','on');
 ```
 
 3D Surf Plot:
 ```Matlab
-pdeplot2dff(p,b,t,'XYData',u,'ZStyle','continuous');
+ffpdeplot(p,b,t,'XYData',u,'ZStyle','continuous');
 ```
 
 Contour Plot:
 ```Matlab
-pdeplot2dff(p,b,t,'XYData',u,'Contour','on','Edge','on');
+ffpdeplot(p,b,t,'XYData',u,'Contour','on','Edge','on');
 ```
 
 Quiver Plot:
 ```Matlab
-pdeplot2dff(p,b,t,'FlowData',v,'Edge','on');
+ffpdeplot(p,b,t,'FlowData',v,'Edge','on');
 ```
 
 <a name="ffreadmeshfct"></a>
@@ -153,7 +153,7 @@ Reads a FreeFem++ mesh file created by the FreeFem++ `savemesh(Th,"2dmesh.msh")`
 #### Syntax
 
 ```Matlab
-[nv,nbe,nt,p,b,t] = ffreadmesh(filename)
+[p,b,t,nv,nbe,nt,labels] = ffreadmesh(filename)
 ```
 
 #### Description
@@ -170,29 +170,31 @@ These three blocks are stored in the variables p,b and t.
 
 | Parameter | Value |
 | --- | --- |
-| nv | Number of points/vertices (Th.nv) in the Mesh |
-| nt | Number of triangles (Th.nt) in the Mesh |
-| nbe | Number of (boundary) edges (Th.nbe) |
 | p | Matrix containing the points coordinates |
 | b | Matrix containing the edges |
 | t | Matrix containing the triangles |
+| nv | Number of points/vertices (Th.nv) in the Mesh |
+| nt | Number of triangles (Th.nt) in the Mesh |
+| nbe | Number of (boundary) edges (Th.nbe) |
+| labels | All labels found in the mesh file |
 
 **3D GMSH Format**
 
 | Parameter | Value |
 | --- | --- |
-| nv | Number of points/vertices (nbvx, Th.nv) in the Mesh |
-| nt | Number of tetrahedra (nbtet, Th.nt) in the Mesh |
-| nbe | Number of (boundary) triangles (nbtri, Th.nbe) |
 | p | Matrix containing the points coordinates |
 | b | Matrix containing the triangles |
 | t | Matrix containing the tetrahedra |
+| nv | Number of points/vertices (nbvx, Th.nv) in the Mesh |
+| nt | Number of tetrahedra (nbtet, Th.nt) in the Mesh |
+| nbe | Number of (boundary) triangles (nbtri, Th.nbe) |
+| labels | All labels found in the mesh file |
 
 #### Examples
 
 Read a mesh file and simulation data into the Matlab/Octave workspace:
 ```Matlab
-[nv,nbe,nt,points,boundary,triangles]=ffreadmesh('capacitorp1.msh');
+[points,boundary,triangles]=ffreadmesh('capacitorp1.msh');
 fid=fopen('capacitor_potential_p1only.txt','r');
 data=textscan(fid,'%f','Delimiter','\n');
 fclose(fid);
@@ -206,7 +208,7 @@ fprintf('Size of data (nDof): %i %i\n',sz1,sz2);
 ## plottri2grid()
 
 interpolates the data `tu[,tv]` given on a triangular mesh defined by `tx` and `ty` on a rectangular mesh grid defined by the two vectors `x` and `y`.<br>
-To create contour or quiver plots `pdeplot2dff()` has its own interpolation routine in the form of a vectorized Matlab/Octave code. However to improve runtime there is an external MEX implementation of this code section. If Matlab/Octave finds an executable file of `plottri2grid.c` within its search path the faster C-implementation is used instead of the internal interpolation routine.
+To create contour or quiver plots `ffpdeplot()` has its own interpolation routine in the form of a vectorized Matlab/Octave code. However to improve runtime there is an external MEX implementation of this code section. If Matlab/Octave finds an executable file of `plottri2grid.c` within its search path the faster C-implementation is used instead of the internal interpolation routine.
 
 #### Syntax
 
