@@ -215,11 +215,11 @@ function [varargout] = ffpdeplot(points,boundary,triangles,varargin)
             else
                 ccdata=cdata;
             end
-            if exist('plottri2grid','file')
-                C=plottri2grid(x,y,xdata,ydata,ccdata);
+            if exist('ffplottri2grid','file')
+                C=ffplottri2grid(x,y,xdata,ydata,ccdata);
             else
                 if (N>100)
-                    fprintf('Note: To improve runtime compile MEX function plottri2grid()\n');
+                    fprintf('Note: To improve runtime compile MEX function ffplottri2grid()\n');
                 end
                 C=plottri2grid1int(x,y,xdata,ydata,ccdata);
             end
@@ -275,8 +275,8 @@ function [varargout] = ffpdeplot(points,boundary,triangles,varargin)
         x=linspace(xmin,xmax,N);
         y=linspace(ymin,ymax,M);
         [X,Y]=meshgrid(x,y);
-        if exist('plottri2grid','file')
-            [U,V]=plottri2grid(x,y,xdata,ydata,udata,vdata);
+        if exist('ffplottri2grid','file')
+            [U,V]=ffplottri2grid(x,y,xdata,ydata,udata,vdata);
         else
             [U,V]=plottri2grid2int(x,y,xdata,ydata,udata,vdata);
         end

@@ -26,19 +26,9 @@ addpath('ffmatlib');
 
 %Reads a FreeFem++ mesh created with the savemesh(Th,"mesh.msh"); command
 [points,boundary,triangles]=ffreadmesh('capacitorp1.msh');
-
-fid=fopen('capacitor_potential_p1only.txt','r');
-data=textscan(fid,'%f','Delimiter','\n');
-fclose(fid);
-u=cell2mat(data);
-[sz1,sz2]=size(u);
-fprintf('Size of data (nDof): %i %i\n', sz1,sz2);
-
-fid=fopen('capacitor_field_p1only.txt','r');
-data=textscan(fid,'%f %f','Delimiter','\n');
-fclose(fid);
-v=cell2mat(data)';
-
+%Reads the PDE data
+[u]=ffreaddata('capacitor_potential_p1only.txt');
+[Ex,Ey]=ffreaddata('capacitor_field_p1only.txt');
 
 %%%%%% 2D Patch (density map) Plot
 
@@ -94,7 +84,7 @@ handles=ffpdeplot(points,boundary,triangles, ...
                   'XYStyle','off', ...
                   'CGridParam',[150, 150], ...
                   'ColorBar','off', ...
-                  'FlowData',v, ...
+                  'FlowData',[Ex,Ey], ...
                   'FGridParam',[60, 60], ...
                   'Title','Quiver+Contour Interpolation Plot');
 

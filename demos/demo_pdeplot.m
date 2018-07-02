@@ -5,19 +5,9 @@ addpath('ffmatlib');
 
 %Reads a FreeFem++ mesh created with the savemesh(Th,"mesh.msh"); command
 [points,boundary,triangles]=ffreadmesh('demo_meshp1.msh');
-
 %Reads the PDE data
-fid=fopen('demo_data_points_p1.txt','r');
-data=textscan(fid,'%f','Delimiter','\n');
-fclose(fid);
-u=cell2mat(data);
-[sz1,sz2]=size(u);
-fprintf('size of data (nDof): %i %i\n', sz1,sz2);
-
-fid=fopen('demo_flowdata_points_p1.txt','r');
-data=textscan(fid,'%f %f','Delimiter','\n');
-fclose(fid);
-v=cell2mat(data)';
+u=ffreaddata('demo_data_points_p1.txt');
+[vx,vy]=ffreaddata('demo_flowdata_points_p1.txt');
 
 %%%%%%% 2D Mesh Plot
 figure();
@@ -173,7 +163,7 @@ ffpdeplot(points,boundary,triangles, ...
 %%%%%%% Quiver
 figure();
 ffpdeplot(points,boundary,triangles, ...
-          'FlowData',v,'Edge','on', ...
+          'FlowData',[vx,vy],'Edge','on', ...
           'Title','Quiver default');
 
 axis tight;
@@ -181,7 +171,7 @@ axis tight;
 %%%%%%% Quiver
 figure();
 ffpdeplot(points,boundary,triangles, ...
-          'FlowData',v,'FGridParam',[26,30],'Edge','on', ...
+          'FlowData',[vx,vy],'FGridParam',[26,30],'Edge','on', ...
           'Title','Quiver Plot with GridParam');
 
 axis tight;
@@ -189,7 +179,7 @@ axis tight;
 %%%%%%% Superposition Quiver + 2D
 figure();
 ffpdeplot(points,boundary,triangles, ...
-          'XYData',u,'FlowData',v,'FGridParam',[26,30],'Edge','on', ...
+          'XYData',u,'FlowData',[vx,vy],'FGridParam',[26,30],'Edge','on', ...
           'Title','Quiver Plot combined with 2D Map Patch Plot');
 
 axis tight;
@@ -205,5 +195,5 @@ view([-166,40]);
 camlight('left');
 grid;
 
-%pause(10);
-%close all;
+pause(10);
+close all;

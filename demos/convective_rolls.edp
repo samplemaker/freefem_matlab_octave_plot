@@ -110,17 +110,7 @@ for(real t=0;t<tend;t+=dt){
 
     reuseMatrix=true;
 
-    qx=-lambda*dx(r);
-    qy=-lambda*dy(r);
-    real heatflux = int1d(Th,C1,qfe=qf2pE)(qx*N.x+qy*N.y);
-    cout << endl;
     cout << "Timestamp:\t\t" << t << "sec / " << tend << "sec" << endl;
-    cout << "Heat transfer:\t\t" << heatflux << "W/m" << endl;
-    real alpha = -heatflux/(lenfloor*(Thot-Tcold));
-    cout << "Heat transfer coef:\t" << alpha << "W/m^2K" << endl;
-    cout << "Prandtl Number:\t\t" << nu/a << endl;
-    cout << "Beta:\t\t\t" << beta << "1/K" << endl;
-    cout << "Thermal diffusivity:\t" << a << "m^2/s" << endl;
 
     streamlines;
     //plot(psi,nbiso=20, fill=false,value=true,cmm="Streamlines [(m^3/s)/m]; t="+t+"sec; alpha="+alpha+"W/m^2K",wait=0);
@@ -128,6 +118,17 @@ for(real t=0;t<tend;t+=dt){
     n=n+1;
 }
 
+qx=-lambda*dx(r);
+qy=-lambda*dy(r);
+real heatflux = int1d(Th,C1,qfe=qf2pE)(qx*N.x+qy*N.y);
+cout << endl;
+cout << "Heat transfer:\t\t" << heatflux << "W/m" << endl;
+real alpha = -heatflux/(lenfloor*(Thot-Tcold));
+cout << "Heat transfer coef:\t" << alpha << "W/m^2K" << endl;
+cout << "Prandtl Number:\t\t" << nu/a << endl;
+cout << "Beta:\t\t\t" << beta << "1/K" << endl;
+cout << "Thermal diffusivity:\t" << a << "m^2/s" << endl;
+    
 cout << endl;
 cout << "NbBoundaryElements:\t" <<  Th.nbe << endl;
 cout << "NbTriangles:\t\t" <<  Th.nt << endl;

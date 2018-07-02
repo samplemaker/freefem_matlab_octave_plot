@@ -42,23 +42,24 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 | --- | --- |
 | [ffpdeplot()](#ffpdeplotfct) | Creates contour(), quiver() as well as patch() plots from FreeFem++ 2D simulation data |
 | [ffreadmesh()](#ffreadmeshfct) | Reads FreeFem++ Mesh Files into Matlab/Octave |
-| [plottri2grid()](#plottri2gridfct) | Interpolates from 2D triangular mesh to 2D rectangular grid |
+| [ffreaddata()](#ffreaddatafct) | Reads FreeFem++ Data Files into Matlab/Octave |
+| [ffplottri2grid()](#ffplottri2gridfct) | Interpolates from 2D triangular mesh to 2D rectangular grid |
 
 <a name="ffpdeplotfct"></a>
 
 ## ffpdeplot()
 
-`ffpdeplot()` is a function specially tailored to FreeFem++ that offers most of the features of the classic `pdeplot()` command. The FEM-Mesh is entered by vertex coordinates, the boundary values, and the triangle definition as provided by the FreeFem++ `savemesh(Th, "mesh_file.msh")` command. The simulation data can be entered either as point data (native support for P1 simulation data) or as interpolation at the nodes.
+`ffpdeplot()` is a function specially tailored to FreeFem++ that offers most of the features of the classic Matlab `pdeplot()` command. The FEM-Mesh is entered by vertex coordinates, the boundary values, and the triangle definition as provided by the FreeFem++ `savemesh(Th, "mesh_file.msh")` command. The simulation data can be entered either as point data (native support for P1 simulation data) or as interpolation at the nodes.
 
 #### Syntax
 
 ```Matlab
-[vargout] = ffpdeplot(p,b,t,varargin)
+[varargout] = ffpdeplot(p,b,t,varargin)
 ```
 
 #### Description / Name-Value Pair Arguments
 
-The content of the points `p`, boundary conditions `b` and triangles `t` arguments are explained in section [ffreadmesh()](#ffreadmeshfct). `ffpdeplot()` can be called with name-value pair arguments as per following table:
+The contents of the points `p`, boundary conditions `b` and triangles `t` arguments are explained in section [ffreadmesh()](#ffreadmeshfct). `ffpdeplot()` can be called with name-value pair arguments as per following table:
 
 | Parameter | Value |
 | --- | --- |
@@ -107,16 +108,16 @@ The content of the points `p`, boundary conditions `b` and triangles `t` argumen
 | 'FGridParam' | Number of grid points used for quiver plot |
 |             |     'auto' (default) \| [N,M] |
 
+The return value `varargout` contains handles to the plot figures.
+
 #### Examples
 
-To create a plot first read the mesh data and the simulation data:
+To create a plot read the mesh and the simulation data:
 
 ```Matlab
-[nv,nbe,nt,p,b,t]=ffreadmesh('capacitorp1.msh');
-fid=fopen('capacitor_potential_p1only.txt','r');
-data=textscan(fid,'%f','Delimiter','\n');
-fclose(fid);
-u=cell2mat(data);
+[p,b,t]=ffreadmesh('capacitorp1.msh');
+[u]=ffreaddata('capacitor_potential_p1only.txt');
+[Ex,Ey]=ffreaddata('capacitor_field_p1only.txt');
 ```
 
 2D Patch (2D Map or Density) Plot:
@@ -141,7 +142,7 @@ ffpdeplot(p,b,t,'XYData',u,'Contour','on','Edge','on');
 
 Quiver Plot:
 ```Matlab
-ffpdeplot(p,b,t,'FlowData',v,'Edge','on');
+ffpdeplot(p,b,t,'FlowData',[Ex,Ey],'Edge','on');
 ```
 
 <a name="ffreadmeshfct"></a>
@@ -160,7 +161,7 @@ Reads a FreeFem++ mesh file created by the FreeFem++ `savemesh(Th,"2dmesh.msh")`
 
 A mesh consists of three main parts:  
 
-1. the points or mesh node coordinates  
+1. the points or mesh node coordinates including labels  
 2. list of triangles or tetrahedra defining the mesh-elements  
 3. list of boundary elements  
 
@@ -170,7 +171,7 @@ These three blocks are stored in the variables p,b and t.
 
 | Parameter | Value |
 | --- | --- |
-| p | Matrix containing the points coordinates |
+| p | Matrix containing the points coordinates and labels |
 | b | Matrix containing the edges |
 | t | Matrix containing the triangles |
 | nv | Number of points/vertices (Th.nv) in the Mesh |
@@ -182,7 +183,7 @@ These three blocks are stored in the variables p,b and t.
 
 | Parameter | Value |
 | --- | --- |
-| p | Matrix containing the points coordinates |
+| p | Matrix containing the points coordinates and labels |
 | b | Matrix containing the triangles |
 | t | Matrix containing the tetrahedra |
 | nv | Number of points/vertices (nbvx, Th.nv) in the Mesh |
@@ -192,46 +193,62 @@ These three blocks are stored in the variables p,b and t.
 
 #### Examples
 
-Read a mesh file and simulation data into the Matlab/Octave workspace:
+Read a mesh file into the Matlab/Octave workspace:
 ```Matlab
-[points,boundary,triangles]=ffreadmesh('capacitorp1.msh');
-fid=fopen('capacitor_potential_p1only.txt','r');
-data=textscan(fid,'%f','Delimiter','\n');
-fclose(fid);
-u=cell2mat(data);
-[sz1,sz2]=size(u);
-fprintf('Size of data (nDof): %i %i\n',sz1,sz2);
+[p,b,t,nv,nbe,nt,labels]=ffreadmesh('capacitorp1.msh');
+fprintf('[Vertices nv:%i; Triangles nt:%i; Edge (Boundary) nbe:%i]\n',nv,nt,nbe);
+fprintf('NaNs: %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
+fprintf('Sizes: %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));
+fprintf('Labels found: %i\n' ,nlabels);
+fprintf(['They are: ' repmat('%i ',1,size(labels,2)) '\n'],labels);
 ```
 
-<a name="plottri2gridfct"></a>
+<a name="ffreaddatafct"></a>
 
-## plottri2grid()
+## ffreaddata()
+
+Reads a FreeFem++ data file created by the FreeFem++ [scripts](#exportfromff) to the Matlab/Octave workspace.
+
+```Matlab
+[varargout] = ffreadmesh(filename)
+```
+
+#### Examples
+
+Read a mesh file into the Matlab/Octave workspace:
+
+```Matlab
+[u]=ffreaddata('capacitor_potential_p1only.txt');
+[Ex,Ey]=ffreaddata('capacitor_field_p1only.txt');
+```
+
+
+<a name="ffplottri2gridfct"></a>
+
+## ffplottri2grid()
 
 interpolates the data `tu[,tv]` given on a triangular mesh defined by `tx` and `ty` on a rectangular mesh grid defined by the two vectors `x` and `y`.<br>
-To create contour or quiver plots `ffpdeplot()` has its own interpolation routine in the form of a vectorized Matlab/Octave code. However to improve runtime there is an external MEX implementation of this code section. If Matlab/Octave finds an executable file of `plottri2grid.c` within its search path the faster C-implementation is used instead of the internal interpolation routine.
+To create contour or quiver plots `ffpdeplot()` has its own interpolation routine in the form of a vectorized Matlab/Octave code. However to improve runtime there is an external MEX implementation of this code section. If Matlab/Octave finds an executable file of `ffplottri2grid.c` within its search path the faster C-implementation is used instead of the internal interpolation routine.
 
 #### Syntax
 
 ```Matlab
-[u] = plottri2grid (x, y, tx, ty, tu)
+[u] = ffplottri2grid (x, y, tx, ty, tu)
 ```
 
 ```Matlab
-[u,v] = plottri2grid (x, y, tx, ty, tu, tv)
+[u,v] = ffplottri2grid (x, y, tx, ty, tu, tv)
 ```
 
 #### Description
 
-`plottri2grid()` uses a barycentric interpolation. `tx`, `ty` are 3xnTriangles matrices containing the triangle vertice coordinates. `tu`, `tv` must be the same size and contain the data at the triangle vertices. `tv` and `v` is optional and used only for quiver plots. The return value `u[,v]` is the interpolation at the grid points `x`, `y`. The function returns `NaN's` if an interpolation point is outside the triangle mesh. For more information see also [Notes on MEX Compilation](#notesoncompilation).
+`ffplottri2grid()` uses a barycentric interpolation. `tx`, `ty` are 3xnTriangles matrices containing the triangle vertice coordinates. `tu`, `tv` must be the same size and contain the data at the triangle vertices. `tv` and `v` is optional and used only for quiver plots. The return value `u[,v]` is the interpolation at the grid points `x`, `y`. The function returns `NaN's` if an interpolation point is outside the triangle mesh. For more information see also [Notes on MEX Compilation](#notesoncompilation).
 
 #### Examples
 
 ```Matlab
 [nv,nbe,nt,p,b,t]=ffreadmesh('capacitorp1.msh');
-fid=fopen('capacitor_potential_p1only.txt','r');
-data=textscan(fid,'%f','Delimiter','\n');
-fclose(fid);
-u=cell2mat(data)';
+u=ffreaddata('capacitor_potential_p1only.txt')';
 x=linspace(-5,5,500);
 y=linspace(-5,5,500);
 xpts=p(1,:);
@@ -239,7 +256,7 @@ ypts=p(2,:);
 xdata=[xpts(t(1,:)); xpts(t(2,:)); xpts(t(3,:))];
 ydata=[ypts(t(1,:)); ypts(t(2,:)); ypts(t(3,:))];
 udata=[u(t(1,:)); u(t(2,:)); u(t(3,:))];
-U=plottri2grid(x,y,xdata,ydata,udata);
+U=ffplottri2grid(x,y,xdata,ydata,udata);
 [X,Y]=meshgrid(x,y);
 surf(X,Y,U,'EdgeColor','none');
 view(3);
@@ -291,12 +308,12 @@ for (int j=0; j<Vh.ndof; j++)
 Octave:<br>
 In Octave seek to the folder `./ffmatlib/` and invoke the command 
 
-`mkoctfile --mex -Wall  plottri2grid.c`
+`mkoctfile --mex -Wall  ffplottri2grid.c`
 
 Windows:<br>
 Under Windows with Microsoft Visual Studio invoke 
 
-`mex  plottri2grid.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`
+`mex  ffplottri2grid.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`
 
 Note that C99 standard must be enabled. If your build fails with Microsoft Visual Studio 10, you can try to change the file name into *.cpp, forcing MVSD to use a C++ compiler.
 

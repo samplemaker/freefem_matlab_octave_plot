@@ -26,26 +26,10 @@ addpath('ffmatlib');
 
 %Reads a FreeFem++ mesh created with the savemesh(Th,"mesh.msh"); command
 [points,boundary,triangles]=ffreadmesh('convective_rolls.msh');
-
-fid=fopen('convective_rolls_temperature.txt','r');
-data=textscan(fid,'%f','Delimiter','\n');
-fclose(fid);
-u=cell2mat(data);
-[sz1,sz2]=size(u);
-fprintf('Size of data (nDof): %i %i\n', sz1,sz2);
-
-fid=fopen('convective_rolls_stream.txt','r');
-data=textscan(fid,'%f','Delimiter','\n');
-fclose(fid);
-psi=cell2mat(data);
-[sz1,sz2]=size(psi);
-fprintf('Size of data (nDof): %i %i\n', sz1,sz2);
-
-fid=fopen('convective_rolls_velocity.txt','r');
-data=textscan(fid,'%f %f','Delimiter','\n');
-fclose(fid);
-v=cell2mat(data)';
-
+%Reads the PDE data
+u=ffreaddata('convective_rolls_temperature.txt');
+psi=ffreaddata('convective_rolls_stream.txt');
+[vx,vy]=ffreaddata('convective_rolls_velocity.txt');
 
 %%%%%% 2D Patch (density map) Plot
 
@@ -127,7 +111,7 @@ handles=ffpdeplot(points,boundary,triangles, ...
                   'Mesh','off', ...
                   'Edge','on', ...
                   'ColorMap','jet', ...
-                  'FlowData',v, ...
+                  'FlowData',[vx,vy], ...
                   'FGridParam',[60, 15], ...
                   'Title','Velocity + Temperature');
 

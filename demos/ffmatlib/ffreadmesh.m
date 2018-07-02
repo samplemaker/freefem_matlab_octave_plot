@@ -48,6 +48,8 @@
 
 function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
 
+    verbose=0;
+
     mesh_format_FF=1;
     mesh_format_GMSH=2;
     mesh_format_NONE=-1;
@@ -79,7 +81,6 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
 
               fline = fgetl(fid);
               dimension=numel(strsplit(strtrim(fline),' '))-1;
-              fprintf('FreeFem++ .msh; dimension=%i\n',dimension);
               frewind(fid);
               if ~(dimension==2)
                    error('only supported dimension is 2');
@@ -102,14 +103,17 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
               tmp=textscan(fid,repmat('%f ',[1, 3]),nbe,'Delimiter','\n');
               b=cell2mat(tmp)';
               fclose(fid);
-              fprintf('[Vertices nv:%i; Triangles nt:%i; Edge (Boundary) nbe:%i]\n',nv,nt,nbe);
-              fprintf('NaNs: %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
-              fprintf('Sizes: %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));
-              labels=unique(p(3,p(3,:)>0));
+              labels=unique(p(3,p(3,:)~=0));
               nlabels=numel(labels);
-              fprintf('Labels found: %i\n' ,nlabels);
-              if nlabels<10
-                  fprintf(['They are: ' repmat('%i ',1,size(labels,2)) '\n'],labels);
+              if verbose
+                  fprintf('FreeFem++ .msh; dimension=%i\n',dimension);
+                  fprintf('[Vertices nv:%i; Triangles nt:%i; Edge (Boundary) nbe:%i]\n',nv,nt,nbe);
+                  fprintf('NaNs: %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
+                  fprintf('Sizes: %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));
+                  fprintf('Labels found: %i\n' ,nlabels);
+                  if nlabels<10
+                      fprintf(['They are: ' repmat('%i ',1,size(labels,2)) '\n'],labels);
+                  end
               end
 
         case mesh_format_GMSH
@@ -123,7 +127,6 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
               nv=str2double(fgetl(fid));
               fline=fgetl(fid);
               dimension=numel(strsplit(strtrim(fline),' '))-1;
-              fprintf('GMSH .mesh; dimension=%i\n',dimension);
               if ~(dimension==3)
                   error('only supported dimension is 3');
               end
@@ -153,14 +156,17 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
               tmp=textscan(fid,repmat('%f ',[1, 4]),nbe,'Delimiter','\n');
               b=cell2mat(tmp)';
               fclose(fid);
-              fprintf('[Vertices nv:%i; Tetrahedras nt:%i; Triangles (Boundary) nbe:%i]\n',nv,nt,nbe);
-              fprintf('NaNs: %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
-              fprintf('Sizes: %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));
-              labels=unique(p(4,p(4,:)>0));
+              labels=unique(p(4,p(4,:)~=0));
               nlabels=numel(labels);
-              fprintf('Labels found: %i\n' ,nlabels);
-              if nlabels<10
-                  fprintf(['They are: ' repmat('%i ',1,size(labels,2)) '\n'],labels);
+              if verbose
+                  fprintf('GMSH .mesh; dimension=%i\n',dimension);
+                  fprintf('[Vertices nv:%i; Tetrahedras nt:%i; Triangles (Boundary) nbe:%i]\n',nv,nt,nbe);
+                  fprintf('NaNs: %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
+                  fprintf('Sizes: %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));
+                  fprintf('Labels found: %i\n' ,nlabels);
+                  if nlabels<10
+                      fprintf(['They are: ' repmat('%i ',1,size(labels,2)) '\n'],labels);
+                  end
               end
 
         otherwise

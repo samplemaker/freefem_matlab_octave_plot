@@ -1,9 +1,9 @@
-/*plottri2grid.c Interpolates from 2D triangular mesh to 2D rectangular grid
+/*ffplottri2grid.c Interpolates from 2D triangular mesh to 2D rectangular grid
  *
  * Author: Chloros2 <chloros2@gmx.de>
  * Created: 2018-05-13
  *
- *   [u,[v]] = plottri2grid (x, y, tx, ty, tu[, tv]) interpolates the data [tu,tv]
+ *   [u,[v]] = ffplottri2grid (x, y, tx, ty, tu[, tv]) interpolates the data [tu,tv]
  *   which is given on a triangular mesh defined by tx, ty onto a rectangular grid
  *   defined by x and y. tx, ty, tu, tv must have a size of 3xnTriangle. tv, v is
  *   optional. The return value [u,v] is the interpolation at the grid points
@@ -12,11 +12,11 @@
  *
  *   Octave users compile the mex file with the command:
  *
- *       mkoctfile --mex -Wall plottri2grid.c
+ *       mkoctfile --mex -Wall ffplottri2grid.c
  *
  *   Windows users compile the mex file with the command:
  *
- *       mex plottri2grid.cpp -largeArrayDims
+ *       mex ffplottri2grid.cpp -largeArrayDims
  *
  *   Hint: We evaluate the PDE solution only on the grid vertices although the
  *   underlying FE space may have a higher order (P2 element, etc.).
@@ -48,8 +48,8 @@
 #define max3(a,b,c) ( ((a)>(b)) ? (((a)>(c)) ? (a):(c)) : (((b)>(c)) ? (b):(c)) )
 
 void
-plottri2grid(double *x, double *y, double *tx, double *ty, double *tu, double *tv,
-             double **out,int nOuts, mwSize nTri, mwSize nx,  mwSize ny){
+ffplottri2grid(double *x, double *y, double *tx, double *ty, double *tu, double *tv,
+               double **out,int nOuts, mwSize nTri, mwSize nx,  mwSize ny){
 
   double *invA0=(double *)mxMalloc(nTri*sizeof(double));
   double init=mxGetNaN( );
@@ -162,6 +162,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     outMatrix[i]=mxGetPr(plhs[i]);
   }
 
-  plottri2grid (inMatrix[0], inMatrix[1], inMatrix[2], inMatrix[3], inMatrix[4],
-                inMatrix[5], outMatrix, nlhs, nTri, nX, nY);
+  ffplottri2grid (inMatrix[0], inMatrix[1], inMatrix[2], inMatrix[3], inMatrix[4],
+                  inMatrix[5], outMatrix, nlhs, nTri, nX, nY);
 }
