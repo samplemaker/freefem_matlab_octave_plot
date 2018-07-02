@@ -1,4 +1,4 @@
-%pdeplot2dff.m Plot FreeFem ++ 2D mesh- and 2d simulation data
+%ffpdeplot.m Plot FreeFem ++ 2D mesh- and 2d simulation data
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-06-15
@@ -6,7 +6,7 @@
 %   This file is a part of the ffmatlib which is hosted at
 %   https://github.com/samplemaker/freefem_matlab_octave_plot
 %
-%   [varargout] = pdeplot2dff (points, boundary, triangles, varargin)
+%   [varargout] = ffpdeplot (points, boundary, triangles, varargin)
 %
 %   is a function specially tailored to FreeFem++ simulation data that
 %   offers most of the features of the classic pdeplot() command. The FEM-Mesh
@@ -16,7 +16,7 @@
 %   for P1 simulation data) or as interpolation at the nodes (workaround for
 %   P1, P2 and other FEM simulation results).
 %
-%   [varargout] = pdeplot2dff (...,'PARAM1',val1,'PARAM2',val2,...)
+%   [varargout] = ffpdeplot (...,'PARAM1',val1,'PARAM2',val2,...)
 %   specifies parameter name/value pairs to control the input file format
 %
 %       Parameter       Value
@@ -81,7 +81,7 @@
 % along with this program.  If not, see
 % <https://www.gnu.org/licenses/>.
 %
-function [varargout] = pdeplot2dff(points,boundary,triangles,varargin)
+function [varargout] = ffpdeplot(points,boundary,triangles,varargin)
 
     if (~mod(nargin,2) || (nargin<3))
         printhelp();
@@ -436,14 +436,14 @@ function [varargout] = plotcontour(X,Y,C,isolevels,ccolor,contourstyle)
 end
 
 function printhelp()
-    fprintf('%s\n\n','Invalid call to pdeplot2dff. Correct usage is:');
-    fprintf('%s\n',' -- [varargout] = pdeplot2dff (points,boundary,triangles,varargin)');
-    fprintf('%s\n',' -- [varargout] = pdeplot2dff (points,boundary,triangles,''Edge'',''on'')');
-    fprintf('%s\n',' -- [varargout] = pdeplot2dff (points,boundary,triangles,''Edge'',''on'',''Mesh'',''on'')');
-    fprintf('%s\n',' -- [varargout] = pdeplot2dff (points,boundary,triangles,''XYData'',u)');
-    fprintf('%s\n',' -- [varargout] = pdeplot2dff (points,boundary,triangles,''XYData'',u,''ZStyle'',''continuous'')');
-    fprintf('%s\n',' -- [varargout] = pdeplot2dff (points,boundary,triangles,''XYData'',u,''Contour'',''on'')');
-    fprintf('%s\n',' -- [varargout] = pdeplot2dff (points,boundary,triangles,''FlowData'',v,''Edge'',''on'')');
+    fprintf('%s\n\n','Invalid call to ffpdeplot. Correct usage is:');
+    fprintf('%s\n',' -- [varargout] = ffpdeplot (points,boundary,triangles,varargin)');
+    fprintf('%s\n',' -- [varargout] = ffpdeplot (points,boundary,triangles,''Edge'',''on'')');
+    fprintf('%s\n',' -- [varargout] = ffpdeplot (points,boundary,triangles,''Edge'',''on'',''Mesh'',''on'')');
+    fprintf('%s\n',' -- [varargout] = ffpdeplot (points,boundary,triangles,''XYData'',u)');
+    fprintf('%s\n',' -- [varargout] = ffpdeplot (points,boundary,triangles,''XYData'',u,''ZStyle'',''continuous'')');
+    fprintf('%s\n',' -- [varargout] = ffpdeplot (points,boundary,triangles,''XYData'',u,''Contour'',''on'')');
+    fprintf('%s\n',' -- [varargout] = ffpdeplot (points,boundary,triangles,''FlowData'',v,''Edge'',''on'')');
     fprintf('\n');
     fprintf('''XYData''      Data in order to colorize the plot\n');
     fprintf('''XYStyle''     Coloring choice (default=''interp'')\n');

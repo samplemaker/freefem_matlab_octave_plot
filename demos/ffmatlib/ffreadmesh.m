@@ -6,7 +6,7 @@
 %   This file is a part of the ffmatlib which is hosted at
 %   https://github.com/samplemaker/freefem_matlab_octave_plot
 %
-%   [nv,nbe,nt,p,b,t] = ffreadmesh(filename) reads a FreeFem++
+%   [p,b,tnv,nbe,nt,labels] = ffreadmesh(filename) reads a FreeFem++
 %   mesh file created by the FreeFem++ savemesh(Th,"2dmesh.msh") or
 %   savemesh(Th3d,"3dmesh.mesh") command.
 %   2D FreeFem++ Format:
@@ -46,7 +46,7 @@
 %
 %
 
-function [nv,nbe,nt,p,b,t]=ffreadmesh(filename)
+function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
 
     mesh_format_FF=1;
     mesh_format_GMSH=2;
@@ -105,6 +105,12 @@ function [nv,nbe,nt,p,b,t]=ffreadmesh(filename)
               fprintf('[Vertices nv:%i; Triangles nt:%i; Edge (Boundary) nbe:%i]\n',nv,nt,nbe);
               fprintf('NaNs: %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
               fprintf('Sizes: %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));
+              labels=unique(p(3,p(3,:)>0));
+              nlabels=numel(labels);
+              fprintf('Labels found: %i\n' ,nlabels);
+              if nlabels<10
+                  fprintf(['They are: ' repmat('%i ',1,size(labels,2)) '\n'],labels);
+              end
 
         case mesh_format_GMSH
 
@@ -146,10 +152,16 @@ function [nv,nbe,nt,p,b,t]=ffreadmesh(filename)
               %(1_1, 1_2, 1_3, Blabel1), (2_1, 2_2, 2_3, Blabel2) ...
               tmp=textscan(fid,repmat('%f ',[1, 4]),nbe,'Delimiter','\n');
               b=cell2mat(tmp)';
+              fclose(fid);
               fprintf('[Vertices nv:%i; Tetrahedras nt:%i; Triangles (Boundary) nbe:%i]\n',nv,nt,nbe);
               fprintf('NaNs: %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
               fprintf('Sizes: %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));
-              fclose(fid);
+              labels=unique(p(4,p(4,:)>0));
+              nlabels=numel(labels);
+              fprintf('Labels found: %i\n' ,nlabels);
+              if nlabels<10
+                  fprintf(['They are: ' repmat('%i ',1,size(labels,2)) '\n'],labels);
+              end
 
         otherwise
             error('unknown mesh file format');
