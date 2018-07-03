@@ -48,7 +48,7 @@
 
 function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
 
-    verbose=0;
+    verbose=1;
 
     mesh_format_FF=1;
     mesh_format_GMSH=2;
@@ -103,7 +103,7 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
               tmp=textscan(fid,repmat('%f ',[1, 3]),nbe,'Delimiter','\n');
               b=cell2mat(tmp)';
               fclose(fid);
-              labels=unique(p(3,p(3,:)~=0));
+              labels=unique(b(3,b(3,:)~=0));
               nlabels=numel(labels);
               if verbose
                   fprintf('FreeFem++ .msh; dimension=%i\n',dimension);
@@ -156,7 +156,7 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
               tmp=textscan(fid,repmat('%f ',[1, 4]),nbe,'Delimiter','\n');
               b=cell2mat(tmp)';
               fclose(fid);
-              labels=unique(p(4,p(4,:)~=0));
+              labels=unique(b(4,b(4,:)~=0));
               nlabels=numel(labels);
               if verbose
                   fprintf('GMSH .mesh; dimension=%i\n',dimension);

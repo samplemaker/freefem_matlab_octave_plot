@@ -29,7 +29,7 @@
 
 function [varargout] = ffreaddata(filename)
 
-    verbose=0;
+    verbose=1;
 
     if (nargin ~= 1)
         printhelp();

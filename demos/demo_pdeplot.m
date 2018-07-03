@@ -195,5 +195,5 @@ view([-166,40]);
 camlight('left');
 grid;
 
-pause(10);
-close all;
+%pause(10);
+%close all;

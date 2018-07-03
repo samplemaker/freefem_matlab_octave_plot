@@ -25,6 +25,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 [Screenshot: Mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_2d_mesh.png)  
 [Screenshot: Contour and Quiver](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_2d_contour.png)  
 [Screenshot: 2D Patch with Mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_2d_patch.png)  
+[Screenshot: Boundary and Labels](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_2d_labels.png)  
 
 <a name="pdeplotexample"></a>
 
@@ -287,7 +288,7 @@ Writes scalar data:
 
 ```Matlab
 ofstream file("capacitor_potential_p1only.txt"); 
-for (int j=0; j<Vh.ndof; j++)
+for (int j=0; j<u[].n; j++)
    file << u[][j] << endl;
 }
 ```
@@ -296,7 +297,7 @@ Writes 2D vector fields:
 
 ```Matlab
 ofstream file("capacitor_field_p1only.txt");
-for (int j=0; j<Vh.ndof; j++)
+for (int j=0; j<Ex[].n; j++)
    file << Ex[][j] << " " << Ey[][j] << endl;
 }
 ```

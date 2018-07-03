@@ -36,13 +36,13 @@ savemesh(Th,"demo_meshp1.msh");
 //This will work with P1 data only
 {
 ofstream file("demo_data_points_p1.txt");
-for (int j=0; j<Vh.ndof; j++)
+for (int j=0; j<u[].n; j++)
    file << u[][j] << endl;
 }
 
 {
 ofstream file("demo_flowdata_points_p1.txt");
-for (int j=0; j<Vh.ndof; j++)
+for (int j=0; j<qx[].n; j++)
    file << qx[][j] << " " << qy[][j] << endl;
 }
 

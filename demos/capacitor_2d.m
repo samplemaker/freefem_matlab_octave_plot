@@ -25,7 +25,7 @@ clear all;
 addpath('ffmatlib');
 
 %Reads a FreeFem++ mesh created with the savemesh(Th,"mesh.msh"); command
-[points,boundary,triangles]=ffreadmesh('capacitorp1.msh');
+[points,boundary,triangles,nv,nbe,nt,labels]=ffreadmesh('capacitorp1.msh');
 %Reads the PDE data
 [u]=ffreaddata('capacitor_potential_p1only.txt');
 [Ex,Ey]=ffreaddata('capacitor_field_p1only.txt');
@@ -91,6 +91,23 @@ handles=ffpdeplot(points,boundary,triangles, ...
 ylabel('y');
 xlabel('x');
 
+%%%%%% Show Labels
+
+figure;
+
+handles=ffpdeplot(points,boundary,triangles, ...
+                  'Mesh','off', ...
+                  'Edge','on', ...
+                  'Title','Boundary Labels');
+
+for i=1:numel(labels)
+    xpts=points(1,:);
+    ypts=points(2,:);
+    labpts=points(3,:);
+    pos=find((labpts==labels(i)),1,'first');
+    text(xpts(pos),ypts(pos),[num2str(labels(i))]);
+end
+
 %%%%%% 3D Surf Plot Gouraud lighting
 
 figure;
@@ -99,7 +116,7 @@ handles=ffpdeplot(points,boundary,triangles, ...
                   'XYData',u, ...
                   'ZStyle','continuous', ...
                   'Mesh','off', ...
-                  'Title','');
+                  'Title','Gouraud');
 ylabel('y');
 xlabel('x');
 zlabel('u');

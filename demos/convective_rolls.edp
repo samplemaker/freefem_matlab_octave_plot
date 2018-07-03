@@ -142,19 +142,19 @@ Qh Tfluid=r+Tcold;
 
 {
 ofstream file("convective_rolls_temperature.txt");
-for (int j=0; j<Qh.ndof; j++)
+for (int j=0; j<Tfluid[].n; j++)
    file << Tfluid[][j] << endl;
 }
 
 {
 ofstream file("convective_rolls_stream.txt");
-for (int j=0; j<Qh.ndof; j++)
+for (int j=0; j<psi[].n; j++)
    file << psi[][j] << endl;
 }
 
 Qh u1exp=u1, u2exp=u2;
 {
 ofstream file("convective_rolls_velocity.txt");
-for (int j=0; j<Qh.ndof; j++)
+for (int j=0; j<u1exp[].n; j++)
    file << u1exp[][j] << " " << u2exp[][j] << endl;
 }
