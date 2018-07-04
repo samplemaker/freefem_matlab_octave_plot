@@ -32,6 +32,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 ### 2D-Various ffpdeplot() Examples
 
 [demo_pdeplot.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/demo_pdeplot.m)  
+[demo_pdeplot_2d_p1.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/demo_pdeplot_2d_p1.edp)  
 
 [Screenshot: 2D Patch](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/l_shape_patch_mesh.png)  
 [Screenshot: Contour](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/l_shape_patch_contour.png)  
@@ -39,7 +40,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 <a name="convectexample"></a>
 
-### Horizontal Roll Vortices Examples
+### Horizontal Roll Vortices
 
 [convective_rolls.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/convective_rolls.m)  
 [convective_rolls.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/convective_rolls.edp)  
@@ -62,7 +63,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 ## ffpdeplot()
 
-`ffpdeplot()` is a function specially tailored to FreeFem++ that offers most of the features of the classic Matlab `pdeplot()` command. The FEM-Mesh is entered by vertex coordinates, the boundary values, and the triangle definition as provided by the FreeFem++ `savemesh(Th, "mesh_file.msh")` command. The simulation data can be entered either as point data (native support for P1 simulation data) or as interpolation at the nodes.
+`ffpdeplot()` is a function specially tailored to FreeFem++ that offers most of the features of the classic Matlab `pdeplot()` command. The FEM-Mesh is entered by vertex coordinates, the boundary values, and the triangle definition as provided by the FreeFem++ `savemesh(Th, "mesh_file.msh")` command. The simulation data can be entered either as point data (native support for P1 simulation data) or as interpolation at the triangle nodes.
 
 #### Syntax
 
@@ -353,6 +354,10 @@ Generally OpenGL can be considered to be faster than painters. To get an OpenGL 
              "GNU Octave scientific programming language"
 [matlab]:     https://www.mathworks.com/
              "Matlab scientific programming language"
+
+## Acknowledgments
+
+Special thanks to David Fabre ([StabFEM](https://github.com/erbafdavid/StabFem)) for suggestions and verification of the code
 
 ## The License
 
