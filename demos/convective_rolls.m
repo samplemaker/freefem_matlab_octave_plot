@@ -75,7 +75,7 @@ handles=ffpdeplot(points,boundary,triangles, ...
                   'XYStyle','interp', ...
                   'CGridParam',[150, 150], ...
                   'ColorMap','jet', ...
-                  'Title','Stream lines overlayed Temperature');
+                  'Title','Stream lines + Temperature');
 
 ylabel('y');
 xlabel('x');
@@ -99,7 +99,7 @@ handles=ffpdeplot(points,boundary,triangles, ...
 
 ylabel('y');
 xlabel('x');
-title(handles(2),'Psi[(m^3/s)/m]');
+title(handles(2),'psi[(m^3/s)/m]');
 axis tight;
 
 %%%%%% Combine Quiver and Patch

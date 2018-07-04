@@ -37,6 +37,18 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 [Screenshot: Contour](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/l_shape_patch_contour.png)  
 [Screenshot: Quiver](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/l_shape_patch_quiver.png)  
 
+<a name="convectexample"></a>
+
+### Horizontal Roll Vortices Examples
+
+[convective_rolls.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/convective_rolls.m)  
+[convective_rolls.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/convective_rolls.edp)  
+
+[Screenshot: Patch + Contour](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/convect_temperature_streamlines.png)  
+[Screenshot: Patch + Quiver](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/convect_temperature_velocity.png)  
+[Screenshot: 2D Patch + Mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/convect_mesh.png)  
+[Screenshot: 2D Streamlines](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/convect_streamlines.png)  
+
 ## Function Reference
 
 | Name | Description |
