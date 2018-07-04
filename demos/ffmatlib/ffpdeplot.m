@@ -297,6 +297,8 @@ function [varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 keep=(boundary(3,:)==edgelabel(i));
                 line([xpts(boundary(1,keep));xpts(boundary(2,keep))], ...
                      [ypts(boundary(1,keep));ypts(boundary(2,keep))],'Color','red','LineWidth',2);
+                textpos=find(keep,1,'first');
+                text(xpts(boundary(1,textpos)),ypts(boundary(1,textpos)),[num2str(edgelabel(i))]);
             end
         else
             line([xpts(boundary(1,:));xpts(boundary(2,:))], ...

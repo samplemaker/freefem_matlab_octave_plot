@@ -98,15 +98,8 @@ figure;
 handles=ffpdeplot(points,boundary,triangles, ...
                   'Mesh','off', ...
                   'Edge','on', ...
+                  'ELabs',labels, ...
                   'Title','Boundary Labels');
-
-for i=1:numel(labels)
-    xpts=points(1,:);
-    ypts=points(2,:);
-    labpts=points(3,:);
-    pos=find((labpts==labels(i)),1,'first');
-    text(xpts(pos),ypts(pos),[num2str(labels(i))]);
-end
 
 %%%%%% 3D Surf Plot Gouraud lighting
 
