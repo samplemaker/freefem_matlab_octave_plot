@@ -47,7 +47,7 @@ function [varargout] = ffreaddata(filename)
     M = cell2mat(fdata);
     [sz1,sz2]=size(M);
     if verbose
-        fprintf('Size of data: (nDof) %i %i\n', sz1,sz2);
+        fprintf('Size of data: (nDof, cols) %ix%i\n', sz1,sz2);
     end
     varargout=cell(1,sz2);
     for i = 1:sz2

@@ -6,7 +6,7 @@
 %   This file is a part of the ffmatlib which is hosted at
 %   https://github.com/samplemaker/freefem_matlab_octave_plot
 %
-%   [varargout] = ffpdeplot (points, boundary, triangles, varargin)
+%   [handles,varargout] = ffpdeplot (points, boundary, triangles, varargin)
 %
 %   is a function specially tailored to FreeFem++ simulation data that
 %   offers most of the features of the classic pdeplot() command. The FEM-Mesh
@@ -16,7 +16,7 @@
 %   for P1 simulation data) or as interpolation at the nodes (workaround for
 %   P1, P2 and other FEM simulation results).
 %
-%   [varargout] = ffpdeplot (...,'PARAM1',val1,'PARAM2',val2,...)
+%   [handles,varargout] = ffpdeplot (...,'PARAM1',val1,'PARAM2',val2,...)
 %   specifies parameter name/value pairs to control the input file format
 %
 %       Parameter       Value
@@ -30,22 +30,24 @@
 %                       'cool' (default) | colormap name | three-column matrix of RGB triplets
 %      'ColorBar'    Indicator in order to include a colorbar
 %                       'on' (default) | 'off'
+%      'CBTitle'     Colorbar Title
+%                       (default=[])
 %      'ColorRange'  Range of values to adjust the color thresholds
 %                       'minmax' (default) | [min,max]
 %      'Mesh'        Switches the mesh off / on
 %                       'on' | 'off' (default)
-%      'Edge'        Shows the domain boundary / edges
+%      'Boundary'    Shows the domain boundary / edges
 %                       'on' | 'off' (default)
-%      'ELabs'       Draws boundary / edges with a specific label
+%      'BDLabels'    Draws boundary / edges with a specific label
 %                       [] (default) | [label1,label2,...]
 %      'Contour'     Isovalue plot
 %                       'off' (default) | 'on'
-%      'CColor'      Isovalue color
-%                       [0,0,0] (default) | 'auto' | RGB triplet | 'r' | 'g' | 'b' |
 %      'CXYData'     Use extra (overlay) data to draw the contour plot
 %                       FreeFem++ points | FreeFem++ triangle data
-%      'CStyle'      Contour line style
-%                       'plain' (default) | 'dashed'
+%      'CStyle'      Contour plot style
+%                       'patch' (default) | 'patchdashed' | 'patchdashedneg' | 'monochrome' | 'colormap'
+%      'CColor'      Isovalue color
+%                       [0,0,0] (default) | RGB triplet | 'r' | 'g' | 'b' |
 %      'CLevels'     Number of isovalues used in the contour plot
 %                       (default=10)
 %      'CGridParam'  Number of grid points used for the contour plot
@@ -81,7 +83,7 @@
 % along with this program.  If not, see
 % <https://www.gnu.org/licenses/>.
 %
-function [varargout] = ffpdeplot(points,boundary,triangles,varargin)
+function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
 
     if (~mod(nargin,2) || (nargin<3))
         printhelp();
@@ -89,15 +91,15 @@ function [varargout] = ffpdeplot(points,boundary,triangles,varargin)
     end
 
     numvarargs = length(varargin);
-    optsnames = {'XYData', 'XYStyle', 'Mesh', 'Edge', 'ELabs', 'ZStyle', ...
+    optsnames = {'XYData', 'XYStyle', 'Mesh', 'Boundary', 'BDLabels', 'ZStyle', ...
                  'Contour', 'CGridParam', 'CColor', 'CXYData', 'CLevels', 'CStyle', ...
-                 'ColorMap', 'ColorBar', 'ColorRange', ...
+                 'ColorMap', 'ColorBar', 'CBTitle', 'ColorRange', ...
                  'Title', 'XLim', 'YLim', 'ZLim', 'DAspect', ...
                  'FlowData', 'FGridParam'};
 
     vararginval = {[], 'interp', 'off', 'off', [], 'off', ...
-                   'off', 'auto', [0,0,0], [], 10, 'plain', ...
-                   'cool', 'on', 'minmax', ...
+                   'off', 'auto', [0,0,0], [], 10, 'combi', ...
+                   'cool', 'on', [], 'minmax', ...
                    [], 'minmax', 'minmax', 'minmax', 'xyequal', ...
                    [], 'auto'};
 
@@ -118,14 +120,31 @@ function [varargout] = ffpdeplot(points,boundary,triangles,varargin)
         end
     end
 
-    [xyrawdata, xystyle, showmesh, showedge, edgelabel, zstyle, ...
+    [xyrawdata, xystyle, showmesh, showboundary, bdlabels, zstyle, ...
      contourplt, cgridparam, ccolor, contourrawdata, isolevels, contourstyle, ...
-     setcolormap, showcolbar, colorrange, ...
+     setcolormap, showcolbar, colorbartitle, colorrange, ...
      plottitle, plotxlim, plotylim, plotzlim, axisaspect, ...
      flowdata, fgridparam] = vararginval{:};
 
+    %newplot checks the values of the NextPlot properties and takes the
+    %appropriate action based on these values
+    %if there is no current figure, newplot creates one
+    hax=newplot;
+    fig=get(hax,'Parent');
+    %hold on sets the figure and axes NextPlot properties to add
+    oldnextplotval{1}=get(hax,'nextplot');
+    set(hax,'nextplot','add');
+    oldnextplotval{2}=get(fig,'nextplot');
+    set(fig,'nextplot','add');
+    %fprintf('nextplot hax: %s, fig: %s\n',oldnextplotval{1},oldnextplotval{2});
+    %set(hax,'FontName','Times');
+    %set(fig,'MenuBar','none');
+
+    %Used for various output handels: ColorBar, Patch, Contour, Quiver
     hh=[];
-    clab=[];
+    %Used for Contour labels, if there are any
+    varargout{1}=[];
+    varargout{2}=[];
     is2dmode=true;
     points=rowvec(points);
     triangles=rowvec(triangles);
@@ -211,6 +230,9 @@ function [varargout] = ffpdeplot(points,boundary,triangles,varargin)
             [X,Y]=meshgrid(x,y);
             %e.g. weather forecast (temperature patch and isolevel pressure)
             if ~isempty(contourrawdata)
+                if strcmpi(contourstyle,'colormap') || strcmpi(contourstyle,'monochrome')
+                    error('CStyle is ''monochrome'' or ''colormap'' but CXYData given - use XYData instead!');
+                end
                 ccdata=preparedata(points,triangles,contourrawdata);
             else
                 ccdata=cdata;
@@ -221,20 +243,47 @@ function [varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 if (N>100)
                     fprintf('Note: To improve runtime compile MEX function ffplottri2grid()\n');
                 end
-                C=plottri2grid1int(x,y,xdata,ydata,ccdata);
+                C=ffplottri2gridint(x,y,xdata,ydata,ccdata);
             end
-            %Contour + Patch
-            if strcmpi(xystyle,'interp')
-                hh=patch(xdata,ydata,cdata,'EdgeColor','none');
-                hold on;
-                %[clab,hhc]=plotcontour(X,Y,C,isolevels,'LineColor',[0 0 0]);
-                [clab,hhc]=plotcontour(X,Y,C,isolevels,ccolor,contourstyle);
-                hh=[hh; hhc];
-                hold off;
-            %Isovalues without Patch
-            else
-                [clab,hhc]=plotcontour(X,Y,C,isolevels,ccolor,contourstyle);
-                hh=hhc;
+            switch (contourstyle)
+                case ('colormap')
+                    [clab,hhc]=contour(X,Y,C,isolevels);
+                    hh=hhc;
+                    varargout{1}=clab;
+                case ('monochrome')
+                    [clab,hhc]=contour(X,Y,C,isolevels,'LineColor',ccolor);
+                    hh=hhc;
+                    varargout{1}=clab;
+                case ('patchdashed')
+                    hh=patch(xdata,ydata,cdata,'EdgeColor','none');
+                    [clab,hhc]=contour(X,Y,C,isolevels,'--','LineColor',ccolor);
+                    hh=[hh; hhc];
+                    varargout{1}=clab;
+                case ('patchdashedneg')
+                    hh=patch(xdata,ydata,cdata,'EdgeColor','none');
+                    if (length(isolevels)==1)
+                        step = (max(max(C))-min(min(C)))/(isolevels+1);
+                        isolevels = min(min(C))+step:step:max(max(C))-step;
+                    end
+                    isopos = isolevels(isolevels>=0);
+                    if (length(isopos)==1)
+                        isopos = [isopos isopos];
+                    end;
+                    isoneg = isolevels(isolevels<0);
+                    if(length(isoneg)==1)
+                        isoneg = [isoneg isoneg];
+                    end;
+                    [clabneg,hhcneg]=contour(X,Y,C,isoneg,'--','LineColor',ccolor);
+                    [clabpos,hhcpos]=contour(X,Y,C,isopos,'LineColor',ccolor);
+                    hh=[hh;hhcneg;hhcpos];
+                    varargout{1}=clabneg;
+                    varargout{2}=clabpos;
+                %map all others to the 'patch' case
+                otherwise
+                    hh=patch(xdata,ydata,cdata,'EdgeColor','none');
+                    [clab,hhc]=contour(X,Y,C,isolevels,'LineColor',ccolor);
+                    hh=[hh; hhc];
+                    varargout{1}=clab;
             end
             view(2);
         end
@@ -246,7 +295,10 @@ function [varargout] = ffpdeplot(points,boundary,triangles,varargin)
         end
         if strcmpi(showcolbar,'on')
             hcb=colorbar;
-            hh=[hh; hcb];
+            hh=[hcb; hh];
+            if ~isempty(colorbartitle)
+                title(hcb,colorbartitle);
+            end
         end
     %Uncolored, flat 2D mesh plot (no xyrawdata)
     else
@@ -254,11 +306,10 @@ function [varargout] = ffpdeplot(points,boundary,triangles,varargin)
             hh=patch(xdata,ydata,[1 1 1],'FaceColor','none','EdgeColor',[0 0 1]);
             view(2);
         end
+        %If the mesh is switched of we can exit at this point without any plot
     end
 
-    %Finally, the Quiver- and Border Plot is executed. These can potentially
-    %be additive, therefore ...
-    hold on;
+    %Quiver
     if ~isempty(flowdata)
         [udata,vdata]=preparedata(points,triangles,flowdata);
         if (~strcmpi(fgridparam,'auto') && isnumeric(fgridparam))
@@ -278,7 +329,7 @@ function [varargout] = ffpdeplot(points,boundary,triangles,varargin)
         if exist('ffplottri2grid','file')
             [U,V]=ffplottri2grid(x,y,xdata,ydata,udata,vdata);
         else
-            [U,V]=plottri2grid2int(x,y,xdata,ydata,udata,vdata);
+            [U,V]=ffplottri2gridint(x,y,xdata,ydata,udata,vdata);
         end
         idx=(~isnan(U)) & (~isnan(V));
         hq=quiver(X(idx),Y(idx),U(idx),V(idx));
@@ -289,16 +340,19 @@ function [varargout] = ffpdeplot(points,boundary,triangles,varargin)
         end
     end
 
-    %Adds the domain boundary (border) to all plot types
-    if ~strcmpi(showedge,'off')
+    %Adds the domain boundary (border) to all plot types, or creates a border plot
+    %if nothing has been drawn yet
+    if ~strcmpi(showboundary,'off')
         boundary=rowvec(boundary);
-        if ~isempty(edgelabel)
-            for i=1:numel(edgelabel)
-                keep=(boundary(3,:)==edgelabel(i));
-                line([xpts(boundary(1,keep));xpts(boundary(2,keep))], ...
-                     [ypts(boundary(1,keep));ypts(boundary(2,keep))],'Color','red','LineWidth',2);
-                textpos=find(keep,1,'first');
-                text(xpts(boundary(1,textpos)),ypts(boundary(1,textpos)),[num2str(edgelabel(i))]);
+        if ~isempty(bdlabels)
+            for i=1:numel(bdlabels)
+                keep=(boundary(3,:)==bdlabels(i));
+                if any(keep)
+                    line([xpts(boundary(1,keep));xpts(boundary(2,keep))], ...
+                         [ypts(boundary(1,keep));ypts(boundary(2,keep))],'Color','red','LineWidth',2);
+                    textpos=find(keep,1,'first');
+                    text(xpts(boundary(1,textpos)),ypts(boundary(1,textpos)),num2str(bdlabels(i)));
+                end
             end
         else
             line([xpts(boundary(1,:));xpts(boundary(2,:))], ...
@@ -324,8 +378,8 @@ function [varargout] = ffpdeplot(points,boundary,triangles,varargin)
             end
         end
     end
-    varargout{1}=hh;
-    varargout{2}=clab;
+    set(hax,'nextplot',oldnextplotval{1});
+    set(fig,'nextplot',oldnextplotval{2});
 end
 
 function [S] = rowvec(S)
@@ -335,11 +389,8 @@ function [S] = rowvec(S)
     end
 end
 
-%To improve the runtime, the interpolation functions for contour() and
-%quiver() are doubled, rather than merging everything into one function
-function [u,v] = plottri2grid2int(x, y, tx, ty, tu, tv)
-    u=NaN(numel(y),numel(x));
-    v=NaN(numel(y),numel(x));
+%To improve the runtime we don't merge the code for scalar and vector together
+function [u,v] = ffplottri2gridint(x, y, tx, ty, tu, tv)
     ax=tx(1,:);
     ay=ty(1,:);
     bx=tx(2,:);
@@ -347,47 +398,42 @@ function [u,v] = plottri2grid2int(x, y, tx, ty, tu, tv)
     cx=tx(3,:);
     cy=ty(3,:);
     invA0=(1.0)./((by-cy).*(ax-cx)+(cx-bx).*(ay-cy));
-    for mx=1:numel(x)
-        for my=1:numel(y)
-            px=x(mx);
-            py=y(my);
-            Aa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*invA0;
-            Ab=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*invA0;
-            Ac=1.0-Aa-Ab;
-            pos=find(((Aa>=0) & (Ab>=0) & (Ac>=0)),1,'first');
-            if ~isempty(pos)
-                u(my,mx)=Aa(pos).*tu(1,pos)+ ...
-                         Ab(pos).*tu(2,pos)+ ...
-                         Ac(pos).*tu(3,pos);
-                v(my,mx)=Aa(pos).*tv(1,pos)+ ...
-                         Ab(pos).*tv(2,pos)+ ...
-                         Ac(pos).*tv(3,pos);
+    if (nargin == 6)
+        u=NaN(numel(y),numel(x));
+        v=NaN(numel(y),numel(x));
+        for mx=1:numel(x)
+            for my=1:numel(y)
+                px=x(mx);
+                py=y(my);
+                Aa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*invA0;
+                Ab=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*invA0;
+                Ac=1.0-Aa-Ab;
+                pos=find(((Aa>=0) & (Ab>=0) & (Ac>=0)),1,'first');
+                if ~isempty(pos)
+                    u(my,mx)=Aa(pos).*tu(1,pos)+ ...
+                             Ab(pos).*tu(2,pos)+ ...
+                             Ac(pos).*tu(3,pos);
+                    v(my,mx)=Aa(pos).*tv(1,pos)+ ...
+                             Ab(pos).*tv(2,pos)+ ...
+                             Ac(pos).*tv(3,pos);
+                end
             end
         end
-    end
-end
-
-function [u] = plottri2grid1int(x, y, tx, ty, tc)
-    u=NaN(numel(y),numel(x));
-    ax=tx(1,:);
-    ay=ty(1,:);
-    bx=tx(2,:);
-    by=ty(2,:);
-    cx=tx(3,:);
-    cy=ty(3,:);
-    invA0=(1.0)./((by-cy).*(ax-cx)+(cx-bx).*(ay-cy));
-    for mx=1:numel(x)
-        for my=1:numel(y)
-            px=x(mx);
-            py=y(my);
-            Aa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*invA0;
-            Ab=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*invA0;
-            Ac=1.0-Aa-Ab;
-            pos=find(((Aa>=0) & (Ab>=0) & (Ac>=0)),1,'first');
-            if ~isempty(pos)
-                u(my,mx)=Aa(pos).*tc(1,pos)+ ...
-                         Ab(pos).*tc(2,pos)+ ...
-                         Ac(pos).*tc(3,pos);
+    else
+        u=NaN(numel(y),numel(x));
+        for mx=1:numel(x)
+            for my=1:numel(y)
+                px=x(mx);
+                py=y(my);
+                Aa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*invA0;
+                Ab=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*invA0;
+                Ac=1.0-Aa-Ab;
+                pos=find(((Aa>=0) & (Ab>=0) & (Ac>=0)),1,'first');
+                if ~isempty(pos)
+                    u(my,mx)=Aa(pos).*tu(1,pos)+ ...
+                             Ab(pos).*tu(2,pos)+ ...
+                             Ac(pos).*tu(3,pos);
+                end
             end
         end
     end
@@ -416,50 +462,30 @@ function [varargout] = preparedata(points,triangles,data)
     end
 end
 
-function [varargout] = plotcontour(X,Y,C,isolevels,ccolor,contourstyle)
-    switch (contourstyle)
-        %case ('dashednegative')
-        %case ('plain')
-        case ('dashed')
-            if strcmpi(ccolor,'auto')
-                [clab,hhc]=contour(X,Y,C,isolevels,'--');
-            else
-                [clab,hhc]=contour(X,Y,C,isolevels,'--','LineColor',ccolor);
-            end
-        otherwise
-            if strcmpi(ccolor,'auto')
-                [clab,hhc]=contour(X,Y,C,isolevels);
-            else
-                [clab,hhc]=contour(X,Y,C,isolevels,'LineColor',ccolor);
-            end
-    end
-    varargout{2}=hhc;
-    varargout{1}=clab;
-end
-
 function printhelp()
     fprintf('%s\n\n','Invalid call to ffpdeplot. Correct usage is:');
-    fprintf('%s\n',' -- [varargout] = ffpdeplot (points,boundary,triangles,varargin)');
-    fprintf('%s\n',' -- [varargout] = ffpdeplot (points,boundary,triangles,''Edge'',''on'')');
-    fprintf('%s\n',' -- [varargout] = ffpdeplot (points,boundary,triangles,''Edge'',''on'',''Mesh'',''on'')');
-    fprintf('%s\n',' -- [varargout] = ffpdeplot (points,boundary,triangles,''XYData'',u)');
-    fprintf('%s\n',' -- [varargout] = ffpdeplot (points,boundary,triangles,''XYData'',u,''ZStyle'',''continuous'')');
-    fprintf('%s\n',' -- [varargout] = ffpdeplot (points,boundary,triangles,''XYData'',u,''Contour'',''on'')');
-    fprintf('%s\n',' -- [varargout] = ffpdeplot (points,boundary,triangles,''FlowData'',v,''Edge'',''on'')');
+    fprintf('%s\n',' -- [handles,varargout] = ffpdeplot (points,boundary,triangles,varargin)');
+    fprintf('%s\n',' -- [handles,varargout] = ffpdeplot (points,boundary,triangles,''Boundary'',''on'')');
+    fprintf('%s\n',' -- [handles,varargout] = ffpdeplot (points,boundary,triangles,''Boundary'',''on'',''Mesh'',''on'')');
+    fprintf('%s\n',' -- [handles,varargout] = ffpdeplot (points,boundary,triangles,''XYData'',u)');
+    fprintf('%s\n',' -- [handles,varargout] = ffpdeplot (points,boundary,triangles,''XYData'',u,''ZStyle'',''continuous'')');
+    fprintf('%s\n',' -- [handles,varargout] = ffpdeplot (points,boundary,triangles,''XYData'',u,''Contour'',''on'')');
+    fprintf('%s\n',' -- [handles,varargout] = ffpdeplot (points,boundary,triangles,''FlowData'',v,''Boundary'',''on'')');
     fprintf('\n');
     fprintf('''XYData''      Data in order to colorize the plot\n');
     fprintf('''XYStyle''     Coloring choice (default=''interp'')\n');
     fprintf('''ZStyle''      Draws 3D surface plot instead of flat 2D Map plot (default=''off'')\n');
     fprintf('''ColorMap''    ColorMap value or matrix of such values (default=''on'')\n');
     fprintf('''ColorBar''    Indicator in order to include a colorbar\n');
+    fprintf('''CBTitle''     Colorbar Title (default=[])\n');
     fprintf('''ColorRange''  Range of values to adjust the color thresholds (default=''minmax'')\n');
     fprintf('''Mesh''        Switches the mesh off / on (default=''off'')\n');
-    fprintf('''Edge''        Shows the domain boundary / edges (default=''off'')\n');
-    fprintf('''ELabs''       Draws boundary / edges with a specific label (default=[])\n');
+    fprintf('''Boundary''    Shows the domain boundary / edges (default=''off'')\n');
+    fprintf('''BDLabs''      Draws boundary / edges with a specific label (default=[])\n');
     fprintf('''Contour''     Isovalue plot (default=''off'')\n');
     fprintf('''CColor''      Isovalue color (default=[0,0,0])\n');
     fprintf('''CXYData''     Use extra (overlay) data to draw the contour plot\n');
-    fprintf('''CStyle''      Contour line style (default=''plain'')\n');
+    fprintf('''CStyle''      Contour line style (default=''patch'')\n');
     fprintf('''CLevels''     Number of isovalues used in the contour plot (default=10)\n');
     fprintf('''CGridParam''  Number of grid points used for the contour plot (default=''off'')\n');
     fprintf('''Title''       Title (default=[])\n');

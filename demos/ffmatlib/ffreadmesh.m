@@ -6,23 +6,25 @@
 %   This file is a part of the ffmatlib which is hosted at
 %   https://github.com/samplemaker/freefem_matlab_octave_plot
 %
-%   [p,b,tnv,nbe,nt,labels] = ffreadmesh(filename) reads a FreeFem++
+%   [p,b,t,nv,nbe,nt,labels] = ffreadmesh(filename) reads a FreeFem++
 %   mesh file created by the FreeFem++ savemesh(Th,"2dmesh.msh") or
 %   savemesh(Th3d,"3dmesh.mesh") command.
 %   2D FreeFem++ Format:
+%      p: Matrix containing the nodal points
+%      b: Matrix containing the boundary edges
+%      t: Matrix containing the triangles
 %      nv:  Number of points/vertices (Th.nv) in the Mesh
 %      nt:  Number of triangles (Th.nt) in the Mesh
 %      nbe: Number of (boundary) edges (Th.nbe)
-%      p: Matrix containing the points coordinates
-%      b: Matrix containing the edges
-%      t: Matrix containing the triangles
+%      labels: Labels found in the mesh file
 %   3D GMSH Format:
+%      p: Matrix containing the nodal points
+%      b: Matrix containing the boundary triangles
+%      t: Matrix containing the tetrahedra
 %      nv:  Number of points/vertices (nbvx, Th.nv) in the Mesh
 %      nt:  Number of tetrahedra (nbtet, Th.nt) in the Mesh
 %      nbe: Number of (boundary) triangles (nbtri, Th.nbe)
-%      p: Matrix containing the points coordinates
-%      b: Matrix containing the triangles
-%      t: Matrix containing the tetrahedra
+%      labels: Labels found in the mesh file
 %
 %   savemesh(Th,"2d.msh"); FreeFem++ format
 %   savemesh(Th,"2d.mesh"); writes two files ??
