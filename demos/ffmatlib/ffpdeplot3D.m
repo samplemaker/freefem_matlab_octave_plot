@@ -161,7 +161,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                     [C] = fftet2gridfast(sliceTData,X,Y,Z);
                 else
                     fprintf('Note: To improve runtime compile MEX function fftet2gridfast()\n');
-                    [C] = fftet2grid(sliceTData,X,Y,Z);
+                    [C] = fftet2gridint(sliceTData,X,Y,Z);
                 end
                 surf(X,Y,Z,C,'EdgeColor','none');
             end
@@ -225,7 +225,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
             [Ex,Ey,Ez] = fftet2gridfast(sliceTData,X,Y,Z);
         else
             fprintf('Note: To improve runtime compile MEX function fftet2gridfast()\n');
-            [Ex,Ey,Ez] = fftet2grid(sliceTData,X,Y,Z);
+            [Ex,Ey,Ez] = fftet2gridint(sliceTData,X,Y,Z);
         end
         quiver3(X,Y,Z,Ex,Ey,Ez,1.0);
     end
