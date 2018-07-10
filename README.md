@@ -14,7 +14,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 ## Demos
 
-<a name="capacitorexample"></a>
+<a name="2dcapacitorexample"></a>
 
 ### 2D-Parallel Plate Capacitor
 
@@ -40,7 +40,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 <a name="convectexample"></a>
 
-### Horizontal Roll Vortices
+### 2D-Horizontal Roll Vortices
 
 [convective_rolls.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/convective_rolls.m)  
 [convective_rolls.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/convective_rolls.edp)  
@@ -50,11 +50,19 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 [Screenshot: 2D Patch + Mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/convect_mesh.png)  
 [Screenshot: 2D Streamlines](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/convect_streamlines.png)  
 
+<a name="3dcapacitorexample"></a>
+
+### 3D-Parallel Plate Capacitor
+
+[capacitor_3d.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/capacitor_3d.m)  
+[capacitor_3d.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/capacitor_3d.edp)  
+
 ## Function Reference
 
 | Name | Description |
 | --- | --- |
 | [ffpdeplot()](#ffpdeplotfct) | Creates contour(), quiver() as well as patch() plots from FreeFem++ 2D simulation data |
+| [ffpdeplot3D()](#ffpdeplot3Dfct) | Plots 3D simulation data (under construction!) |
 | [ffreadmesh()](#ffreadmeshfct) | Reads FreeFem++ Mesh Files into Matlab/Octave |
 | [ffreaddata()](#ffreaddatafct) | Reads FreeFem++ Data Files into Matlab/Octave |
 | [ffplottri2grid()](#ffplottri2gridfct) | Interpolates from 2D triangular mesh to 2D rectangular grid |
@@ -68,7 +76,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 #### Syntax
 
 ```Matlab
-[varargout] = ffpdeplot(p,b,t,varargin)
+[handles,varargout] = ffpdeplot(p,b,t,varargin)
 ```
 
 #### Description / Name-Value Pair Arguments
@@ -284,7 +292,7 @@ view(3);
 
 <a name="exportfromff"></a>
 
-## Export FEspace Data from FreeFem++
+## Export 2D FEspace Data from FreeFem++
 
 There are two input data formats supported by `ffpdeplot`:  
 
@@ -318,6 +326,18 @@ ofstream file("capacitor_field_p1only.txt");
 for (int j=0; j<Ex[].n; j++)
    file << Ex[][j] << " " << Ey[][j] << endl;
 }
+```
+
+<a name="ffpdeplot3Dfct"></a>
+
+## ffpdeplot3D()
+
+`ffpdeplot3D()` is available as draft and is still under construction. See also [3D-Parallel Plate Capacitor](#3dcapacitorexample).
+
+#### Syntax
+
+```Matlab
+[] = ffpdeplot3D(p,b,t,varargin)
 ```
 
 <a name="notesoncompilation"></a>
