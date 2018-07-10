@@ -111,7 +111,8 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                     vararginval(pos)=varargin(i+1);
                 else
                     printhelp();
-                    error('''%s'' unknown input parameter',char(varargin(i)));
+                    fprintf('%s\n',char(varargin(i)));
+                    error('unknown input parameter');
                 end
             end
         else
