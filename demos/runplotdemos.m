@@ -18,4 +18,10 @@ close all;
 convective_rolls
 pause(5);
 close all;
+fprintf('Running FreeFem++ scripts (3D) ...\n');
+fprintf('capacitor_3d.edp\n');
+system('FreeFem++ -ns -nw -v 0 capacitor_3d.edp');
+capacitor_3d
+pause(5);
+close all;
 
