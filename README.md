@@ -57,6 +57,8 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 [capacitor_3d.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/capacitor_3d.m)  
 [capacitor_3d.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/capacitor_3d.edp)  
 
+[Screenshot: 3D Slice](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_3d_slices.png)  
+
 ## Function Reference
 
 | Name | Description |
@@ -382,7 +384,7 @@ Generally OpenGL can be considered to be faster than painters. To get an OpenGL 
 
 ## Acknowledgments
 
-Many thanks to David Fabre ([StabFEM](https://github.com/erbafdavid/StabFem)) for feature suggestions, implementation and verification of the source code.
+Many thanks to David Fabre ([StabFEM](https://github.com/erbafdavid/StabFem)) for feature and implementation suggestions and code review.
 
 ## The License
 
