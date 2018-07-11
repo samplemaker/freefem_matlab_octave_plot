@@ -79,7 +79,7 @@ Vector minus(Vector a, Vector b){
 void fftet2gridfast(double *T, double *X, double *Y, double *Z, double **out,
                     int nOuts, mwSize N, mwSize M, mwSize nNodes){
 
-  mwSize nTet=nNodes/3;
+  mwSize nTet=nNodes/4;
   double *invV0=(double *)mxMalloc(nTet*sizeof(double));
   double init=mxGetNaN( );
 
