@@ -382,7 +382,7 @@ Generally OpenGL can be considered to be faster than painters. To get an OpenGL 
 
 ## Acknowledgments
 
-Special thanks to David Fabre ([StabFEM](https://github.com/erbafdavid/StabFem)) for suggestions and verification of the code
+Many thanks to David Fabre ([StabFEM](https://github.com/erbafdavid/StabFem)) for feature suggestions, implementation and verification of the source code.
 
 ## The License
 

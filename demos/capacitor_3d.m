@@ -35,24 +35,23 @@ S3=[0.75 0.375 0.0; ...
     0.375 0.75 0.0];
 
 figure;
-ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'SGridParam',[30,30],
-            'Boundary','off','ColorMap','jet','ColorBar','on');
-ffplotbb(S1,S2,S3);
+ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'SGridParam',[300,300], ...
+            'Boundary','off','ColorMap','jet','ColorBar','on','BoundingBox','on');
 
 figure;
 ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'BDLabels',[30,31],'ColorMap','jet');
 
 figure;
-ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'BDLabels',[30,31],
+ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'BDLabels',[30,31], ...
             'XYZStyle','monochrome','ColorMap','jet');
 
 figure;
-ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'BDLabels',[40,42,43,55],
+ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'BDLabels',[40,42,43,55], ...
             'XYZStyle','noface','ColorMap','jet');
 
 %\TODO: Handle Quiver and multiple slices
 figure;
-ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'BDLabels',[30,31],
+ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'BDLabels',[30,31], ...
             'XYZStyle','noface','ColorMap','jet');
 
 S1=[0.0 0.0 0.25];
@@ -60,8 +59,8 @@ S2=[0.0 0.75 0.25];
 S3=[0.75 0.0 0.25];
 
 figure;
-ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'Boundary','off','ColorMap','jet');
-ffplotbb(S1,S2,S3);
+ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'Boundary','off', ...
+            'ColorMap','jet','BoundingBox','on');
 
 S1=[0.0 0.375 0.0];
 S2=[0.0 0.375 0.5];
@@ -69,8 +68,7 @@ S3=[0.75 0.375 0.0];
 
 figure;
 ffpdeplot3D(p,b,t,'XYZData',u,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,
-            'BDLabels',[30,31],'XYZStyle','noface','ColorMap','jet');
-ffplotbb(S1,S2,S3);
+            'BDLabels',[30,31],'XYZStyle','noface','ColorMap','jet','BoundingBox','on');
 
 %plot all boundaries and color the plot
 figure;

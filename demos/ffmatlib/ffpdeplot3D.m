@@ -22,6 +22,8 @@
 %                       interp noface monochrome
 %      'Boundary'    Shows the domain boundary / edges
 %                       'on' | 'off' (default)
+%      'BoundingBox' Shows the bounding box of a slice
+%                       'on' | 'off' (default)
 %      'BDLabels'    Draws boundary / edges with a specific label
 %                       [] (default) | [label1,label2,...]
 %      'Slice'       Slicing Plane definition
@@ -63,15 +65,17 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     end
 
     numvarargs = length(varargin);
-    optsnames = {'XYZData', 'XYZStyle' 'Boundary', ...
+
+    %ATTENTION: No parameters after 'Slice' otherwise pos gets screwed
+    optsnames = {'XYZData', 'XYZStyle', 'Boundary', ...
                  'ColorMap', 'ColorBar', 'ColorRange', ...
                  'BDLabels', 'SGridParam', ...
-                 'FlowData', 'FGridParam', 'Slice'};
+                 'FlowData', 'FGridParam', 'BoundingBox', 'Slice'};
 
     vararginval = {[], 'interp', 'on', ...
                    'cool', 'off', 'minmax', ...
                    [], [75,75], ...
-                   [], [20,20], [], [], []};
+                   [], [20,20], 'off', [], [], []};
 
     if (numvarargs>0)
         if (~mod(numvarargs,2))
@@ -103,7 +107,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     [xyzrawdata, xyzstyle, showboundary, ...
      setcolormap, showcolbar, colorrange, ...
      bdlabels, sgridparam, ...
-     flowdata, fgridparam, slice1, slice2, slice3] = vararginval{:};
+     flowdata, fgridparam, boundingbox, slice1, slice2, slice3] = vararginval{:};
 
     hax=newplot;
     fig=get(hax,'Parent');
@@ -113,6 +117,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     set(fig,'nextplot','add');
 
     useslicecolormap=false;
+    usesliceboundingbox=false;
     points=rowvec(points);
     triangles=rowvec(triangles);
     tetrahedra=rowvec(tetrahedra);
@@ -137,7 +142,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
         end
     end
     if ~isempty(xyzrawdata)
-        if (~isempty(slice1) & ~isempty(slice2) & ~isempty(slice3))
+        if (~isempty(slice1) && ~isempty(slice2) && ~isempty(slice3))
             tdata=preparetetdata(points,tetrahedra,xyzrawdata);
             if (~strcmpi(sgridparam,'auto') && isnumeric(sgridparam))
                 N=sgridparam(1);
@@ -148,7 +153,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                 M=N;
             end
             [nslices, sz2]=size(slice1);
-            if (~isequal(size(slice1), size(slice2), size(slice3)) | (sz2~=3))
+            if (~isequal(size(slice1), size(slice2), size(slice3)) || (sz2~=3))
                 error('dimension check failed for slicing data');
             end
             for i=1:nslices
@@ -164,6 +169,10 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                     [C] = fftet2gridint(sliceTData,X,Y,Z);
                 end
                 surf(X,Y,Z,C,'EdgeColor','none');
+                if ~strcmpi(boundingbox,'off')
+                    plotboundingbox(slice1,slice2,slice3);
+                    usesliceboundingbox=true;
+                end
             end
             useslicecolormap=true;
             colormap(setcolormap);
@@ -208,7 +217,13 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     end
 
     if ~isempty(flowdata)
+        if ~((~isempty(slice1) && ~isempty(slice2) && ~isempty(slice3)))
+            error('a quiver3 plot needs slicing data');
+        end
         fdata=preparetetdata(points,tetrahedra,flowdata);
+        %TODO: Only one slicing plane allowed currently
+        %Need to gather all data and then call quiver3 on times
+        %otherwise the arrow length is wrong
         S1=slice1(1,:);
         S2=slice2(1,:);
         S3=slice3(1,:);
@@ -224,10 +239,13 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
         if exist('fftet2gridfast','file')
             [Ex,Ey,Ez] = fftet2gridfast(sliceTData,X,Y,Z);
         else
-            fprintf('Note: To improve runtime compile MEX function fftet2gridfast()\n');
+            fprintf('Note: To improve runtime build MEX function fftet2gridfast()\n');
             [Ex,Ey,Ez] = fftet2gridint(sliceTData,X,Y,Z);
         end
         quiver3(X,Y,Z,Ex,Ey,Ez,1.0);
+        if (~strcmpi(boundingbox,'off') && ~usesliceboundingbox)
+            plotboundingbox(slice1,slice2,slice3);
+        end
     end
     daspect([1 1 1]);
     view(3);
@@ -387,6 +405,41 @@ end
 function [M] = arrangecols(V,c)
     r = length(V)/c;
     M = reshape(V,c,r);
+end
+
+function [] = plotboundingbox(slice1,slice2,slice3)
+    [nslices, sz2]=size(slice1);
+    if (~isequal(size(slice1), size(slice2), size(slice3)) || (sz2~=3))
+        error('dimension check failed for slicing data');
+    end
+    for i=1:nslices
+        S1=slice1(i,:);
+        S2=slice2(i,:);
+        S3=slice3(i,:);
+        plot3([S1(1) S2(1)],[S1(2) S2(2)],[S1(3) S2(3)], ...
+              '-m','LineWidth',2);
+        plot3([S1(1) S3(1)],[S1(2) S3(2)],[S1(3) S3(3)], ...
+              '-m','LineWidth',2);
+        plot3([S2(1) (S2(1)+(S3(1)-S1(1)))],[S2(2) (S2(2)+(S3(2)-S1(2)))], ...
+              [S2(3) (S2(3)+(S3(3)-S1(3)))],'-m','LineWidth',2);
+        plot3([S3(1) (S2(1)+(S3(1)-S1(1)))],[S3(2) (S2(2)+(S3(2)-S1(2)))], ...
+              [S3(3) (S2(3)+(S3(3)-S1(3)))],'-m','LineWidth',2);
+        if nslices>1
+            str1=sprintf('S1,%i',i);
+            str2=sprintf('S2,%i',i);
+            str3=sprintf('S3,%i',i);
+        else
+            str1='S1';
+            str2='S2';
+            str3='S3';
+        end
+        text(S1(1),S1(2),S1(3),str1,'HorizontalAlignment','center', ...
+             'FontSize',15,'FontWeight','bold','Color','m');
+        text(S2(1),S2(2),S2(3),str2,'HorizontalAlignment','center', ...
+             'FontSize',15,'FontWeight','bold','Color','m');
+        text(S3(1),S3(2),S3(3),str3,'HorizontalAlignment','center', ...
+             'FontSize',15,'FontWeight','bold','Color','m');
+    end
 end
 
 function [S] = rowvec(S)
