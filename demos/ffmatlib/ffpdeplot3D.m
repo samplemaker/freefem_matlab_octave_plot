@@ -164,11 +164,19 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                 [X,Y,Z] = gridplane3d(S1,S2,S3,N,M);
                 if exist('fftet2gridfast','file')
                     [C] = fftet2gridfast(sliceTData,X,Y,Z);
+%                    tx=sliceTData(:,1);
+%                    ty=sliceTData(:,2);
+%                    tz=sliceTData(:,3);
+%                    V=sliceTData(:,4);
+%                    [C] = fftet2gridfast(X,Y,Z,tx,ty,tz,V);
                 else
                     fprintf('Note: To improve runtime compile MEX function fftet2gridfast()\n');
                     [C] = fftet2gridint(sliceTData,X,Y,Z);
                 end
                 surf(X,Y,Z,C,'EdgeColor','none');
+                %Debug - show cross section
+                %[SX,SY,SZ] = slicetet2patch(sliceTData(:,1:3));
+                %patch(SX,SY,SZ,[0 1 1],'EdgeColor',[0 0 1],'LineWidth',1,'FaceColor','none');
                 if ~strcmpi(boundingbox,'off')
                     plotboundingbox(slice1,slice2,slice3);
                     usesliceboundingbox=true;
@@ -440,6 +448,19 @@ function [] = plotboundingbox(slice1,slice2,slice3)
         text(S3(1),S3(2),S3(3),str3,'HorizontalAlignment','center', ...
              'FontSize',15,'FontWeight','bold','Color','m');
     end
+end
+
+%Converts tetrahedrons into vertex/triangles
+function [varargout] = slicetet2patch(slicetetdata)
+      [sz1,sz2] = size(slicetetdata);
+      for i=1:sz2
+          X=reshape(slicetetdata(:,i),4,sz1/4);
+          M=[[X(1,:); X(2,:); X(3,:)]; ...
+             [X(1,:); X(2,:); X(4,:)]; ...
+             [X(1,:); X(3,:); X(4,:)]; ...
+             [X(2,:); X(3,:); X(4,:)]];
+          varargout{i}=reshape(M,3,sz1);
+       end
 end
 
 function [S] = rowvec(S)

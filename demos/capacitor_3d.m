@@ -36,7 +36,7 @@ S3=[0.75 0.375 0.0; ...
 
 figure;
 ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'SGridParam',[30,30], ...
-            'Boundary','off','ColorMap','jet','ColorBar','on','BoundingBox','on');
+            'Boundary','off','ColorMap',jet(200),'ColorBar','on','BoundingBox','on');
 
 figure;
 ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'BDLabels',[30,31],'ColorMap','jet');
@@ -67,7 +67,7 @@ S2=[0.0 0.375 0.5];
 S3=[0.75 0.375 0.0];
 
 figure;
-ffpdeplot3D(p,b,t,'XYZData',u,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,
+ffpdeplot3D(p,b,t,'XYZData',u,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3, ...
             'BDLabels',[30,31],'XYZStyle','noface','ColorMap','jet','BoundingBox','on');
 
 %plot all boundaries and color the plot
