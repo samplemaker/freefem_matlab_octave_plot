@@ -1,7 +1,8 @@
-/* capacitor_3d.edp Parallel plate Capacitor
+/* Electrostatic Parallel Plate Capacitor Problem
  *
- *  Solves the Laplace Equation on a parallel plate capacitor boundary.
- *  P1 Elements are used in written in order to be plot with Matlab / Octave.
+ *  Solves the Laplace Equation on a parallel plate capacitor (dirichlet) boundary.
+ *  FE-Mesh and space functions are written to text files in order to be plot with
+ *  Matlab / Octave.
  *
  * Author: Chloros2 <chloros2@gmx.de>
  * Created: 2018-05-19
