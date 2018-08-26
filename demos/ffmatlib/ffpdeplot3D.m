@@ -18,10 +18,10 @@
 %       Parameter       Value
 %      'XYData'      Data in order to colorize the plot
 %                       FreeFem++ data
-%      'XYZStyle'    Plot Style for Boundary
-%                       interp noface monochrome
+%      'XYZStyle'    Plot Style for boundary
+%                       'interp' (default) | 'noface' | 'monochrome' 
 %      'Boundary'    Shows the domain boundary / edges
-%                       'on' | 'off' (default)
+%                       'on' (default) | 'off'
 %      'BoundingBox' Shows the bounding box of a slice
 %                       'on' | 'off' (default)
 %      'BDLabels'    Draws boundary / edges with a specific label
@@ -477,8 +477,27 @@ function [S] = colvec(S)
     end
 end
 
+
 function printhelp()
     fprintf('%s\n\n','Invalid call to ffpdeplot3D. Correct usage is:');
-    fprintf('%s\n',' -- [handles,varargout] = ffpdeplot (points, triangles, tetrahedra, varargin)');
+    fprintf('%s\n',' -- [handles,varargout] = ffpdeplot3D (points, triangles, tetrahedra, varargin)');
+    fprintf('%s\n',' -- ffpdeplot3D(p,b,t,''XYZData'',u)');
+    fprintf('%s\n',' -- ffpdeplot3D(p,b,t,''BDLabels'',[30,31],''XYZStyle'',''monochrome'')');
+    fprintf('%s\n',' -- ffpdeplot3D(p,b,t,''XYZData'',u,''Slice'',S1,S2,S3,''Boundary'',''off'',''ColorMap'',''jet'')');
+    fprintf('%s\n',' -- ffpdeplot3D(p,b,t,''XYZData'',u,''Slice'',S1,S2,S3,''XYZStyle'',''noface'',''ColorMap'',''jet'')');
+    fprintf('%s\n',' -- ffpdeplot3D(p,b,t,''FlowData'',[Ex,Ey,Ez],''Slice'',S1,S2,S3,''Boundary'',''off'',''BoundingBox'',''on'')');
+    fprintf('\n');
+    fprintf('''XYData''       Data in order to colorize the plot\n');
+    fprintf('''XYZStyle''     Plot Style for boundary (default=''interp'')\n');
+    fprintf('''Boundary''     Shows the domain boundary / edges (default=''on'')\n');
+    fprintf('''BoundingBox''  Shows the bounding box of a slice (default=''off'')\n');
+    fprintf('''BDLabels''     Draws boundary / edges with a specific label\n');
+    fprintf('''Slice''        Slicing Plane definition\n');
+    fprintf('''SGridParam''   Number of grid points used for the slice (default=''auto'')\n');
+    fprintf('''ColorMap''     ColorMap value or matrix of such values (default=''cool'')\n');
+    fprintf('''ColorBar''     Indicator in order to include a colorbar (default=''on'')\n');
+    fprintf('''ColorRange''   Range of values to adjust the color thresholds (default=''minmax'')\n');
+    fprintf('''FlowData''     Data for quiver3 plot \n');
+    fprintf('''FGridParam''   Number of grid points used for quiver plot (default=''auto'')\n');
     fprintf('\n');
 end

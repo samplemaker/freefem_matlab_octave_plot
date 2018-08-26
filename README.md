@@ -342,6 +342,68 @@ for (int j=0; j<Ex[].n; j++)
 [] = ffpdeplot3D(p,b,t,varargin)
 ```
 
+#### Description / Name-Value Pair Arguments
+
+The contents of the points `p`, boundary conditions `b` and triangles `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). `ffpdeplot3D()` can be called with name-value pair arguments as per following table:
+
+| Parameter | Value |
+| --- | --- |
+| 'XYData' |     Data in order to colorize the plot |
+|           |       FreeFem++ data |
+| 'XYStyle' |    Plot Style for boundary |
+|           |       'interp' (default) \| 'noface' \| 'monochrome' |
+| 'Boundary' |    Shows the domain boundary / edges |
+|           |       'on' (default) \| 'off' |
+| 'BoundingBox' |   ColorMap value or matrix of such values |
+|           |       'cool' (default) \| colormap name \| three-column matrix of RGB triplets |
+| 'BDLabels' |   Draws boundary / edges with a specific label |
+|            |      [] (default) \| [label1,label2,...] |
+| 'Slice'   |   Slicing Plane definition  |
+|          |        [] \| [S1'; S2'; S3'] |
+| 'SGridParam' | Number of grid points used for the slice |
+|          |        'auto' (default) \| [N,M] |
+| 'ColorMap' |       ColorMap value or matrix of such values |
+|         |         'cool' (default) \| colormap name \| three-column matrix of RGB triplets |
+| 'ColorBar' |   Indicator in order to include a colorbar |
+|          |        'on' (default) \| 'off' |
+| 'ColorRange' |    Range of values to adjust the color thresholds |
+|          |        'minmax' (default) \| [min,max] |
+| 'FlowData' |    Data for quiver3 plot |
+|           |       FreeFem++ point data |
+| 'FGridParam' |    Number of grid points used for quiver plot |
+|           |       'auto' (default) \| [N,M] |
+
+#### Examples
+
+Plot the boundary 30 and 31:
+```Matlab
+ffpdeplot3D(p,b,t,'BDLabels',[30,31],'XYZStyle','monochrome');
+```
+
+Plot the solution u along two crosssections defined by S1,S2,S3:
+```Matlab
+S1=[-0 0.375 0.0; ...
+    0.375 0 0.0];
+S2=[0.0 0.375 0.5; ...
+    0.375 0 0.5];
+S3=[0.75 0.375 0.0; ...
+    0.375 0.75 0.0];
+ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'Boundary','off','ColorMap','jet')
+```
+
+Plot crosssection and boundary but set no face color for the boundary:
+```Matlab
+ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'XYZStyle','noface','ColorMap','jet')
+```
+
+Quiver3 plot along a crosssections defined by S1,S2,S3:
+```Matlab
+S1=[0.0 0.0 0.25];
+S2=[0.0 0.75 0.25];
+S3=[0.75 0.0 0.25];
+ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'Boundary','off','BoundingBox','on')
+```
+
 <a name="notesoncompilation"></a>
 
 ## Notes on MEX Compilation
