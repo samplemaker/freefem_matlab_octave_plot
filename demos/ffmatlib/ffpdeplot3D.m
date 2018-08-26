@@ -18,7 +18,7 @@
 %       Parameter       Value
 %      'XYData'      Data in order to colorize the plot
 %                       FreeFem++ data
-%      'XYZStyle'    Plot Style for boundary
+%      'XYZStyle'    Plot style for boundary
 %                       'interp' (default) | 'noface' | 'monochrome' 
 %      'Boundary'    Shows the domain boundary / edges
 %                       'on' (default) | 'off'
@@ -26,7 +26,7 @@
 %                       'on' | 'off' (default)
 %      'BDLabels'    Draws boundary / edges with a specific label
 %                       [] (default) | [label1,label2,...]
-%      'Slice'       Slicing Plane definition
+%      'Slice'       3 point slicing plane definition
 %                       [] | [S1'; S2'; S3']
 %      'SGridParam'  Number of grid points used for the slice
 %                       'auto' (default) | [N,M]
@@ -38,7 +38,7 @@
 %                       'minmax' (default) | [min,max]
 %      'FlowData'    Data for quiver3 plot
 %                       FreeFem++ point data
-%      'FGridParam'  Number of grid points used for quiver plot
+%      'FGridParam'  Number of grid points used for quiver3 plot
 %                       'auto' (default) | [N,M]
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
@@ -488,16 +488,16 @@ function printhelp()
     fprintf('%s\n',' -- ffpdeplot3D(p,b,t,''FlowData'',[Ex,Ey,Ez],''Slice'',S1,S2,S3,''Boundary'',''off'',''BoundingBox'',''on'')');
     fprintf('\n');
     fprintf('''XYData''       Data in order to colorize the plot\n');
-    fprintf('''XYZStyle''     Plot Style for boundary (default=''interp'')\n');
+    fprintf('''XYZStyle''     Plot style for boundary (default=''interp'')\n');
     fprintf('''Boundary''     Shows the domain boundary / edges (default=''on'')\n');
     fprintf('''BoundingBox''  Shows the bounding box of a slice (default=''off'')\n');
     fprintf('''BDLabels''     Draws boundary / edges with a specific label\n');
-    fprintf('''Slice''        Slicing Plane definition\n');
+    fprintf('''Slice''        3 point slicing plane definition\n');
     fprintf('''SGridParam''   Number of grid points used for the slice (default=''auto'')\n');
     fprintf('''ColorMap''     ColorMap value or matrix of such values (default=''cool'')\n');
     fprintf('''ColorBar''     Indicator in order to include a colorbar (default=''on'')\n');
     fprintf('''ColorRange''   Range of values to adjust the color thresholds (default=''minmax'')\n');
     fprintf('''FlowData''     Data for quiver3 plot \n');
-    fprintf('''FGridParam''   Number of grid points used for quiver plot (default=''auto'')\n');
+    fprintf('''FGridParam''   Number of grid points used for quiver3 plot (default=''auto'')\n');
     fprintf('\n');
 end

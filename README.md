@@ -350,15 +350,15 @@ The contents of the points `p`, boundary conditions `b` and triangles `t` argume
 | --- | --- |
 | 'XYData' |     Data in order to colorize the plot |
 |           |       FreeFem++ data |
-| 'XYStyle' |    Plot Style for boundary |
+| 'XYStyle' |    Plot style for boundary |
 |           |       'interp' (default) \| 'noface' \| 'monochrome' |
 | 'Boundary' |    Shows the domain boundary / edges |
 |           |       'on' (default) \| 'off' |
-| 'BoundingBox' |   ColorMap value or matrix of such values |
-|           |       'cool' (default) \| colormap name \| three-column matrix of RGB triplets |
+| 'BoundingBox' |   Shows the bounding box of a slice |
+|           |       'on' \| 'off' (default) |
 | 'BDLabels' |   Draws boundary / edges with a specific label |
 |            |      [] (default) \| [label1,label2,...] |
-| 'Slice'   |   Slicing Plane definition  |
+| 'Slice'   |   3 point slicing plane definition  |
 |          |        [] \| [S1'; S2'; S3'] |
 | 'SGridParam' | Number of grid points used for the slice |
 |          |        'auto' (default) \| [N,M] |
@@ -370,17 +370,17 @@ The contents of the points `p`, boundary conditions `b` and triangles `t` argume
 |          |        'minmax' (default) \| [min,max] |
 | 'FlowData' |    Data for quiver3 plot |
 |           |       FreeFem++ point data |
-| 'FGridParam' |    Number of grid points used for quiver plot |
+| 'FGridParam' |    Number of grid points used for quiver3 plot |
 |           |       'auto' (default) \| [N,M] |
 
 #### Examples
 
-Plot the boundary 30 and 31:
+Plots the boundary with the labels 30 and 31:
 ```Matlab
 ffpdeplot3D(p,b,t,'BDLabels',[30,31],'XYZStyle','monochrome');
 ```
 
-Plot the solution u along two crosssections defined by S1,S2,S3:
+Plots cross sections defined by points S1, S2, S3:
 ```Matlab
 S1=[-0 0.375 0.0; ...
     0.375 0 0.0];
@@ -391,16 +391,13 @@ S3=[0.75 0.375 0.0; ...
 ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'Boundary','off','ColorMap','jet')
 ```
 
-Plot crosssection and boundary but set no face color for the boundary:
+Plots cross sections and boundaries without face color:
 ```Matlab
 ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'XYZStyle','noface','ColorMap','jet')
 ```
 
-Quiver3 plot along a crosssections defined by S1,S2,S3:
+Quiver3 plot along a cross sections defined by S1,S2,S3:
 ```Matlab
-S1=[0.0 0.0 0.25];
-S2=[0.0 0.75 0.25];
-S3=[0.75 0.0 0.25];
 ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'Boundary','off','BoundingBox','on')
 ```
 
