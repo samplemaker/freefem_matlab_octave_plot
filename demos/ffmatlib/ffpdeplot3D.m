@@ -30,6 +30,8 @@
 %                       [] | [S1'; S2'; S3']
 %      'SGridParam'  Number of grid points used for the slice
 %                       'auto' (default) | [N,M]
+%      'Project2D'     View cross section in 2D
+%                       'on' | 'off' (default)
 %      'ColorMap'    ColorMap value or matrix of such values
 %                       'cool' (default) | colormap name | three-column matrix of RGB triplets
 %      'ColorBar'    Indicator in order to include a colorbar
@@ -69,12 +71,12 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     %ATTENTION: No parameters after 'Slice' otherwise pos gets screwed
     optsnames = {'XYZData', 'XYZStyle', 'Boundary', ...
                  'ColorMap', 'ColorBar', 'ColorRange', ...
-                 'BDLabels', 'SGridParam', ...
+                 'BDLabels', 'SGridParam', 'Project2D', ...
                  'FlowData', 'FGridParam', 'BoundingBox', 'Slice'};
 
     vararginval = {[], 'interp', 'on', ...
                    'cool', 'off', 'minmax', ...
-                   [], [75,75], ...
+                   [], [75,75], 'off', ...
                    [], [20,20], 'off', [], [], []};
 
     if (numvarargs>0)
@@ -106,7 +108,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
 
     [xyzrawdata, xyzstyle, showboundary, ...
      setcolormap, showcolbar, colorrange, ...
-     bdlabels, sgridparam, ...
+     bdlabels, sgridparam, project2d, ...
      flowdata, fgridparam, boundingbox, slice1, slice2, slice3] = vararginval{:};
 
     hax=newplot;
@@ -155,31 +157,47 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
             [nslices, sz2]=size(slice1);
             if (~isequal(size(slice1), size(slice2), size(slice3)) || (sz2~=3))
                 error('dimension check failed for slicing data');
-            end
-            for i=1:nslices
-                S1=slice1(i,:);
-                S2=slice2(i,:);
-                S3=slice3(i,:);
-                [sliceTData] = slicetet2data(tdata,S1,S2,S3);
-                [X,Y,Z] = gridplane3d(S1,S2,S3,N,M);
-                if exist('fftet2gridfast','file')
-                    [C] = fftet2gridfast(sliceTData,X,Y,Z);
-%                    tx=sliceTData(:,1);
-%                    ty=sliceTData(:,2);
-%                    tz=sliceTData(:,3);
-%                    V=sliceTData(:,4);
-%                    [C] = fftet2gridfast(X,Y,Z,tx,ty,tz,V);
-                else
-                    fprintf('Note: To improve runtime compile MEX function fftet2gridfast()\n');
-                    [C] = fftet2gridint(sliceTData,X,Y,Z);
-                end
-                surf(X,Y,Z,C,'EdgeColor','none');
-                %Debug - show cross section
-                %[SX,SY,SZ] = slicetet2patch(sliceTData(:,1:3));
-                %patch(SX,SY,SZ,[0 1 1],'EdgeColor',[0 0 1],'LineWidth',1,'FaceColor','none');
-                if ~strcmpi(boundingbox,'off')
-                    plotboundingbox(slice1,slice2,slice3);
-                    usesliceboundingbox=true;
+            end     
+            if ~strcmpi(project2d,'off')
+                 S1=slice1;
+                 S2=slice2;
+                 S3=slice3;
+                 [sliceTData] = slicetet2data(tdata,S1,S2,S3);
+                 [R,S] = gridplane2d(S1,S2,S3,N,M);
+                 [X,Y,Z] = gridplane3d(S1,S2,S3,N,M);
+                 if exist('fftet2gridfast','file')
+                     [C] = fftet2gridfast(sliceTData,X,Y,Z);
+                 else
+                     fprintf('Note: To improve runtime compile MEX function fftet2gridfast()\n');
+                     [C] = fftet2gridint(sliceTData,X,Y,Z);
+                 end
+                 surf(R,S,C,'EdgeColor','none');
+            else   
+                for i=1:nslices
+                    S1=slice1(i,:);
+                    S2=slice2(i,:);
+                    S3=slice3(i,:);
+                    [sliceTData] = slicetet2data(tdata,S1,S2,S3);
+                    [X,Y,Z] = gridplane3d(S1,S2,S3,N,M);
+                    if exist('fftet2gridfast','file')
+                        [C] = fftet2gridfast(sliceTData,X,Y,Z);
+%                       tx=sliceTData(:,1);
+%                       ty=sliceTData(:,2);
+%                       tz=sliceTData(:,3);
+%                       V=sliceTData(:,4);
+%                       [C] = fftet2gridfast(X,Y,Z,tx,ty,tz,V);
+                    else
+                        fprintf('Note: To improve runtime compile MEX function fftet2gridfast()\n');
+                        [C] = fftet2gridint(sliceTData,X,Y,Z);
+                    end
+                    surf(X,Y,Z,C,'EdgeColor','none');
+                    %Debug - show cross section
+                    %[SX,SY,SZ] = slicetet2patch(sliceTData(:,1:3));
+                    %patch(SX,SY,SZ,[0 1 1],'EdgeColor',[0 0 1],'LineWidth',1,'FaceColor','none');
+                    if ~strcmpi(boundingbox,'off')
+                        plotboundingbox(slice1,slice2,slice3);
+                        usesliceboundingbox=true;
+                    end
                 end
             end
             useslicecolormap=true;
@@ -193,7 +211,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                 hcb=colorbar;
             end
         end
-        if strcmpi(showboundary,'on')
+        if strcmpi(showboundary,'on') && strcmpi(project2d,'off')
             if strcmpi(xyzstyle,'interp')
                 [~,nv]=size(points);
                 [cdata]=preparebddata(nv,triangles,xyzrawdata,bdlabels);
@@ -213,7 +231,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
             end
         end
     end
-    if strcmpi(showboundary,'on')
+    if strcmpi(showboundary,'on') && strcmpi(project2d,'off')
         switch xyzstyle
             case('noface')
                 patch(xbddata,ybddata,zbddata,[0 1 1],'EdgeColor',[0 0 0],'LineWidth',1,'FaceColor','none');
@@ -255,8 +273,12 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
             plotboundingbox(slice1,slice2,slice3);
         end
     end
-    daspect([1 1 1]);
-    view(3);
+    if ~strcmpi(project2d,'off')
+        view(2);
+    else
+        daspect([1 1 1]);
+        view(3);
+    end
     props = {'CameraViewAngle','DataAspectRatio','PlotBoxAspectRatio'};
     set(hax,props,get(hax,props));
     set(fig,'color',[1 1 1]);
@@ -326,7 +348,22 @@ function [X,Y,Z] = gridplane3d(SO,SN,SM,N,M)
     Y=(SO(2)+u*(SN(2)-SO(2))+v*(SM(2)-SO(2)));
     Z=(SO(3)+u*(SN(3)-SO(3))+v*(SM(3)-SO(3)));
 
-    %\TODO: Create a local [R,S] gridplane for a view(2) plot
+end
+
+%The projection of the 3D grid plane into 2D
+%Create a local [R,S] gridplane for a view(2) plot
+function [X,Y] = gridplane2d(SO,SN,SM,N,M)
+
+    n=(0:1/(N-1):1);
+    m=(0:1/(M-1):1);
+    [u,v] = meshgrid(n,m);
+    a=norm(SN-SO);
+    b=norm(SM-SO);
+    phi=acos(dot(SN-SO,SM-SO)/(a*b));
+    
+    %[x,y]=u*a*[1,0]+v*b*[cos(phi),sin(phi)];
+    X=u*a+v*b*cos(phi);
+    Y=v*b*sin(phi);
 end
 
 function [fdataout] = slicetet2data(fdata,S1,S2,S3)
@@ -493,6 +530,7 @@ function printhelp()
     fprintf('''BoundingBox''  Shows the bounding box of a slice (default=''off'')\n');
     fprintf('''BDLabels''     Draws boundary / edges with a specific label\n');
     fprintf('''Slice''        3 point slicing plane definition\n');
+    fprintf('''Project2D''    View cross section in 2D (default=''off'')\n');
     fprintf('''SGridParam''   Number of grid points used for the slice (default=''auto'')\n');
     fprintf('''ColorMap''     ColorMap value or matrix of such values (default=''cool'')\n');
     fprintf('''ColorBar''     Indicator in order to include a colorbar (default=''on'')\n');

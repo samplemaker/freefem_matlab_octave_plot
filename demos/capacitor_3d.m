@@ -92,3 +92,15 @@ figure;
 %plot all boundaries and color the plot
 ffpdeplot3D(p,b,t,'BDLabels',[30,31],'XYZStyle','monochrome');
 
+S1=[-0 0.0 0.0];
+S2=[0.0 0.375 0.5];
+S3=[0.75 0.375 0.0];
+
+figure;
+ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'SGridParam',[30,30], 'Project2D', 'on', ...
+            'Boundary','off','ColorMap',jet(200),'ColorBar','on');
+
+figure;
+ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'SGridParam',[30,30],'BDLabels',[30,31], ...
+            'XYZStyle','monochrome', ...
+            'Boundary','on','ColorMap',jet(200),'ColorBar','on');
