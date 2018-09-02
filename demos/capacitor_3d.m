@@ -104,3 +104,32 @@ figure;
 ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'SGridParam',[30,30],'BDLabels',[30,31], ...
             'XYZStyle','monochrome', ...
             'Boundary','on','ColorMap',jet(200),'ColorBar','on');
+
+%Create a series of slicing planes
+
+%Number of slices            
+N=5;
+%Distance between two adjacent slices
+d=0.09;
+r=linspace(0,d*(N-1),N);
+
+%Starting plane
+O1=[-0 0.0 0.0];
+O2=[0.0 0.375 0.65];
+O3=[0.75 0.375 0.0];
+
+%Normalvector of plane
+N0=cross(O2-O1,O3-O1);
+N0=N0/norm(N0);
+
+S1=repmat(O1,N,1)+(N0'.*r)';
+S2=repmat(O2,N,1)+(N0'.*r)';
+S3=repmat(O3,N,1)+(N0'.*r)';
+
+figure;
+ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'SGridParam',[30,30], ...
+            'BDLabels',[30,31],'XYZStyle','monochrome','Boundary','on','ColorMap',jet(200),'ColorBar','on','BoundingBox','off');
+
+ylabel('y');
+xlabel('x');
+zlabel('z');

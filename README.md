@@ -362,10 +362,14 @@ The contents of the points `p`, boundary conditions `b` and triangles `t` argume
 |          |        [] \| [S1'; S2'; S3'] |
 | 'SGridParam' | Number of grid points used for the slice |
 |          |        'auto' (default) \| [N,M] |
+| 'Project2D' | View cross section in 2D |
+|           |       'on' \| 'off' (default) |
 | 'ColorMap' |       ColorMap value or matrix of such values |
 |         |         'cool' (default) \| colormap name \| three-column matrix of RGB triplets |
 | 'ColorBar' |   Indicator in order to include a colorbar |
 |          |        'on' (default) \| 'off' |
+| 'CBTitle'   |   Colorbar Title  |
+|          |        (default=[]) |
 | 'ColorRange' |    Range of values to adjust the color thresholds |
 |          |        'minmax' (default) \| [min,max] |
 | 'FlowData' |    Data for quiver3 plot |
@@ -375,12 +379,12 @@ The contents of the points `p`, boundary conditions `b` and triangles `t` argume
 
 #### Examples
 
-Plots the boundary with the labels 30 and 31:
+Plots boundaries only with labels 30 and 31:
 ```Matlab
 ffpdeplot3D(p,b,t,'BDLabels',[30,31],'XYZStyle','monochrome');
 ```
 
-Plots cross sections defined by points S1, S2, S3:
+`ffpdeplot3D` with the argument `Slice` draws slices (cross-sections) for the volumetric data. A slice plane is defined by the parallelogram spanned by three corner points S1,S2,S3. Multiple slicing planes can be put together. The following example creates and draws two orthogonal cross sections:
 ```Matlab
 S1=[-0 0.375 0.0; ...
     0.375 0 0.0];
@@ -391,12 +395,18 @@ S3=[0.75 0.375 0.0; ...
 ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'Boundary','off','ColorMap','jet')
 ```
 
-Plots cross sections and boundaries without face color:
+A cross-section can be viewed in a 2D projection:
+```Matlab
+ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'SGridParam',[300,300], 'Project2D', 'on', ...
+            'Boundary','off','ColorMap',jet(200),'ColorBar','on');
+```
+
+Plots the cross-section and all boundaries without face color (transparent):
 ```Matlab
 ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'XYZStyle','noface','ColorMap','jet')
 ```
 
-Quiver3 plot along a cross sections defined by S1,S2,S3:
+Quiver3 plot along one cross-section defined by the three points S1,S2,S3:
 ```Matlab
 ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'Boundary','off','BoundingBox','on')
 ```

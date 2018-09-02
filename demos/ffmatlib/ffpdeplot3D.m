@@ -36,6 +36,8 @@
 %                       'cool' (default) | colormap name | three-column matrix of RGB triplets
 %      'ColorBar'    Indicator in order to include a colorbar
 %                       'on' (default) | 'off'
+%      'CBTitle'     Colorbar Title
+%                       (default=[])
 %      'ColorRange'  Range of values to adjust the color thresholds
 %                       'minmax' (default) | [min,max]
 %      'FlowData'    Data for quiver3 plot
@@ -70,12 +72,12 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
 
     %ATTENTION: No parameters after 'Slice' otherwise pos gets screwed
     optsnames = {'XYZData', 'XYZStyle', 'Boundary', ...
-                 'ColorMap', 'ColorBar', 'ColorRange', ...
+                 'ColorMap', 'ColorBar', 'CBTitle', 'ColorRange', ...
                  'BDLabels', 'SGridParam', 'Project2D', ...
                  'FlowData', 'FGridParam', 'BoundingBox', 'Slice'};
 
     vararginval = {[], 'interp', 'on', ...
-                   'cool', 'off', 'minmax', ...
+                   'cool', 'off', [], 'minmax', ...
                    [], [75,75], 'off', ...
                    [], [20,20], 'off', [], [], []};
 
@@ -107,7 +109,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     end
 
     [xyzrawdata, xyzstyle, showboundary, ...
-     setcolormap, showcolbar, colorrange, ...
+     setcolormap, showcolbar, colorbartitle, colorrange, ...
      bdlabels, sgridparam, project2d, ...
      flowdata, fgridparam, boundingbox, slice1, slice2, slice3] = vararginval{:};
 
@@ -156,8 +158,9 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
             end
             [nslices, sz2]=size(slice1);
             if (~isequal(size(slice1), size(slice2), size(slice3)) || (sz2~=3))
-                error('dimension check failed for slicing data');
-            end     
+                error('dimension check of slicing plane definition failed');
+            end
+            colspan=zeros(2,nslices);  
             if ~strcmpi(project2d,'off')
                  S1=slice1;
                  S2=slice2;
@@ -172,6 +175,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                      [C] = fftet2gridint(sliceTData,X,Y,Z);
                  end
                  surf(R,S,C,'EdgeColor','none');
+                 colspan(:,1)=[min(min(C)) max(max(C))]';
             else   
                 for i=1:nslices
                     S1=slice1(i,:);
@@ -191,6 +195,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                         [C] = fftet2gridint(sliceTData,X,Y,Z);
                     end
                     surf(X,Y,Z,C,'EdgeColor','none');
+                    colspan(:,i)=[min(min(C)) max(max(C))]';
                     %Debug - show cross section
                     %[SX,SY,SZ] = slicetet2patch(sliceTData(:,1:3));
                     %patch(SX,SY,SZ,[0 1 1],'EdgeColor',[0 0 1],'LineWidth',1,'FaceColor','none');
@@ -205,10 +210,13 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
             if (isnumeric(colorrange))
                 caxis(colorrange);
             else
-                caxis([min(min(C)) max(max(C))]);
+                caxis([min(colspan(1,:)) max(colspan(2,:))]);
             end
             if strcmpi(showcolbar,'on')
                 hcb=colorbar;
+                if ~isempty(colorbartitle)
+                    title(hcb,colorbartitle);
+                end
             end
         end
         if strcmpi(showboundary,'on') && strcmpi(project2d,'off')
@@ -226,6 +234,9 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                     end
                     if strcmpi(showcolbar,'on')
                         hcb=colorbar;
+                        if ~isempty(colorbartitle)
+                            title(hcb,colorbartitle);
+                        end
                     end
                 end
             end
@@ -534,6 +545,7 @@ function printhelp()
     fprintf('''SGridParam''   Number of grid points used for the slice (default=''auto'')\n');
     fprintf('''ColorMap''     ColorMap value or matrix of such values (default=''cool'')\n');
     fprintf('''ColorBar''     Indicator in order to include a colorbar (default=''on'')\n');
+    fprintf('''CBTitle''      Colorbar Title (default=[])\n');
     fprintf('''ColorRange''   Range of values to adjust the color thresholds (default=''minmax'')\n');
     fprintf('''FlowData''     Data for quiver3 plot \n');
     fprintf('''FGridParam''   Number of grid points used for quiver3 plot (default=''auto'')\n');
