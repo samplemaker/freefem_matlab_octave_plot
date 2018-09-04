@@ -1,12 +1,12 @@
-# How to plot FreeFem++ Simulations in Matlab and Octave
+# How to plot FreeFem++ Simulations in Matlab&copy; and Octave
 
-Once you have successfully simulated a PDE problem using FreeFem++ you may want to have a look at your simulation results from within Matlab&copy; or Octave. `ffmatlib` provides some useful commands in order to load FreeFem++ meshes and simulation data and to call the underlying Matlab/Octave plot routines like `contour()`, `quiver()` as well as `patch()`.
+Once you have successfully simulated a PDE problem using FreeFem++ you may want to have a look at the simulation results from within Matlab or Octave. `ffmatlib` provides useful commands in order to load FreeFem++ meshes and simulation data and to call the underlying Matlab/Octave plot routines like `contour()`, `quiver()` as well as `patch()`.
 
 ![](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_3d_gouraud.png)
 
 ## Getting started
 
-  * Click on the button `Clone or download` (see above) and then on the button `Download ZIP`
+  * Click on the button `Clone or download` (above) and then on the button `Download ZIP`
   * Unzip and change to the directory `demos` and run all FreeFem++ *.epd scripts to create simulation data for plotting
   * Run the matlab `*.m` demo files with Matlab or Octave
 
@@ -64,7 +64,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 | Name | Description |
 | --- | --- |
 | [ffpdeplot()](#ffpdeplotfct) | Creates contour(), quiver() as well as patch() plots from FreeFem++ 2D simulation data |
-| [ffpdeplot3D()](#ffpdeplot3Dfct) | Plots 3D simulation data (under construction!) |
+| [ffpdeplot3D()](#ffpdeplot3Dfct) | Creates cross-sections, quiver3() as well as boundary plots from FreeFem++ 3D simulation data |
 | [ffreadmesh()](#ffreadmeshfct) | Reads FreeFem++ Mesh Files into Matlab/Octave |
 | [ffreaddata()](#ffreaddatafct) | Reads FreeFem++ Data Files into Matlab/Octave |
 | [ffplottri2grid()](#ffplottri2gridfct) | Interpolates from 2D triangular mesh to 2D rectangular grid |
@@ -73,9 +73,9 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 ## ffpdeplot()
 
-`ffpdeplot()` is a function specially tailored to FreeFem++ that offers most of the features of the classic Matlab `pdeplot()` command. The FEM mesh is entered by vertex coordinates, the boundary values, and the triangles in terms of connectivity as provided by the FreeFem++ `savemesh(Th, "mesh_file.msh")` command. The simulation data can be entered either as point data (native support for P1 simulation data) or as interpolation at the triangle nodes.
+`ffpdeplot()` is a function specially tailored to FreeFem++ that offers most of the features of the classic Matlab `pdeplot()` command. The FEM mesh is entered by vertex coordinates, the boundary values, and the triangles in terms of connectivity as provided by the FreeFem++ `savemesh(Th, "mesh_file.msh")` command. The simulation data can be entered either as point data (native support for P1 simulation data) or as data at the triangle nodes.
 
-#### Syntax
+#### Synopsis
 
 ```Matlab
 [handles,varargout] = ffpdeplot(p,b,t,varargin)
@@ -182,7 +182,7 @@ ffpdeplot(p,b,t,'FlowData',[Ex, Ey],'Boundary','on');
 
 Reads a FreeFem++ mesh file created by the FreeFem++ `savemesh(Th,"2dmesh.msh")` or `savemesh(Th3d,"3dmesh.mesh")` command to the Matlab/Octave workspace.
 
-#### Syntax
+#### Synopsis
 
 ```Matlab
 [p,b,t,nv,nbe,nt,labels] = ffreadmesh(filename)
@@ -246,7 +246,7 @@ Reads a FreeFem++ data file created by the FreeFem++ [scripts](#exportfromff) to
 
 #### Examples
 
-Reads a mesh file into the Matlab/Octave workspace:
+Reads scalar data and a two dimensional vectorfiel to the Matlab/Octave workspace:
 
 ```Matlab
 [u]=ffreaddata('capacitor_potential_p1only.txt');
@@ -260,7 +260,7 @@ Reads a mesh file into the Matlab/Octave workspace:
 interpolates the data `tu`, `tv` given on a triangular mesh defined by `tx` and `ty` on a rectangular grid defined by the two vectors `x` and `y`.<br>
 To create contour or quiver plots `ffpdeplot()` has its own interpolation routine in the form of a vectorized Matlab/Octave code. However to improve runtime there is a MEX implementation of this code section. If Matlab/Octave finds an executable of `ffplottri2grid.c` within its search path the faster C-implementation is used instead of the internal interpolation routine.
 
-#### Syntax
+#### Synopsis
 
 ```Matlab
 [u] = ffplottri2grid (x,y,tx,ty,tu)
@@ -294,7 +294,7 @@ view(3);
 
 <a name="exportfromff"></a>
 
-## Export 2D FEspace Data from FreeFem++
+## Export 2D FE-space Data from FreeFem++
 
 There are two input data formats supported by `ffpdeplot`:  
 
@@ -312,7 +312,7 @@ Saves the Mesh:
 ```Matlab
 savemesh(Th,"capacitorp1.msh");
 ```
-Saves the FEspace function:
+Saves the FE-space function:
 
 ```Matlab
 ofstream file("capacitor_potential_p1only.txt"); 
@@ -334,9 +334,9 @@ for (int j=0; j<Ex[].n; j++)
 
 ## ffpdeplot3D()
 
-`ffpdeplot3D()` is available as draft and is still under construction. See also [3D-Parallel Plate Capacitor](#3dcapacitorexample).
+The purpose of the library function `ffpdeplot3D()` is to create cross-sections, slectively plot boundaries and to create quiver3() plots from 3D simulation data. See also [3D-Parallel Plate Capacitor](#3dcapacitorexample). Note: This function is still under construction.
 
-#### Syntax
+#### Synopsis
 
 ```Matlab
 [] = ffpdeplot3D(p,b,t,varargin)
@@ -344,7 +344,9 @@ for (int j=0; j<Ex[].n; j++)
 
 #### Description / Name-Value Pair Arguments
 
-The contents of the points `p`, boundary conditions `b` and triangles `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). `ffpdeplot3D()` can be called with name-value pair arguments as per following table:
+The contents of the points `p`, boundary conditions `b` and triangles `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). Although the function can also be run as a pure Matlab code it is strongly recommended to build the Mex file of the underlying library function in `fftet2gridfast.c` to improve execution speed. See also chapter [Notes on MEX Compilation](#notesoncompilation).
+
+`ffpdeplot3D()` can be called with name-value pair arguments as per following table:
 
 | Parameter | Value |
 | --- | --- |
@@ -379,12 +381,20 @@ The contents of the points `p`, boundary conditions `b` and triangles `t` argume
 
 #### Examples
 
-Plots boundaries only with labels 30 and 31:
+To create a plot read the mesh and the simulation data first of all:
+
+```Matlab
+[p,b,t]=ffreadmesh('cap3d.mesh');
+[u]=ffreaddata('cap3dpot.txt');
+[Ex,Ey,Ez]=ffreaddata('cap3dvec.txt');
+```
+
+It is possible to plot a complete mesh. However in three dimensions some boundaries inside the mesh are always obscured. Therefore it is possible to plot only a part of the mesh in order to make individual domain boundaries selectively visible. All boundaries inside a mesh are labeled by FreeFem++. The following example shows only the boundaries/borders labeled with the numbers 30 and 31:
 ```Matlab
 ffpdeplot3D(p,b,t,'BDLabels',[30,31],'XYZStyle','monochrome');
 ```
 
-`ffpdeplot3D` with the argument `Slice` draws slices (cross-sections) for the volumetric data. A slice plane is defined by the parallelogram spanned by three corner points S1,S2,S3. Multiple slicing planes can be put together. The following example creates and draws two orthogonal cross sections:
+`ffpdeplot3D` with the argument `Slice` draws slices (cross-sections) for the volumetric data `u`. A slicing plane is defined by the parallelogram spanned by the three corner points S1,S2,S3. Multiple slicing planes can be put together (series of cross-sections). As an example the following statement sequence creates and draws two orthogonal cross-sections of the volumetric data `u`:
 ```Matlab
 S1=[-0 0.375 0.0; ...
     0.375 0 0.0];
@@ -392,21 +402,22 @@ S2=[0.0 0.375 0.5; ...
     0.375 0 0.5];
 S3=[0.75 0.375 0.0; ...
     0.375 0.75 0.0];
-ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'Boundary','off','ColorMap','jet')
+ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'Boundary','off','ColorMap','jet', ...
+            'BoundingBox','on')
 ```
 
-A cross-section can be viewed in a 2D projection:
+A cross-section can also be viewed in a 2D projection:
 ```Matlab
 ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'SGridParam',[300,300], 'Project2D', 'on', ...
             'Boundary','off','ColorMap',jet(200),'ColorBar','on');
 ```
 
-Plots the cross-section and all boundaries without face color (transparent):
+The following command plots the cross-section and draws all boundaries without a face color (i.e. the facets are transparent so that the mesh only is visible):
 ```Matlab
 ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'XYZStyle','noface','ColorMap','jet')
 ```
 
-Quiver3 plot along one cross-section defined by the three points S1,S2,S3:
+Three dimensional vector fields can be plot at one cross-section. The following example creates a quiver3() plot at a cross-section defined by the three points S1,S2,S3:
 ```Matlab
 ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'Boundary','off','BoundingBox','on')
 ```
@@ -416,14 +427,16 @@ ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'Boundary','off','Bound
 ## Notes on MEX Compilation
 
 Octave:<br>
-In Octave seek to the folder `./ffmatlib/` and invoke the command 
+In Octave seek to the folder `./ffmatlib/` and invoke the two commands 
 
-`mkoctfile --mex -Wall  ffplottri2grid.c`
+`mkoctfile --mex -Wall  ffplottri2grid.c`  
+`mkoctfile --mex -Wall  fftet2gridfast.c`
 
 Windows:<br>
 Under Windows with Microsoft Visual Studio invoke 
 
-`mex  ffplottri2grid.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`
+`mex  ffplottri2grid.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`  
+`mex  fftet2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`
 
 If your build fails with Microsoft Visual Studio 10 ensure to enable C99-standart or you can try to change the file name into *.cpp, forcing MVSD to use a C++ compiler.
 
