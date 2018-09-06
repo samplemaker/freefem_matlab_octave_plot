@@ -59,49 +59,6 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 [Screenshot: 3D Slice](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_3d_slices.png)  
 
-<a name="exportfromff"></a>
-
-## Exporting data from FreeFem++
-
-To create plots with Matlab/Octave the Mesh and the FE-Space function must be exported as ASCII files.
-
-To import FE-Space functions into the Matlab/Octave workspace the `ffmatlib` supports two data formats:  
-
-1.) Simulation data is given on the mesh nodes  
-2.) Simulation data is given in triangle vertice form  
-
-The first method is the preferred one. For P1-Elements the degree of freedom (`Vh.ndof`) of the space function equals the total number of mesh nodes. Therefore both formats imply that P1-Element data is only supported by the `ffmatlib`. In order to plot simulations derived from higher order FE-Elements the FE-space data must be converted into P1-Element data. In FreeFem++ you can convert space functions just using the '=' operator. 
-
-Out of FreeFem++ write the simulation data with the following statement sequence:
-
-Saves a 2D Mesh:
-```Matlab
-savemesh(Th,"capacitorp1.msh");
-```
-
-Saves a 3D Mesh:
-```Matlab
-savemesh(Thn3d,"cap3d.mesh");
-```
-
-Saves the P1-Element scalar function `u`:
-```Matlab
-ofstream file("capacitor_potential_p1only.txt"); 
-for (int j=0; j<u[].n; j++)
-   file << u[][j] << endl;
-}
-```
-
-Saves the P1-Element 2D vector field `[Ex,Ey]`:
-```Matlab
-ofstream file("capacitor_field_p1only.txt");
-for (int j=0; j<Ex[].n; j++)
-   file << Ex[][j] << " " << Ey[][j] << endl;
-}
-```
-
-In order to import those files into Matlab/Octave see the sections [ffreadmesh](#ffreadmeshfct) and [ffreaddata](#ffreaddatafct).
-
 ## Function Reference
 
 | Name | Description |
@@ -435,6 +392,45 @@ Reads scalar data and a two dimensional vectorfiel to the Matlab/Octave workspac
 [u]=ffreaddata('capacitor_potential_p1only.txt');
 [Ex,Ey]=ffreaddata('capacitor_field_p1only.txt');
 ```
+
+<a name="exportfromff"></a>
+
+## Exporting data from FreeFem++
+
+To create plots with Matlab/Octave the Mesh and the FE-Space function must be exported as ASCII data. The `ffmatlib` supports two file formats:  
+
+1.) The simulation data is given on the mesh nodes (preferred method)  
+2.) The simulation data is given in triangle vertice form  
+
+In this sense P1-Element simulations can be exported very easily since the degree of freedom of the space function (`Vh.ndof`) corresponds exactly to the number of nodes in the mesh. In order to plot simulations made with higher order FE-Elements the FE-space data must be converted into P1-Element data. In FreeFem++ you can easily convert space functions using the '=' operator.
+
+Saves a 2D Mesh:
+```Matlab
+savemesh(Th,"capacitorp1.msh");
+```
+
+Saves a 3D Mesh:
+```Matlab
+savemesh(Thn3d,"cap3d.mesh");
+```
+
+Saves the P1-Element scalar function `u`:
+```Matlab
+ofstream file("capacitor_potential_p1only.txt"); 
+for (int j=0; j<u[].n; j++)
+   file << u[][j] << endl;
+}
+```
+
+Saves the P1-Element 2D vector field `[Ex,Ey]`:
+```Matlab
+ofstream file("capacitor_field_p1only.txt");
+for (int j=0; j<Ex[].n; j++)
+   file << Ex[][j] << " " << Ey[][j] << endl;
+}
+```
+
+In order to import those files into Matlab/Octave see the sections [ffreadmesh](#ffreadmeshfct) and [ffreaddata](#ffreaddatafct).
 
 <a name="notesoncompilation"></a>
 
