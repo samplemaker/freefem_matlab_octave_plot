@@ -73,7 +73,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 ## ffpdeplot()
 
-`ffpdeplot()` is a function specially tailored to FreeFem++ that offers most of the features of the classic Matlab `pdeplot()` command. The FEM mesh is entered by vertex coordinates, the boundary values, and the triangles in terms of connectivity as provided by the FreeFem++ `savemesh(Th, "mesh_file.msh")` command. The simulation data can be entered either as point data (native support for P1 simulation data) or as data at the triangle nodes.
+`ffpdeplot()` is a function specially tailored to FreeFem++ that offers most of the features of the classic Matlab `pdeplot()` command. The FEM mesh is entered by vertex coordinates, the boundary values, and the triangles in terms of connectivity as provided by the FreeFem++ `savemesh(Th, "mesh_file.msh")` command. The simulation data can be entered as values at the mesh nodes.
 
 #### Synopsis
 
@@ -138,7 +138,7 @@ The return value `handles` contains handles to the plot figures. The return valu
 
 #### Examples
 
-To create a plot read the mesh and the simulation data first of all:
+First load the mesh and the simulation data:
 
 ```Matlab
 [p,b,t]=ffreadmesh('capacitorp1.msh');
@@ -146,17 +146,17 @@ To create a plot read the mesh and the simulation data first of all:
 [Ex,Ey]=ffreaddata('capacitor_field_p1only.txt');
 ```
 
-2D Patch (2D Map or Density) Plot without Boundary:
+2D Patch Plot (2D map / density) without boundary:
 ```Matlab
 ffpdeplot(p,[],t,'XYData',u);
 ```
 
-Plot of the Domain Boundary:
+Plot of the domain boundary:
 ```Matlab
 ffpdeplot(p,b,t,'Boundary','on');
 ```
 
-2D Patch (2D Map or Density) Plot with Boundary:
+2D Patch (2D Map or Density) Plot with boundary:
 ```Matlab
 ffpdeplot(p,b,t,'XYData',u,'Mesh','on','Boundary','on');
 ```
@@ -166,12 +166,12 @@ ffpdeplot(p,b,t,'XYData',u,'Mesh','on','Boundary','on');
 ffpdeplot(p,b,t,'XYData',u,'ZStyle','continuous');
 ```
 
-Contour Plot (Isovalues):
+Contour Plot (isovalues):
 ```Matlab
 ffpdeplot(p,b,t,'XYData',u,'Contour','on','Boundary','on');
 ```
 
-Quiver Plot (Vectorfield):
+Quiver Plot (vectorfield):
 ```Matlab
 ffpdeplot(p,b,t,'FlowData',[Ex, Ey],'Boundary','on');
 ```
@@ -219,7 +219,7 @@ view(3);
 
 ## ffpdeplot3D()
 
-The purpose of the library function `ffpdeplot3D()` is to create cross-sections, to slectively plot boundaries and to create quiver3() plots from 3D simulation data. See also [3D-Parallel Plate Capacitor](#3dcapacitorexample). Note: This function is still under construction.
+The purpose of the library function `ffpdeplot3D()` is to create cross-sections, to slectively plot boundaries and to create quiver3() plots from 3D simulation data. See also the example [3D-Parallel Plate Capacitor](#3dcapacitorexample). Note: This function is still under construction.
 
 #### Synopsis
 
@@ -229,7 +229,7 @@ The purpose of the library function `ffpdeplot3D()` is to create cross-sections,
 
 #### Description / Name-Value Pair Arguments
 
-The contents of the points `p`, boundaries `b` and triangles `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). Although the function can also be run as a pure Matlab code it is strongly recommended to build the Mex file of the underlying library function in `fftet2gridfast.c` to improve execution speed. See also chapter [Notes on MEX Compilation](#notesoncompilation).
+The contents of the points `p`, boundaries `b` and triangles `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). Although the function can be run as pure Matlab code it is strongly recommended to build the MEX file of the underlying library function in `fftet2gridfast.c` to improve execution speed. See also chapter [Notes on MEX Compilation](#notesoncompilation).
 
 `ffpdeplot3D()` can be called with name-value pair arguments as per following table:
 
@@ -266,7 +266,7 @@ The contents of the points `p`, boundaries `b` and triangles `t` arguments are e
 
 #### Examples
 
-To create a plot read the mesh and the simulation data first of all:
+First load the mesh and the simulation data:
 
 ```Matlab
 [p,b,t]=ffreadmesh('cap3d.mesh');
@@ -274,17 +274,22 @@ To create a plot read the mesh and the simulation data first of all:
 [Ex,Ey,Ez]=ffreaddata('cap3dvec.txt');
 ```
 
-It is possible to plot a complete mesh:
+To plot the domain boundaries the entire mesh is drawn with a monochrome face color:
 ```Matlab
 ffpdeplot3D(p,b,t,'XYZStyle','monochrome');
 ```
 
-However in three dimensions some boundaries inside the mesh are always obscured. Therefore it is possible to plot only a part of the mesh in order to make individual domain boundaries visible. All boundaries inside a mesh are labeled by FreeFem++. The following example shows the boundaries/borders labeled with the numbers 30 and 31 only:
+In three dimensions some boundaries can be buried inside the domain and therefore invisible. In a FreeFem++ mesh all boundaries are labeled. If a specific label is specified it is possible to make the corresponding domain boundary visible. The following example plots only the boundaries/borders labeled with the numbers 30 and 31:
 ```Matlab
 ffpdeplot3D(p,b,t,'BDLabels',[30,31],'XYZStyle','monochrome');
 ```
 
-`ffpdeplot3D` with the argument `Slice` draws slices (cross-sections) for the volumetric data `u`. A slicing plane is defined by the parallelogram spanned by the three corner points S1,S2,S3. Multiple slicing planes can be put together (series of cross-sections). As an example the following statement sequence creates and draws two orthogonal cross-sections of the volumetric data `u`:
+To color the domain boundaries according the PDE solution `u` run:
+```Matlab
+ffpdeplot3D(p,b,t,'XYZData',u,'ColorMap','jet');
+```
+
+`ffpdeplot3D` with the argument `Slice` draws slices (cross-sections) for the volumetric data `u`. A slicing plane is defined by the parallelogram spanned by the three corner points S1, S2 and S3. Multiple slicing planes can be put together (series of cross-sections). As an example the following statement sequence creates and draws two orthogonal cross-sections of the volumetric data `u`:
 ```Matlab
 S1=[-0 0.375 0.0; ...
     0.375 0 0.0];
@@ -305,12 +310,12 @@ ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'SGridParam',[300,300], 'Project2
             'Boundary','off','ColorMap',jet(200),'ColorBar','on');
 ```
 
-The following command plots the cross-section and draws all boundaries without a face color (i.e. the facets are transparent so that the mesh only is visible):
+The following command plots a cross-section and additionally draws the complete mesh (the mesh facets are transparent):
 ```Matlab
 ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'XYZStyle','noface','ColorMap','jet')
 ```
 
-Three dimensional vector fields can be plot at one cross-section. The following example creates a quiver3() plot at a cross-section defined by the three points S1,S2,S3:
+Three dimensional vector fields can be plotted over a cross-section. The following example creates a quiver3() plot for a cross-section defined by the three points S1, S2, and S3:
 ```Matlab
 ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'Boundary','on','BoundingBox','on', ...
             'BDLabels',[30,31],'XYZStyle','monochrome');
@@ -332,11 +337,11 @@ Reads a FreeFem++ mesh file created by the FreeFem++ `savemesh(Th,"2dmesh.msh")`
 
 A mesh file consists of three parts:  
 
-1. the mesh points as nodal coordinates  
+1. a mesh point list containing the nodal coordinates  
 2. a list of boundary elements including the boundary labels  
 3. list of triangles or tetrahedra defining the mesh in terms of connectivity  
 
-These three blocks are stored in the variables `p`, `b` and `t`.
+These three blocks are stored in the variables `p`, `b` and `t` respectively.
 
 **2D FreeFem++ Format**
 
@@ -345,8 +350,8 @@ These three blocks are stored in the variables `p`, `b` and `t`.
 | p | Matrix containing the nodal points |
 | b | Matrix containing the boundary edges |
 | t | Matrix containing the triangles |
-| nv | Number of points/vertices (Th.nv) in the Mesh |
-| nt | Number of triangles (Th.nt) in the Mesh |
+| nv | Number of points/vertices in the Mesh (Th.nv) |
+| nt | Number of triangles in the Mesh (Th.nt) |
 | nbe | Number of (boundary) edges (Th.nbe) |
 | labels | Labels found in the mesh file |
 
@@ -357,8 +362,8 @@ These three blocks are stored in the variables `p`, `b` and `t`.
 | p | Matrix containing the nodal points |
 | b | Matrix containing the boundary triangles |
 | t | Matrix containing the tetrahedra |
-| nv | Number of points/vertices (nbvx, Th.nv) in the Mesh |
-| nt | Number of tetrahedra (nbtet, Th.nt) in the Mesh |
+| nv | Number of points/vertices in the Mesh (nbvx, Th.nv) |
+| nt | Number of tetrahedra in the Mesh (nbtet, Th.nt) |
 | nbe | Number of (boundary) triangles (nbtri, Th.nbe) |
 | labels | Labels found in the mesh file |
 
@@ -397,10 +402,10 @@ Reads scalar data and a two dimensional vectorfiel to the Matlab/Octave workspac
 
 ## Exporting data from FreeFem++
 
-To create plots with Matlab/Octave the Mesh and the FE-Space function must be exported as ASCII data. The `ffmatlib` supports two file formats:  
+To create plots with Matlab/Octave the mesh and the FE-Space function must be exported as ASCII data. The `ffmatlib` supports two file formats:  
 
-1.) The simulation data is given on the mesh nodes (preferred method)  
-2.) The simulation data is given in triangle vertice form  
+1.) The FE-Space function is given on each mesh node (preferred method)  
+2.) The FE-Space function is given as a triangle/vertice list  
 
 In this sense P1-Element simulations can be exported very easily since the degree of freedom of the space function (`Vh.ndof`) corresponds exactly to the number of nodes in the mesh. In order to plot simulations made with higher order FE-Elements the FE-space data must be converted into P1-Element data. In FreeFem++ you can easily convert space functions using the '=' operator.
 
@@ -452,7 +457,7 @@ If your build fails with Microsoft Visual Studio 10 ensure to enable C99-standar
 
 ## Notes on Hardware Acceleration
 
-It should be emphasized that the responsiveness of the plots is highly dependent on the degree of freedom of the PDE problem and the capabilities of the graphics hardware. For larger problems (lots of thousand of vertices), a dedicated graphics card rather than on board graphics should be preferred. Make use of hardware acceleration extensively. Some notes on trouble shooting and tweaking:<br><br>
+It should be emphasized that the responsiveness of the plots is highly dependent on the degree of freedom of the PDE problem and the capabilities of the graphics hardware. For larger problems (lots of thousand of vertices), a dedicated graphics card rather than on board graphics should be used. Make use of hardware acceleration extensively. Some notes on trouble shooting and tweaking:<br><br>
  If `get(gcf,'RendererMode')` is set to auto Matlab/Octave will decide on its own which renderer is the best for the current graphic task.
 
   * `get(figure_handle,'Renderer')` returns the current figure() renderer
