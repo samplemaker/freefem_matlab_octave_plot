@@ -58,6 +58,8 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 [capacitor_3d.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/capacitor_3d.edp)  
 
 [Screenshot: 3D Slice](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_3d_slices.png)  
+[Screenshot: 3D Vector field](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_3d_spatial_vectorfield.png)  
+
 
 ## Function Reference
 
@@ -171,7 +173,7 @@ Contour Plot (isovalues):
 ffpdeplot(p,b,t,'XYData',u,'Contour','on','Boundary','on');
 ```
 
-Quiver Plot (vectorfield):
+Quiver Plot (vector field):
 ```Matlab
 ffpdeplot(p,b,t,'FlowData',[Ex, Ey],'Boundary','on');
 ```
@@ -401,7 +403,7 @@ Reads a FreeFem++ data file created by the FreeFem++ [scripts](#exportfromff) to
 
 #### Examples
 
-Reads scalar data and a two dimensional vectorfiel to the Matlab/Octave workspace:
+Reads scalar data and a two dimensional vector field to the Matlab/Octave workspace:
 
 ```Matlab
 [u]=ffreaddata('capacitor_potential_p1only.txt');
