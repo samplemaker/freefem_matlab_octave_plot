@@ -16,34 +16,38 @@
 %   specifies parameter name/value pairs to control the input file format
 %
 %       Parameter       Value
-%      'XYData'      Data in order to colorize the plot
+%      'XYData'        Data in order to colorize the plot
 %                       FreeFem++ data
-%      'XYZStyle'    Plot style for boundary
+%      'XYZStyle'      Plot style for boundary
 %                       'interp' (default) | 'noface' | 'monochrome' 
-%      'Boundary'    Shows the domain boundary / edges
+%      'Boundary'      Shows the domain boundary / edges
 %                       'on' (default) | 'off'
-%      'BoundingBox' Shows the bounding box of a slice
+%      'BoundingBox'   Shows the bounding box of a slice
 %                       'on' | 'off' (default)
-%      'BDLabels'    Draws boundary / edges with a specific label
+%      'BDLabels'      Draws boundary / edges with a specific label
 %                       [] (default) | [label1,label2,...]
-%      'Slice'       3 point slicing plane definition
+%      'Slice'         3 point slicing plane definition
 %                       [] | [S1'; S2'; S3']
-%      'SGridParam'  Number of grid points used for the slice
+%      'SGridParam'    Number of grid points used for the slice
 %                       'auto' (default) | [N,M]
 %      'Project2D'     View cross section in 2D
 %                       'on' | 'off' (default)
-%      'ColorMap'    ColorMap value or matrix of such values
+%      'ColorMap'      ColorMap value or matrix of such values
 %                       'cool' (default) | colormap name | three-column matrix of RGB triplets
-%      'ColorBar'    Indicator in order to include a colorbar
+%      'ColorBar'      Indicator in order to include a colorbar
 %                       'on' (default) | 'off'
-%      'CBTitle'     Colorbar Title
+%      'CBTitle'       Colorbar Title
 %                       (default=[])
-%      'ColorRange'  Range of values to adjust the color thresholds
+%      'ColorRange'    Range of values to adjust the color thresholds
 %                       'minmax' (default) | [min,max]
-%      'FlowData'    Data for quiver3 plot
+%      'FlowData'      Data for quiver3 plot
 %                       FreeFem++ point data
-%      'FGridParam'  Number of grid points used for quiver3 plot
+%      'FGridParam'    Number of grid points used for quiver3 plot at cross-section
 %                       'auto' (default) | [N,M]
+%      'FGridParam3D'  Number of grid points used for a spatial quiver3 plot
+%                       'auto' (default) | [N,M,L]
+%      'FLim3D'        Bounding box for a spatial quiver3 plot
+%                       'auto' (default) | [xmin,xmax;ymin,ymax;zmin,zmax]
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %
@@ -74,12 +78,12 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     optsnames = {'XYZData', 'XYZStyle', 'Boundary', ...
                  'ColorMap', 'ColorBar', 'CBTitle', 'ColorRange', ...
                  'BDLabels', 'SGridParam', 'Project2D', ...
-                 'FlowData', 'FGridParam', 'BoundingBox', 'Slice'};
+                 'FlowData', 'FGridParam', 'FGridParam3D', 'FLim3D', 'BoundingBox', 'Slice'};
 
     vararginval = {[], 'interp', 'on', ...
                    'cool', 'off', [], 'minmax', ...
                    [], [75,75], 'off', ...
-                   [], [20,20], 'off', [], [], []};
+                   [], 'auto', 'auto', 'auto', 'off', [], [], []};
 
     if (numvarargs>0)
         if (~mod(numvarargs,2))
@@ -111,7 +115,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     [xyzrawdata, xyzstyle, showboundary, ...
      setcolormap, showcolbar, colorbartitle, colorrange, ...
      bdlabels, sgridparam, project2d, ...
-     flowdata, fgridparam, boundingbox, slice1, slice2, slice3] = vararginval{:};
+     flowdata, fgridparam, fgridparam3d, flim3d, boundingbox, slice1, slice2, slice3] = vararginval{:};
 
     hax=newplot;
     fig=get(hax,'Parent');
@@ -254,34 +258,66 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     end
 
     if ~isempty(flowdata)
-        if ~((~isempty(slice1) && ~isempty(slice2) && ~isempty(slice3)))
-            error('a quiver3 plot needs slicing data');
-        end
         fdata=preparetetdata(points,tetrahedra,flowdata);
-        %TODO: Only one slicing plane allowed currently
-        %Need to gather all data and then call quiver3 on times
-        %otherwise the arrow length is wrong
-        S1=slice1(1,:);
-        S2=slice2(1,:);
-        S3=slice3(1,:);
-        [sliceTData] = slicetet2data(fdata,S1,S2,S3);
-        if (~strcmpi(fgridparam,'auto') && isnumeric(fgridparam))
-            N=fgridparam(1);
-            M=fgridparam(2);
+        if ~((~isempty(slice1) && ~isempty(slice2) && ~isempty(slice3)))
+            if (~strcmpi(fgridparam3d,'auto') && isnumeric(fgridparam3d))
+                N=fgridparam3d(1);
+                M=fgridparam3d(2);
+                L=fgridparam3d(3);
+            else
+                N=5;
+                M=5;
+                L=5;
+            end
+            if (~strcmpi(flim3d,'auto') && isnumeric(flim3d))
+                xmx=max(flim3d(1,:));
+                xmn=min(flim3d(1,:));
+                ymx=max(flim3d(2,:));
+                ymn=min(flim3d(2,:));
+                zmx=max(flim3d(3,:));
+                zmn=min(flim3d(3,:));
+            else
+                xmx=max(points(1,:));
+                xmn=min(points(1,:));
+                ymx=max(points(2,:));
+                ymn=min(points(2,:));
+                zmx=max(points(3,:));
+                zmn=min(points(3,:));                
+            end
+            x=xmn:((xmx-xmn)/(N-1)):xmx;
+            y=ymn:((ymx-ymn)/(M-1)):ymx;
+            z=zmn:((zmx-zmn)/(L-1)):zmx;
+            [x,y,z]=meshgrid(x,y,z);
+            [Ex,Ey,Ez]=fftet2gridfast(fdata,x,y,z);
+            M=size(x);
+            MEx=reshape(Ex,M);
+            MEy=reshape(Ey,M);
+            MEz=reshape(Ez,M);
+            quiver3(x,y,z,MEx,MEy,MEz,1.0,'b');
+            %coneplot(x,y,z,MEx,MEy,MEz,x,y,z,0.3);
         else
-            N=15;
-            M=15;
-        end
-        [X,Y,Z] = gridplane3d(S1,S2,S3,N,M);
-        if exist('fftet2gridfast','file')
-            [Ex,Ey,Ez] = fftet2gridfast(sliceTData,X,Y,Z);
-        else
-            fprintf('Note: To improve runtime build MEX function fftet2gridfast()\n');
-            [Ex,Ey,Ez] = fftet2gridint(sliceTData,X,Y,Z);
-        end
-        quiver3(X,Y,Z,Ex,Ey,Ez,1.0);
-        if (~strcmpi(boundingbox,'off') && ~usesliceboundingbox)
-            plotboundingbox(slice1,slice2,slice3);
+            S1=slice1(1,:);
+            S2=slice2(1,:);
+            S3=slice3(1,:);
+            [sliceTData] = slicetet2data(fdata,S1,S2,S3);
+            if (~strcmpi(fgridparam,'auto') && isnumeric(fgridparam))
+                N=fgridparam(1);
+                M=fgridparam(2);
+            else
+                N=15;
+                M=15;
+            end
+            [X,Y,Z] = gridplane3d(S1,S2,S3,N,M);
+            if exist('fftet2gridfast','file')
+                [Ex,Ey,Ez] = fftet2gridfast(sliceTData,X,Y,Z);
+            else
+                fprintf('Note: To improve runtime build MEX function fftet2gridfast()\n');
+                [Ex,Ey,Ez] = fftet2gridint(sliceTData,X,Y,Z);
+            end
+            quiver3(X,Y,Z,Ex,Ey,Ez,1.0);
+            if (~strcmpi(boundingbox,'off') && ~usesliceboundingbox)
+                plotboundingbox(slice1,slice2,slice3);
+            end
         end
     end
     if ~strcmpi(project2d,'off')
@@ -548,6 +584,8 @@ function printhelp()
     fprintf('''CBTitle''      Colorbar Title (default=[])\n');
     fprintf('''ColorRange''   Range of values to adjust the color thresholds (default=''minmax'')\n');
     fprintf('''FlowData''     Data for quiver3 plot \n');
-    fprintf('''FGridParam''   Number of grid points used for quiver3 plot (default=''auto'')\n');
+    fprintf('''FGridParam''   Number of grid points used for quiver3 plot at cross-section (default=''auto'')\n');
+    fprintf('''FGridParam3D'' Number of grid points used for a spatial quiver3 plot (default=''auto'')\n');
+    fprintf('''FLim3D''       Bounding box for a spatial quiver3 plot (default=''auto'')\n');
     fprintf('\n');
 end

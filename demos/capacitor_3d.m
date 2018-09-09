@@ -49,7 +49,12 @@ figure;
 ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'BDLabels',[40,42,43,55], ...
             'XYZStyle','noface','ColorMap','jet');
 
-%\TODO: Handle Quiver and multiple slices
+figure;
+ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'FGridParam3D',[10,10,5],'BDLabels',[30,31],'XYZStyle','monochrome');
+
+figure;
+ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'FGridParam3D',[8,8,5],'FLim3D',[0.125,0.625;0.125,0.625;0.1,0.4],'BDLabels',[30,31],'XYZStyle','monochrome');
+
 figure;
 ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'BDLabels',[30,31], ...
             'XYZStyle','noface','ColorMap','jet');
@@ -107,7 +112,7 @@ ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'SGridParam',[30,30],'BDLabels',[
 
 %Create a series of slicing planes
 
-%Number of slices
+%Number of slices            
 N=5;
 %Distance between two adjacent slices
 d=0.09;

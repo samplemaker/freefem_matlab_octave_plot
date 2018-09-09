@@ -261,8 +261,12 @@ The contents of the points `p`, boundaries `b` and triangles `t` arguments are e
 |          |        'minmax' (default) \| [min,max] |
 | 'FlowData' |    Data for quiver3 plot |
 |           |       FreeFem++ point data |
-| 'FGridParam' |    Number of grid points used for quiver3 plot |
+| 'FGridParam' |    Number of grid points used for quiver3 plot at cross-section |
 |           |       'auto' (default) \| [N,M] |
+| 'FGridParam3D' |    Number of grid points used for a spatial quiver3 plot |
+|           |       'auto' (default) \| [N,M,L] |
+| 'FLim3D' |    Bounding box for a spatial quiver3 plot |
+|           |       'auto' (default) \| [xmin,xmax;ymin,ymax;zmin,zmax] |
 
 #### Examples
 
@@ -319,6 +323,12 @@ Three dimensional vector fields can be plotted over a cross-section. The followi
 ```Matlab
 ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'Boundary','on','BoundingBox','on', ...
             'BDLabels',[30,31],'XYZStyle','monochrome');
+```
+
+If the parameter specification for the slice is omitted the vector field is instead drawn on a rectangular grid defined by the FGridParam3D and FLim3D parameters:
+```Matlab
+ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'FGridParam3D',[8,8,5],'FLim3D', ...
+            [0.125,0.625;0.125,0.625;0.1,0.4],'BDLabels',[30,31],'XYZStyle','monochrome');
 ```
 
 <a name="ffreadmeshfct"></a>
