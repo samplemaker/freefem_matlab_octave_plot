@@ -75,7 +75,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 ## ffpdeplot()
 
-`ffpdeplot()` is a function specially tailored to FreeFem++ that offers most of the features of the classic Matlab `pdeplot()` command. `contour()` plots (= 2D isovalue plots) and `patch()` plots (= 2D map data plots) can be created as well as combinations of both. In addition, `quiver()` data (= 2D vector field data) plots can be created as well as the border edges of the domain can be displayed. The display of the flow- as well as the border edges is additive and can be superimposed on the contour as well as patch data or their combinations.
+`ffpdeplot()` is a function specially tailored to FreeFem++ that offers most of the features of the classic Matlab `pdeplot()` command. `contour()` plots (= 2D iso value) and `patch()` plots (= 2D map data) can be created as well as combinations of both. In addition `quiver()` plots (= 2D vector field) can be created and domain border edges can be displayed. The display of the flow data as well as the border edges is additive and can be superimposed on the contour data as well as the patch data or their combinations.
 
 The FEM mesh is entered by vertex coordinates, the boundary values, and the triangles in terms of connectivity as provided by the FreeFem++ `savemesh(Th, "mesh_file.msh")` command. The simulation data can be entered as values at the mesh nodes.
 
