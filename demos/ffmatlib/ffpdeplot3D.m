@@ -175,7 +175,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                  if exist('fftet2gridfast','file')
                      [C] = fftet2gridfast(sliceTData,X,Y,Z);
                  else
-                     fprintf('Note: To improve runtime compile MEX function fftet2gridfast()\n');
+                     fprintf('Note: To improve runtime build MEX function fftet2gridfast() from fftet2gridfast.c\n');
                      [C] = fftet2gridint(sliceTData,X,Y,Z);
                  end
                  surf(R,S,C,'EdgeColor','none');
@@ -195,7 +195,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
 %                       V=sliceTData(:,4);
 %                       [C] = fftet2gridfast(X,Y,Z,tx,ty,tz,V);
                     else
-                        fprintf('Note: To improve runtime compile MEX function fftet2gridfast()\n');
+                        fprintf('Note: To improve runtime build MEX function fftet2gridfast() from fftet2gridfast.c\n');
                         [C] = fftet2gridint(sliceTData,X,Y,Z);
                     end
                     surf(X,Y,Z,C,'EdgeColor','none');

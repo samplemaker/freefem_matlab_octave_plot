@@ -1,4 +1,4 @@
-%ffpdeplot.m Plot FreeFem ++ 2D mesh- and 2d simulation data
+%ffpdeplot.m Plot FreeFem++ 2D mesh and space functions
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-06-15
@@ -98,7 +98,7 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                  'FlowData', 'FGridParam'};
 
     vararginval = {[], 'interp', 'off', 'off', [], 'off', ...
-                   'off', 'auto', [0,0,0], [], 10, 'combi', ...
+                   'off', 'auto', [0,0,0], [], 10, 'patch', ...
                    'cool', 'on', [], 'minmax', ...
                    [], 'minmax', 'minmax', 'minmax', 'xyequal', ...
                    [], 'auto'};
@@ -127,12 +127,12 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
      plottitle, plotxlim, plotylim, plotzlim, axisaspect, ...
      flowdata, fgridparam] = vararginval{:};
 
-    %newplot checks the values of the NextPlot properties and takes the
-    %appropriate action based on these values
-    %if there is no current figure, newplot creates one
+    %"newplot" checks the values of the "NextPlot" properties and takes the
+    %appropriate action based on these values.
+    %Note: If there is no current figure, newplot creates one
     hax=newplot;
     fig=get(hax,'Parent');
-    %hold on sets the figure and axes NextPlot properties to add
+    %Note: "hold on" sets the figure and axes "NextPlot-properties" to "add"
     oldnextplotval{1}=get(hax,'nextplot');
     set(hax,'nextplot','add');
     oldnextplotval{2}=get(fig,'nextplot');
@@ -169,8 +169,9 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                         %Without Mesh
                         hh=patch(xdata,ydata,cdata,'EdgeColor','none');
                     end
-                %Uncolored Plot (Mesh only). Case is dublicate.
-                %But it is explicitely recommended not to color the plot (XYStyle)
+                %Uncolored Plot (Mesh only).
+                %Note: Case is duplicate. In this case coloring is explicetly
+                %disabled by the XYStyle parameter.
                 else
                     hh=patch(xdata,ydata,[1 1 1],'FaceColor','none', ...
                              'EdgeColor',[0 0 1]);
@@ -222,17 +223,36 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 N=sqrt(nt);
                 M=N;
             end
-            ymin=min(min(ydata));
-            ymax=max(max(ydata));
-            xmin=min(min(xdata));
-            xmax=max(max(xdata));
+
+            %Set grid resolution for cropped section rather than whole mesh
+            if strcmpi(plotylim,'minmax')
+                ymin = min(min(ydata));
+                ymax = max(max(ydata));
+            else
+                ymin = min(plotylim);
+                ymax = max(plotylim);
+            end
+            if strcmpi(plotxlim,'minmax')
+                xmin = min(min(xdata));
+                xmax = max(max(xdata));
+            else
+                xmin = min(plotxlim);
+                xmax = max(plotxlim);
+            end
+            %ymin=min(min(ydata));
+            %ymax=max(max(ydata));
+            %xmin=min(min(xdata));
+            %xmax=max(max(xdata));
+
             x=linspace(xmin,xmax,N);
             y=linspace(ymin,ymax,M);
             [X,Y]=meshgrid(x,y);
-            %e.g. weather forecast (temperature patch and isolevel pressure)
+            %Scalar data overlayed with some extra contour data
+            %like e.g. a weather forecast plot employing a temperature patch plot
+            %with overlayed isolevel pressure values
             if ~isempty(contourrawdata)
                 if strcmpi(contourstyle,'colormap') || strcmpi(contourstyle,'monochrome')
-                    error('CStyle is ''monochrome'' or ''colormap'' but CXYData given - use XYData instead!');
+                    error('CStyle is ''monochrome'' or ''colormap'' but CXYData is given - use XYData instead!');
                 end
                 ccdata=preparedata(points,triangles,contourrawdata);
             else
@@ -242,24 +262,29 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 C=ffplottri2grid(x,y,xdata,ydata,ccdata);
             else
                 if (N>100)
-                    fprintf('Note: To improve runtime compile MEX function ffplottri2grid()\n');
+                    fprintf('Note: To improve runtime build MEX function ffplottri2grid() from ffplottri2grid.c\n');
                 end
                 C=ffplottri2gridint(x,y,xdata,ydata,ccdata);
             end
             switch (contourstyle)
+                %Filled iso value plot
                 case ('colormap')
                     [clab,hhc]=contour(X,Y,C,isolevels);
                     hh=hhc;
                     varargout{1}=clab;
+                %Single color iso value
                 case ('monochrome')
                     [clab,hhc]=contour(X,Y,C,isolevels,'LineColor',ccolor);
                     hh=hhc;
                     varargout{1}=clab;
+                %Patch with overlayed dashed style iso value
                 case ('patchdashed')
                     hh=patch(xdata,ydata,cdata,'EdgeColor','none');
                     [clab,hhc]=contour(X,Y,C,isolevels,'--','LineColor',ccolor);
                     hh=[hh; hhc];
                     varargout{1}=clab;
+                %Same as before but positive values with solid lines and negative
+                %with dashed lines
                 case ('patchdashedneg')
                     hh=patch(xdata,ydata,cdata,'EdgeColor','none');
                     if (length(isolevels)==1)
@@ -301,13 +326,13 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 title(hcb,colorbartitle);
             end
         end
-    %Uncolored, flat 2D mesh plot (no xyrawdata)
+    %Uncolored, flat 2D mesh plot (no xyrawdata is given)
     else
         if ~strcmpi(showmesh,'off')
             hh=patch(xdata,ydata,[1 1 1],'FaceColor','none','EdgeColor',[0 0 1]);
             view(2);
         end
-        %If the mesh is switched of we can exit at this point without any plot
+        %If "mesh" is switched of we can exit at this point without any plot
     end
 
     %Quiver
@@ -317,13 +342,30 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
             N=fgridparam(1);
             M=fgridparam(2);
         else
-            N=15;
-            M=15;
+            N=20;
+            M=20;
         end
-        ymin=min(min(ydata));
-        ymax=max(max(ydata));
-        xmin=min(min(xdata));
-        xmax=max(max(xdata));
+
+        %Set grid resolution for cropped section rather than whole mesh
+        if strcmpi(plotylim,'minmax')
+            ymin = min(min(ydata));
+            ymax = max(max(ydata));
+        else
+            ymin = min(plotylim);
+            ymax = max(plotylim);
+        end
+        if strcmpi(plotxlim,'minmax')
+            xmin = min(min(xdata));
+            xmax = max(max(xdata));
+        else
+            xmin = min(plotxlim);
+            xmax = max(plotxlim);
+        end
+        %ymin=min(min(ydata));
+        %ymax=max(max(ydata));
+        %xmin=min(min(xdata));
+        %xmax=max(max(xdata));
+
         x=linspace(xmin,xmax,N);
         y=linspace(ymin,ymax,M);
         [X,Y]=meshgrid(x,y);
@@ -379,6 +421,7 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
             end
         end
     end
+    %Restore axes and figure handles
     set(hax,'nextplot',oldnextplotval{1});
     set(fig,'nextplot',oldnextplotval{2});
 end
@@ -390,7 +433,9 @@ function [S] = rowvec(S)
     end
 end
 
-%To improve the runtime we don't merge the code for scalar and vector together
+%Triangle to rectangular grid interpolation. Employs barycentric interpolation.
+%Note: In order to improve runtime keep code for scalar and vector field
+%problems separated. Cases can be distinguished by the number of calling arguments
 function [u,v] = ffplottri2gridint(x, y, tx, ty, tu, tv)
     ax=tx(1,:);
     ay=ty(1,:);
