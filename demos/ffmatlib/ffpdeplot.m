@@ -527,7 +527,7 @@ function printhelp()
     fprintf('''ColorRange''  Range of values to adjust the color thresholds (default=''minmax'')\n');
     fprintf('''Mesh''        Switches the mesh off / on (default=''off'')\n');
     fprintf('''Boundary''    Shows the domain boundary / edges (default=''off'')\n');
-    fprintf('''BDLabs''      Draws boundary / edges with a specific label (default=[])\n');
+    fprintf('''BDLabels''    Draws boundary / edges with a specific label (default=[])\n');
     fprintf('''Contour''     Isovalue plot (default=''off'')\n');
     fprintf('''CColor''      Isovalue color (default=[0,0,0])\n');
     fprintf('''CXYData''     Use extra (overlay) data to draw the contour plot\n');
