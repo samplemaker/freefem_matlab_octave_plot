@@ -417,12 +417,7 @@ Reads scalar data and a two dimensional vector field to the Matlab/Octave worksp
 
 ## Exporting data from FreeFem++
 
-To create plots with Matlab/Octave the mesh and the FE-Space function must be exported as ASCII data. The `ffmatlib` supports two file formats:  
-
-1.) The FE-Space function is given on each mesh node (preferred method)  
-2.) The FE-Space function is given as a triangle/vertice list  
-
-In this sense P1-Element simulations can be exported very easily since the degree of freedom of the space function (`Vh.ndof`) corresponds exactly to the number of nodes in the mesh. In order to plot simulations made with higher order FE-Elements the FE-space data must be converted into P1-Element data. In FreeFem++ you can easily convert space functions using the '=' operator.
+To create a plot from a FreeFem++ PDE simulation with Matlab/Octave, the mesh and the FE-Space function must be exported as ASCII data files. The FreeFem++ Mesh can easily be exported via the built-in `savemesh` command as follows:
 
 Saves a 2D Mesh:
 ```Matlab
@@ -433,6 +428,13 @@ Saves a 3D Mesh:
 ```Matlab
 savemesh(Thn3d,"cap3d.mesh");
 ```
+
+At the other side `ffmatlib` can import FE-Space functions in two different formats:  
+
+1.) The FE-Space function is given on each mesh node (preferred method)  
+2.) The FE-Space function is given as a triangle/vertice list  
+
+In this sense P1-Element simulations can be easily exported because the degree of freedom (=Vh.ndof) of a P1-space function is equal to the number of nodes in the mesh except for the special case of periodic boundary condition problems. In order to plot simulations made with higher order FE-Elements the FE-space data must be converted to P1-Element data. In FreeFem++ you can convert between different space functions using the '=' operator. I.e. you can write `Vh u=v` where `u` is from type P1 and `v` is from type P2.
 
 Saves the P1-Element scalar function `u`:
 ```Matlab
@@ -450,7 +452,17 @@ for (int j=0; j<Ex[].n; j++)
 }
 ```
 
-In order to import those files into Matlab/Octave see the sections [ffreadmesh](#ffreadmeshfct) and [ffreaddata](#ffreaddatafct).
+If periodic boundary conditions are set you have to cycle through all mesh vertices and write the interpolation of the FE-Space function for all vertices:
+
+```Matlab
+ofstream file("periodic.txt");
+int nbvertices = Th.nv;
+for (int i=0; i<nbvertices; i++){
+  file << uh(Th(i).x, Th(i).y) << "\n";
+}
+```
+
+Finally, in order to import those files into Matlab/Octave see the sections [ffreadmesh](#ffreadmeshfct) and [ffreaddata](#ffreaddatafct).
 
 <a name="notesoncompilation"></a>
 
