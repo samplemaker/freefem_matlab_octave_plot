@@ -1,7 +1,7 @@
-%periodic_bc.m Plot a periodic boundary condition problem
+%testsubplot.m Check if the subplot command is working
 %
 % Author: Chloros2 <chloros2@gmx.de>
-% Created: 2018-10-31
+% Created: 2018-05-13
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %
@@ -25,43 +25,29 @@ clear all;
 addpath('ffmatlib');
 
 %Reads a FreeFem++ mesh created with the savemesh(Th,"mesh.msh"); command
-[p,b,t,nv,nbe,nt,labels]=ffreadmesh('periodic.msh');
+[p,b,t,nv,nbe,nt,labels]=ffreadmesh('capacitorp1.msh');
 %Reads the PDE data
-[u]=ffreaddata('periodic.txt');
+[u]=ffreaddata('capacitor_potential_p1only.txt');
+[Ex,Ey]=ffreaddata('capacitor_field_p1only.txt');
 
-%%%%%% Mesh Plot
 
-figure;
-
-handles=ffpdeplot(p,b,t, ...
-                  'Mesh','on', ...
-                  'Boundary','on', ...
-                  'Title','Mesh only');
-
-ylabel('y');
-xlabel('x');
-
-%%%%%% Show Labels
-
-figure;
-
-handles=ffpdeplot(p,b,t, ...
-                  'Mesh','off', ...
-                  'Boundary','on', ...
-                  'BDLabels',labels, ...
-                  'Title','Boundary Labels');
-
-%%%%%% 2D Patch (density map) Plot + Contour
-
-figure;
-
+figure('position', [0, 0, 800, 300])
+subplot(1,2,1);
 handles=ffpdeplot(p,b,t, ...
                   'XYData',u, ...
                   'Mesh','off', ...
+                  'XLim',[-2 2],'YLim',[-2 2], ...
+                  'CBTitle','U[V]', ...
+                  'Title','2D Patch Plot (Electrostatic Potential)');
+hold on;
+ffpdeplot(p,b,t, ...
+                  'Mesh','off', ...
                   'Boundary','on', ...
-                  'CBTitle','u', ...
-                  'Contour','on', ...
-                  'Title','Patch Plot + Contour');
+                  'BDLabels',[4,3], ...
+                  'Title','Boundary Labels');
 
-ylabel('y');
-xlabel('x');
+subplot(1,2,2);
+handles=ffpdeplot(p,b,t, ...
+                  'Mesh','on', ...
+                  'Boundary','on', ...
+                  'Title','Boundary/Edge (Capacitor Electrodes) and 2D Mesh');
