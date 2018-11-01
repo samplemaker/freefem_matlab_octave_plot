@@ -19,8 +19,10 @@ pause(5);
 close all;
 convective_rolls
 pause(5);
-test_subplots
+close all;
+testsubplots
 pause(5);
+close all;
 periodic_bc
 pause(5);
 close all;
