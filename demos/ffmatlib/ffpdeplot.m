@@ -29,11 +29,11 @@
 %      'ColorMap'    ColorMap value or matrix of such values
 %                       'cool' (default) | colormap name | three-column matrix of RGB triplets
 %      'ColorBar'    Indicator in order to include a colorbar
-%                       'on' (default) | 'off'
+%                       'on' (default) | 'off' | 'northoutside' ...
 %      'CBTitle'     Colorbar Title
 %                       (default=[])
 %      'ColorRange'  Range of values to adjust the color thresholds
-%                       'minmax' (default) | [min,max]
+%                       'minmax' (default) | 'centered' | 'cropminmax' | 'cropcentered' | [min,max] 
 %      'Mesh'        Switches the mesh off / on
 %                       'on' | 'off' (default)
 %      'Boundary'    Shows the domain boundary / edges
@@ -224,7 +224,11 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 M=N;
             end
 
-            %Set grid resolution for cropped section rather than whole mesh
+            %Set the grid resolution depending on the cropped area, not the entire mesh
+            %ymin=min(min(ydata));
+            %ymax=max(max(ydata));
+            %xmin=min(min(xdata));
+            %xmax=max(max(xdata));
             if strcmpi(plotylim,'minmax')
                 ymin = min(min(ydata));
                 ymax = max(max(ydata));
@@ -239,10 +243,6 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 xmin = min(plotxlim);
                 xmax = max(plotxlim);
             end
-            %ymin=min(min(ydata));
-            %ymax=max(max(ydata));
-            %xmin=min(min(xdata));
-            %xmax=max(max(xdata));
 
             x=linspace(xmin,xmax,N);
             y=linspace(ymin,ymax,M);
@@ -304,7 +304,7 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                     hh=[hh;hhcneg;hhcpos];
                     varargout{1}=clabneg;
                     varargout{2}=clabpos;
-                %map all others to the 'patch' case
+                %Map all others to the 'patch' case
                 otherwise
                     hh=patch(xdata,ydata,cdata,'EdgeColor','none');
                     [clab,hhc]=contour(X,Y,C,isolevels,'LineColor',ccolor);
@@ -315,12 +315,50 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
         end
         colormap(setcolormap);
         if (isnumeric(colorrange))
+            if (min(colorrange) == max(colorrange))
+               error('''ColorRange'': Must be a numeric 2-element vector where LIM1 < LIM2');
+            end
             caxis(colorrange);
         else
-            caxis([min(min(cdata)) max(max(cdata))]);
+            if strcmpi(colorrange,'minmax') || strcmpi(colorrange,'centered')
+               %Set to [min max] of the whole mesh
+               if strcmpi(colorrange,'minmax')
+                   caxis([min(min(cdata)) max(max(cdata))]);
+               else
+                   %Colormap symmetric around zero ('centered')
+                   caxis([-max(max(abs(cdata))) max(max(abs(cdata)))]);
+               end
+            else
+               %Set to [min max] of cropped area (auto ranging)
+               [~,sz2]=size(cdata);
+               keep = true(1,sz2);
+               if ~strcmpi(plotxlim,'minmax')
+                  keepx = (xdata > min(plotxlim)) & (xdata < max(plotxlim));
+                  keep = keep & (keepx(1,:) & keepx(2,:) & keepx(3,:));
+               end
+               if ~strcmpi(plotylim,'minmax')
+                  keepy = (ydata > min(plotylim)) & (ydata < max(plotylim));
+                  keep = keep & (keepy(1,:) & keepy(2,:) & keepy(3,:));
+               end
+               crng = [min(min(cdata(:,keep))) max(max(cdata(:,keep)))];
+               if (isempty(crng) || (min(crng) == max(crng)))
+                  %E.g. too much magnification
+                  error('''ColorRange'': No color spread in the cropped section / try ''minmax''');
+               end
+               if strcmpi(colorrange,'cropminmax')
+                   caxis(crng);
+               else
+                   %Colormap symmetric around zero ('cropcentered')
+                   caxis([-max(abs(crng)) max(abs(crng))]);
+               end
+            end
         end
-        if strcmpi(showcolbar,'on')
-            hcb=colorbar;
+        if ~(strcmpi(showcolbar,'off'))
+            if strcmpi(showcolbar,'on')
+                hcb=colorbar;
+            else
+                hcb=colorbar(showcolbar);
+            end
             hh=[hcb; hh];
             if ~isempty(colorbartitle)
                 title(hcb,colorbartitle);
@@ -346,7 +384,11 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
             M=20;
         end
 
-        %Set grid resolution for cropped section rather than whole mesh
+        %Set the grid resolution depending on the cropped area, not the entire mesh
+        %ymin=min(min(ydata));
+        %ymax=max(max(ydata));
+        %xmin=min(min(xdata));
+        %xmax=max(max(xdata));
         if strcmpi(plotylim,'minmax')
             ymin = min(min(ydata));
             ymax = max(max(ydata));
@@ -361,10 +403,6 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
             xmin = min(plotxlim);
             xmax = max(plotxlim);
         end
-        %ymin=min(min(ydata));
-        %ymax=max(max(ydata));
-        %xmin=min(min(xdata));
-        %xmax=max(max(xdata));
 
         x=linspace(xmin,xmax,N);
         y=linspace(ymin,ymax,M);
