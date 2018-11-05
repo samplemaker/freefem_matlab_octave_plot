@@ -19,7 +19,7 @@
 %      'XYData'        Data in order to colorize the plot
 %                       FreeFem++ data
 %      'XYZStyle'      Plot style for boundary
-%                       'interp' (default) | 'noface' | 'monochrome' 
+%                       'interp' (default) | 'noface' | 'monochrome'
 %      'Boundary'      Shows the domain boundary / edges
 %                       'on' (default) | 'off'
 %      'BoundingBox'   Shows the bounding box of a slice
@@ -35,11 +35,11 @@
 %      'ColorMap'      ColorMap value or matrix of such values
 %                       'cool' (default) | colormap name | three-column matrix of RGB triplets
 %      'ColorBar'      Indicator in order to include a colorbar
-%                       'on' (default) | 'off'
+%                       'on' (default) | 'off' | 'northoutside'
 %      'CBTitle'       Colorbar Title
 %                       (default=[])
 %      'ColorRange'    Range of values to adjust the color thresholds
-%                       'minmax' (default) | [min,max]
+%                       'minmax' (default) | 'centered' | [min,max]
 %      'FlowData'      Data for quiver3 plot
 %                       FreeFem++ point data
 %      'FGridParam'    Number of grid points used for quiver3 plot at cross-section
@@ -124,7 +124,9 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     oldnextplotval{2}=get(fig,'nextplot');
     set(fig,'nextplot','add');
 
+    %Set colormap/colorrange based on domain data or based on the subset of a slice
     useslicecolormap=false;
+    %Ensures that a bounding box is not drawn twice by different code sections
     usesliceboundingbox=false;
     points=rowvec(points);
     triangles=rowvec(triangles);
@@ -132,9 +134,10 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     xpts=points(1,:);
     ypts=points(2,:);
     zpts=points(3,:);
-    %Prepare spatial boundary coordinates data if necessary
-    %Transform boundary to real coordinates
+    %Prepare boundary data if boundary is to be plot
+    %Convert boundary mesh data to euclidean point coordinates
     if strcmpi(showboundary,'on')
+        %Convert only the boundaries specified in bdlabels
         if ~isempty(bdlabels)
             keep=(triangles(4,:)==bdlabels(1));
             for i=2:numel(bdlabels)
@@ -150,7 +153,9 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
         end
     end
     if ~isempty(xyzrawdata)
+        %One or more slice is to be created and added to the plot
         if (~isempty(slice1) && ~isempty(slice2) && ~isempty(slice3))
+            %Convert FE-Space data to euclidean point coordinates
             tdata=preparetetdata(points,tetrahedra,xyzrawdata);
             if (~strcmpi(sgridparam,'auto') && isnumeric(sgridparam))
                 N=sgridparam(1);
@@ -164,14 +169,18 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
             if (~isequal(size(slice1), size(slice2), size(slice3)) || (sz2~=3))
                 error('dimension check of slicing plane definition failed');
             end
-            colspan=zeros(2,nslices);  
+            %Control the color setting, especially if more than one slice is made
+            colspan=zeros(2,nslices);
+            %The crosssection data is to be shown in 2D
             if ~strcmpi(project2d,'off')
                  S1=slice1;
                  S2=slice2;
                  S3=slice3;
+                 %All tetrahedrons cut or touched by the slicing plane
                  [sliceTData] = slicetet2data(tdata,S1,S2,S3);
                  [R,S] = gridplane2d(S1,S2,S3,N,M);
                  [X,Y,Z] = gridplane3d(S1,S2,S3,N,M);
+                 %Barycentric interpolation on the slicing plane
                  if exist('fftet2gridfast','file')
                      [C] = fftet2gridfast(sliceTData,X,Y,Z);
                  else
@@ -179,28 +188,34 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                      [C] = fftet2gridint(sliceTData,X,Y,Z);
                  end
                  surf(R,S,C,'EdgeColor','none');
+                 %Save color settings for the 2D plot
                  colspan(:,1)=[min(min(C)) max(max(C))]';
-            else   
+            else
+                %3D slicing. Can be one or more crosssections
                 for i=1:nslices
                     S1=slice1(i,:);
                     S2=slice2(i,:);
                     S3=slice3(i,:);
+                    %All tetrahedrons cut or touched by the slicing plane
                     [sliceTData] = slicetet2data(tdata,S1,S2,S3);
                     [X,Y,Z] = gridplane3d(S1,S2,S3,N,M);
+                    %Barycentric interpolation on the slicing plane
                     if exist('fftet2gridfast','file')
                         [C] = fftet2gridfast(sliceTData,X,Y,Z);
-%                       tx=sliceTData(:,1);
-%                       ty=sliceTData(:,2);
-%                       tz=sliceTData(:,3);
-%                       V=sliceTData(:,4);
-%                       [C] = fftet2gridfast(X,Y,Z,tx,ty,tz,V);
+                        %Faster ?
+                        %tx=sliceTData(:,1);
+                        %ty=sliceTData(:,2);
+                        %tz=sliceTData(:,3);
+                        %V=sliceTData(:,4);
+                        %[C] = fftet2gridfast(X,Y,Z,tx,ty,tz,V);
                     else
                         fprintf('Note: To improve runtime build MEX function fftet2gridfast() from fftet2gridfast.c\n');
                         [C] = fftet2gridint(sliceTData,X,Y,Z);
                     end
                     surf(X,Y,Z,C,'EdgeColor','none');
+                    %Save color settings of all slices for later use
                     colspan(:,i)=[min(min(C)) max(max(C))]';
-                    %Debug - show cross section
+                    %DEBUG: Show cross section - subset tetrahedrons
                     %[SX,SY,SZ] = slicetet2patch(sliceTData(:,1:3));
                     %patch(SX,SY,SZ,[0 1 1],'EdgeColor',[0 0 1],'LineWidth',1,'FaceColor','none');
                     if ~strcmpi(boundingbox,'off')
@@ -214,38 +229,66 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
             if (isnumeric(colorrange))
                 caxis(colorrange);
             else
-                caxis([min(colspan(1,:)) max(colspan(2,:))]);
+                %Adjust the color according to the slice series
+                %Take the minimum and the maximum over all slices
+                if strcmpi(colorrange,'minmax')
+                    caxis([min(colspan(1,:)) max(colspan(2,:))]);
+                else
+                    %Colormap symmetric around zero ('centered')
+                    caxis([-max(max(abs(colspan))) max(max(abs(colspan)))]);
+                end
             end
-            if strcmpi(showcolbar,'on')
-                hcb=colorbar;
+            if ~(strcmpi(showcolbar,'off'))
+                if strcmpi(showcolbar,'on')
+                    hcb=colorbar;
+                else
+                    hcb=colorbar(showcolbar);
+                end
                 if ~isempty(colorbartitle)
                     title(hcb,colorbartitle);
                 end
             end
         end
+        %Add boundary to plot - however the boundary is colored by the FE-Space function
         if strcmpi(showboundary,'on') && strcmpi(project2d,'off')
             if strcmpi(xyzstyle,'interp')
                 [~,nv]=size(points);
+                %Convert the boundary data to euclidean coordinates
                 [cdata]=preparebddata(nv,triangles,xyzrawdata,bdlabels);
+                %Plot an color according to the FE-Space function
                 patch(xbddata,ybddata,zbddata,cdata,'EdgeColor',[0 0 0],'LineWidth',1);
-                %slicing colormap rules boundary colormaps
+                %Note: At this point nothing could be drawn yet or slicing can
+                %already be drawn
+                %Slicing colormap/range rules boundary colormaps/range
                 if ~useslicecolormap
+                    %Colormap, colorrange and colorbar not yet set up by the previous code
+                    %Set colormap and range according to the boundary data
                     colormap(setcolormap);
                     if (isnumeric(colorrange))
                         caxis(colorrange);
                     else
-                        caxis([min(min(cdata)) max(max(cdata))]);
+                        if strcmpi(colorrange,'minmax')
+                            caxis([min(min(cdata)) max(max(cdata))]);
+                        else
+                            %Colormap symmetric around zero ('centered')
+                            caxis([-max(max(abs(cdata))) max(max(abs(cdata)))]);
+                        end
                     end
-                    if strcmpi(showcolbar,'on')
-                        hcb=colorbar;
+                    if ~(strcmpi(showcolbar,'off'))
+                        if strcmpi(showcolbar,'on')
+                            hcb=colorbar;
+                        else
+                            hcb=colorbar(showcolbar);
+                        end
                         if ~isempty(colorbartitle)
                             title(hcb,colorbartitle);
                         end
-                    end
+                   end
                 end
             end
         end
     end
+    %Boundary to be plot in monochrome (no FE-Space function)
     if strcmpi(showboundary,'on') && strcmpi(project2d,'off')
         switch xyzstyle
             case('noface')
@@ -256,9 +299,11 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                 %assume interp which is drawn elsewhere
         end
     end
-
+    %Quiver3 plot
     if ~isempty(flowdata)
+        %Convert into euclidean coordinates
         fdata=preparetetdata(points,tetrahedra,flowdata);
+        %If it is not a plot of a vector field on a slicing cross section
         if ~((~isempty(slice1) && ~isempty(slice2) && ~isempty(slice3)))
             if (~strcmpi(fgridparam3d,'auto') && isnumeric(fgridparam3d))
                 N=fgridparam3d(1);
@@ -269,6 +314,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                 M=5;
                 L=5;
             end
+            %Crop space
             if (~strcmpi(flim3d,'auto') && isnumeric(flim3d))
                 xmx=max(flim3d(1,:));
                 xmn=min(flim3d(1,:));
@@ -282,13 +328,19 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                 ymx=max(points(2,:));
                 ymn=min(points(2,:));
                 zmx=max(points(3,:));
-                zmn=min(points(3,:));                
+                zmn=min(points(3,:));
             end
             x=xmn:((xmx-xmn)/(N-1)):xmx;
             y=ymn:((ymx-ymn)/(M-1)):ymx;
             z=zmn:((zmx-zmn)/(L-1)):zmx;
             [x,y,z]=meshgrid(x,y,z);
-            [Ex,Ey,Ez]=fftet2gridfast(fdata,x,y,z);
+            %Interpolate on the meshgrid and plot
+            if exist('fftet2gridfast','file')
+                [Ex,Ey,Ez]=fftet2gridfast(fdata,x,y,z);
+            else
+                fprintf('Note: To improve runtime build MEX function fftet2gridfast()\n');
+                [Ex,Ey,Ez]=fftet2gridint(fdata,x,y,z);
+            end
             M=size(x);
             MEx=reshape(Ex,M);
             MEy=reshape(Ey,M);
@@ -296,6 +348,12 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
             quiver3(x,y,z,MEx,MEy,MEz,1.0,'b');
             %coneplot(x,y,z,MEx,MEy,MEz,x,y,z,0.3);
         else
+            %If it is a slice plot
+            %Note: If a slicing series is created multiple cross sections are plot
+            %However a vector field shall be displayed on one slice only. So there
+            %is no "quiver slicing" series. The problem is that quiver3() resets
+            %its arrow length for each call. So in a series arrow lengths would be
+            %set up incorrectly
             S1=slice1(1,:);
             S2=slice2(1,:);
             S3=slice3(1,:);
@@ -315,6 +373,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                 [Ex,Ey,Ez] = fftet2gridint(sliceTData,X,Y,Z);
             end
             quiver3(X,Y,Z,Ex,Ey,Ez,1.0);
+            %If bounding box is not yet drawn by previous code
             if (~strcmpi(boundingbox,'off') && ~usesliceboundingbox)
                 plotboundingbox(slice1,slice2,slice3);
             end
@@ -331,6 +390,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     set(fig,'color',[1 1 1]);
 end
 
+%Convert the FE-Spacefunction data inside the domain to euclidean coordinates
 function [udata] = preparetetdata(points,tetrahedra,data)
     xpts=points(1,:);
     ypts=points(2,:);
@@ -357,12 +417,14 @@ function [udata] = preparetetdata(points,tetrahedra,data)
     end
 end
 
+%Convert the FE-Spacefunction data at the boundaries to euclidean coordinates
+%Data in points/vertex format (P1-Simulation): Works for P1 FE-space only
 function [varargout] = preparebddata(nv,triangles,data,bdlabels)
     M=rowvec(data);
     [ndim,ndof]=size(M);
     varargout=cell(1,ndim);
     if (ndof==nv)
-        %Data in points/vertex format (P1-Simulation): Works for P1 FE-space only
+        %Convert only the boundaries specified in bdlabels
         if ~isempty(bdlabels)
             keep=(triangles(4,:)==bdlabels(1));
             for i=2:numel(bdlabels)
@@ -407,12 +469,13 @@ function [X,Y] = gridplane2d(SO,SN,SM,N,M)
     a=norm(SN-SO);
     b=norm(SM-SO);
     phi=acos(dot(SN-SO,SM-SO)/(a*b));
-    
+
     %[x,y]=u*a*[1,0]+v*b*[cos(phi),sin(phi)];
     X=u*a+v*b*cos(phi);
     Y=v*b*sin(phi);
 end
 
+%Returns tetrahedrons lying inside the slicing plane
 function [fdataout] = slicetet2data(fdata,S1,S2,S3)
 
     [npts,nvars]=size(fdata);
@@ -499,6 +562,7 @@ function [M] = arrangecols(V,c)
     M = reshape(V,c,r);
 end
 
+%Plot the slicing parallelogram defined by the three slicing points
 function [] = plotboundingbox(slice1,slice2,slice3)
     [nslices, sz2]=size(slice1);
     if (~isequal(size(slice1), size(slice2), size(slice3)) || (sz2~=3))
