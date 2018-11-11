@@ -338,7 +338,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
             if exist('fftet2gridfast','file')
                 [Ex,Ey,Ez]=fftet2gridfast(fdata,x,y,z);
             else
-                fprintf('Note: To improve runtime build MEX function fftet2gridfast()\n');
+                fprintf('Note: To improve runtime build MEX function fftet2gridfast() from fftet2gridfast.c\n');
                 [Ex,Ey,Ez]=fftet2gridint(fdata,x,y,z);
             end
             M=size(x);
@@ -369,7 +369,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
             if exist('fftet2gridfast','file')
                 [Ex,Ey,Ez] = fftet2gridfast(sliceTData,X,Y,Z);
             else
-                fprintf('Note: To improve runtime build MEX function fftet2gridfast()\n');
+                fprintf('Note: To improve runtime build MEX function fftet2gridfast() from fftet2gridfast.c\n');
                 [Ex,Ey,Ez] = fftet2gridint(sliceTData,X,Y,Z);
             end
             quiver3(X,Y,Z,Ex,Ey,Ez,1.0);

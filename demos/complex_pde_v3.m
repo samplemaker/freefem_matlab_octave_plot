@@ -44,14 +44,14 @@ hold on;
 handles=ffpdeplot(p,b,t, ...
                   'XYData',uC, ...
                   'ZStyle','continuous', ...
-                  'Mesh','on', ...
+                  'Mesh','off', ...
                   'CBTitle','U[V]', ...
-                  'Title','3D Patch Plot (Electrostatic Potential)');
+                  'Title','Curved Interpolation');
 
-%plot3(real(p_phi),imag(p_phi),real(w_phi));
-%plot3(real(p_r),imag(p_r),real(w_r));
-plot3(real(p_phi),imag(p_phi),real(w_phi),'*b');
-plot3(real(p_r),imag(p_r),real(w_r),'*b');
+plot3(real(p_phi),imag(p_phi),real(w_phi),'g');
+plot3(real(p_r),imag(p_r),real(w_r),'g');
+% plot3(real(p_phi),imag(p_phi),real(w_phi),'*r');
+% plot3(real(p_r),imag(p_r),real(w_r),'*r');
 
 ylabel('y');
 xlabel('x');
