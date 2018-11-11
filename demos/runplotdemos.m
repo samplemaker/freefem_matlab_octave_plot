@@ -37,6 +37,9 @@ close all;
 complex_pde_v3
 pause(5);
 close all;
+complex_pde_v4
+pause(5);
+close all;
 fprintf('Running FreeFem++ scripts (3D) ...\n');
 fprintf('capacitor_3d.edp\n');
 system('FreeFem++ -ns -nw -v 0 capacitor_3d.edp');
