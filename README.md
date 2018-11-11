@@ -112,10 +112,14 @@ The contents of the points `p`, boundaries `b` and triangles `t` arguments are e
 |          |        'on' \| 'off' (default) |
 | 'BDLabels' |   Draws boundary / edges with a specific label |
 |          |        [] (default) | [label1,label2,...] |
+| 'BDColors' |   Colorize boundary / edges with color (linked to 'BDLabels') |
+|         |         'r' (default) | three-column matrix of RGB triplets |
+| 'BDShowText' |   Shows the labelnumber on the boundary / edges |
+|         |         'on' | 'off' (default) |
 | 'Contour' |    Isovalue plot |
 |           |       'off' (default) \| 'on' |
 | 'CColor' |     Isovalue color |
-|           |       [0,0,0] (default) \| 'auto' \| RGB triplet \| 'r' \| 'g' \| 'b' \| |
+|           |       [0,0,0] (default) \| RGB triplet three-element row vector \| 'r' \| 'g' \| 'b' \| |
 | 'CXYData' |    Use extra (overlay) data to draw the contour plot |
 |           |       FreeFem++ points \| FreeFem++ triangle data |
 | 'CStyle'  |    Contour line style |
@@ -224,7 +228,7 @@ view(3);
 
 ## ffpdeplot3D()
 
-The purpose of the library function `ffpdeplot3D()` is to create cross-sections, to slectively plot boundaries and to create quiver3() plots from 3D simulation data. See also the example [3D-Parallel Plate Capacitor](#3dcapacitorexample). Note: This function is still under construction.
+The purpose of the library function `ffpdeplot3D()` is to create cross-sections, to selectively plot boundaries and to create quiver3() plots from 3D simulation data. See also the example [3D-Parallel Plate Capacitor](#3dcapacitorexample). Note: This function is still under construction.
 
 #### Synopsis
 
@@ -251,7 +255,7 @@ The contents of the points `p`, boundaries `b` and triangles `t` arguments are e
 | 'BDLabels' |   Draws boundary / edges with a specific label |
 |            |      [] (default) \| [label1,label2,...] |
 | 'Slice'   |   3 point slicing plane definition  |
-|          |        [] \| [S1'; S2'; S3'] |
+|          |        [] \| three-column matrix of [x,y,z] triplets |
 | 'SGridParam' | Number of grid points used for the slice |
 |          |        'auto' (default) \| [N,M] |
 | 'Project2D' | View cross section in 2D |
