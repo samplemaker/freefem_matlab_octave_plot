@@ -34,9 +34,9 @@ udata=[uC(t(1,:)), uC(t(2,:)), uC(t(3,:))].';
 
 %ZX: real part = const
 %ZY: imag part = const
-[ZX, ZY] = ffcplxmesh([1.5,0], [-1,2*pi()], [10,10], [10,10]);
+[ZX, ZY] = ffcplxmesh([0.5,0], [4,2*pi()], [10,10], [10,11]);
 %Map to polar coordinates
-strFunc='@(Z)(exp(Z))';
+strFunc='@(Z)(real(Z).*exp(1i*imag(Z)))';
 f = str2func(strFunc);
 ZU = f(ZX);
 ZV = f(ZY);
