@@ -3,7 +3,7 @@
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-11-11
 %
-%   [u] = ffplottri2grid (z, tx, ty, tu) interpolates the complex data [tu]
+%   [u] = fftri2gridcplx (z, tx, ty, tu) interpolates the complex data [tu]
 %   which is given on a triangular mesh defined by tx, ty onto a complex
 %   curved meshgrid defined by z. tx, ty, tu must have a size of 3xnTriangle. 
 %   The return value [u] is the interpolation at the grid points
@@ -26,30 +26,30 @@
 % <https://www.gnu.org/licenses/>.
 %
 function [u] = fftri2gridcplx(z, tx, ty, tu)
-[ny,nx]=size(z);
-x=real(z);
-y=imag(z);
-ax=tx(1,:);
-ay=ty(1,:);
-bx=tx(2,:);
-by=ty(2,:);
-cx=tx(3,:);
-cy=ty(3,:);
-invA0=(1.0)./((by-cy).*(ax-cx)+(cx-bx).*(ay-cy));
-u=NaN(ny,nx);
-for mx=1:nx
-    for my=1:ny
-        px=x(my,mx);
-        py=y(my,mx);
-        Aa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*invA0;
-        Ab=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*invA0;
-        Ac=1.0-Aa-Ab;
-        pos=find(((Aa>=-1e-13) & (Ab>=-1e-13) & (Ac>=-1e-13)),1,'first');
-        if ~isempty(pos)
-            u(my,mx)=Aa(pos).*tu(1,pos)+ ...
-                     Ab(pos).*tu(2,pos)+ ...
-                     Ac(pos).*tu(3,pos);
+    [ny,nx]=size(z);
+    x=real(z);
+    y=imag(z);
+    ax=tx(1,:);
+    ay=ty(1,:);
+    bx=tx(2,:);
+    by=ty(2,:);
+    cx=tx(3,:);
+    cy=ty(3,:);
+    invA0=(1.0)./((by-cy).*(ax-cx)+(cx-bx).*(ay-cy));
+    u=NaN(ny,nx);
+    for mx=1:nx
+        for my=1:ny
+            px=x(my,mx);
+            py=y(my,mx);
+            Aa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*invA0;
+            Ab=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*invA0;
+            Ac=1.0-Aa-Ab;
+            pos=find(((Aa>=-1e-13) & (Ab>=-1e-13) & (Ac>=-1e-13)),1,'first');
+            if ~isempty(pos)
+                u(my,mx)=Aa(pos).*tu(1,pos)+ ...
+                         Ab(pos).*tu(2,pos)+ ...
+                         Ac(pos).*tu(3,pos);
+            end
         end
     end
-end
 end

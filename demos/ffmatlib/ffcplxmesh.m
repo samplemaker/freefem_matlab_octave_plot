@@ -8,7 +8,7 @@
 %
 %   [Z1, Z2] = ffcplxmesh(r1, r2, grid, numxy);
 %
-%   creates a complex carthesian mesh grid containing numxy grid lines and
+%   Creates a complex carthesian mesh grid containing numxy grid lines and
 %   spanned by the two complex numbers r1, r2
 %
 %      Parameters
@@ -36,14 +36,14 @@
 % <https://www.gnu.org/licenses/>.
 %
 function [Z1, Z2]=ffcplxmesh(r1, r2, ngrid, numxy)
-%Re = const; Im varies
-x1 = linspace(r1(1), r2(1), numxy(1));
-y1 = linspace(r1(2), r2(2), ngrid(1)*numxy(1));
-[X1, Y1] = meshgrid(x1, y1);
-Z1 = X1 + 1i*Y1;
-%Im = const; Re varies
-x2 = linspace(r1(2), r2(2), numxy(2));
-y2 = linspace(r2(1), r1(1), ngrid(2)*numxy(2));
-[Y2, X2] = meshgrid(x2, y2);
-Z2 = X2 + 1i*Y2;
+    %Re = const; Im varies
+    x1 = linspace(r1(1), r2(1), numxy(1));
+    y1 = linspace(r1(2), r2(2), ngrid(1)*numxy(1));
+    [X1, Y1] = meshgrid(x1, y1);
+    Z1 = X1 + 1i*Y1;
+    %Im = const; Re varies
+    x2 = linspace(r1(2), r2(2), numxy(2));
+    y2 = linspace(r2(1), r1(1), ngrid(2)*numxy(2));
+    [Y2, X2] = meshgrid(x2, y2);
+    Z2 = X2 + 1i*Y2;
 end
