@@ -34,14 +34,16 @@ udata=[uC(t(1,:)), uC(t(2,:)), uC(t(3,:))].';
 
 figure;
 hold on;
-[Z1, Z2] = ffcplxmesh([0,0], [2*pi(),2*pi()], [3,3], [12,12]);
-if ~isempty(Z1) %numx = 0
-    W1 = fftri2gridcplx(Z1,xdata,ydata,udata);
-    plot(real(W1),imag(W1),'b','LineWidth',1);
+%ZX: real part = const
+%ZY: imag part = const
+[ZX, ZY] = ffcplxmesh([0,0], [2*pi(),2*pi()], [3,3], [12,12]);
+if ~isempty(ZX) %numx = 0
+    WX = fftri2gridcplx(ZX,xdata,ydata,udata);
+    plot(real(WX),imag(WX),'b','LineWidth',1);
 end
-if ~isempty(Z2) %numy = 0
-    W2 = fftri2gridcplx(Z2,xdata,ydata,udata);
-    plot(real(W2),imag(W2),'r','LineWidth',1);
+if ~isempty(ZY) %numy = 0
+    WY = fftri2gridcplx(ZY,xdata,ydata,udata);
+    plot(real(WY),imag(WY),'r','LineWidth',1);
 end
 grid;
 daspect([1,1,1]);
