@@ -27,7 +27,7 @@
 %      'BDLabels'      Draws boundary / edges with a specific label
 %                       [] (default) | [label1,label2,...]
 %      'Slice'         3 point slicing plane definition
-%                       [] | [S1'; S2'; S3']
+%                       [] | three-column matrix of [x,y,z] triplets
 %      'SGridParam'    Number of grid points used for the slice
 %                       'auto' (default) | [N,M]
 %      'Project2D'     View cross section in 2D
@@ -540,17 +540,22 @@ function [varargout] = fftet2gridint(tetdata,X,Y,Z)
         for j=1:M
             xp=[X(j,i), Y(j,i), Z(j,i)];
             Xp=repmat(xp,ntet,1);
-            Va=dot(cross(d-b,c-b),Xp-b,2);
-            Vb=dot(cross(c-a,d-a),Xp-a,2);
-            Vc=dot(cross(d-a,b-a),Xp-a,2);
-            Vd=dot(cross(b-a,c-a),Xp-a,2);
-            pos=find(((Va>=0) & (Vb>=0) & (Vc>=0) & (Vd>=0)),1,'first');
+            Va=dot(cross(d-b,c-b),Xp-b,2).*invVTET;
+            Vb=dot(cross(c-a,d-a),Xp-a,2).*invVTET;
+            Vc=dot(cross(d-a,b-a),Xp-a,2).*invVTET;
+            %Vd=dot(cross(b-a,c-a),Xp-a,2).*invVTET;
+            Vd=1.0-Va-Vb-Vc;
+            %If point is inside the tetrahedron
+            %Set a negative threshold due to numerical error in Va ... Vd
+            %if the interpolation point is on the surface
+            %TODO: Estimate exact threshold. -1e-13 is a guess
+            pos=find(((Va>=-1e-13) & (Vb>=-1e-13) & (Vc>=-1e-13) & (Vd>=-1e-13)),1,'first');
             if ~isempty(pos)
                 for k=1:nvars-3
                     varargout{k}(j,i)=((u{k}(pos,1).*Va(pos)+ ...
                                         u{k}(pos,2).*Vb(pos)+ ...
                                         u{k}(pos,3).*Vc(pos)+ ...
-                                        u{k}(pos,4).*Vd(pos))).*invVTET(pos);
+                                        u{k}(pos,4).*Vd(pos)));
                 end
             end
         end
@@ -614,14 +619,14 @@ end
 function [S] = rowvec(S)
     [sz1,sz2]=size(S);
     if sz1>sz2
-        S=S';
+        S=S.';
     end
 end
 
 function [S] = colvec(S)
     [sz1,sz2]=size(S);
     if sz1<sz2
-        S=S';
+        S=S.';
     end
 end
 

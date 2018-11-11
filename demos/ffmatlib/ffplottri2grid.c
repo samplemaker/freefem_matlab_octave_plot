@@ -87,7 +87,9 @@ ffplottri2grid(double *x, double *y, double *tx, double *ty, double *tu, double 
                          (tx[i]-tx[i+2])*(y[my]-ty[i+2]))*invA0[j];
               double Ac=1.0-Aa-Ab;
               /*If point is inside the triangle */
-              if ((Aa>=0) && (Ab>=0) && (Ac>=0)){
+              /*Set a negative threshold due to numerical error in Aa, Ab ...
+                if the interpolation point is on the triangle edge */
+              if ((Aa>=-1e-13) && (Ab>=-1e-13) && (Ac>=-1e-13)){
                  /*Interpolates */
                  *(out[0]+ofs) = Aa*tu[i]+Ab*tu[i+1]+Ac*tu[i+2];
                  if (nOuts==2){

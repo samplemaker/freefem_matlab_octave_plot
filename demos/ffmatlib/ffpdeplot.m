@@ -29,17 +29,21 @@
 %      'ColorMap'    ColorMap value or matrix of such values
 %                       'cool' (default) | colormap name | three-column matrix of RGB triplets
 %      'ColorBar'    Indicator in order to include a colorbar
-%                       'on' (default) | 'off'
+%                       'on' (default) | 'off' | 'northoutside' ...
 %      'CBTitle'     Colorbar Title
 %                       (default=[])
 %      'ColorRange'  Range of values to adjust the color thresholds
-%                       'minmax' (default) | [min,max]
+%                       'minmax' (default) | 'centered' | 'cropminmax' | 'cropcentered' | [min,max]
 %      'Mesh'        Switches the mesh off / on
 %                       'on' | 'off' (default)
 %      'Boundary'    Shows the domain boundary / edges
 %                       'on' | 'off' (default)
 %      'BDLabels'    Draws boundary / edges with a specific label
 %                       [] (default) | [label1,label2,...]
+%      'BDColors'    Colorize boundary / edges with color (linked to 'BDLabels')
+%                       'r' (default) | three-column matrix of RGB triplets
+%      'BDShowText'  Shows the labelnumber on the boundary / edges
+%                       'on' | 'off' (default)
 %      'Contour'     Isovalue plot
 %                       'off' (default) | 'on'
 %      'CXYData'     Use extra (overlay) data to draw the contour plot
@@ -47,7 +51,7 @@
 %      'CStyle'      Contour plot style
 %                       'patch' (default) | 'patchdashed' | 'patchdashedneg' | 'monochrome' | 'colormap'
 %      'CColor'      Isovalue color
-%                       [0,0,0] (default) | RGB triplet | 'r' | 'g' | 'b' |
+%                       [0,0,0] (default) | RGB triplet, three-element row vector | 'r' | 'g' | 'b' |
 %      'CLevels'     Number of isovalues used in the contour plot
 %                       (default=10)
 %      'CGridParam'  Number of grid points used for the contour plot
@@ -91,14 +95,16 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
     end
 
     numvarargs = length(varargin);
-    optsnames = {'XYData', 'XYStyle', 'Mesh', 'Boundary', 'BDLabels', 'ZStyle', ...
-                 'Contour', 'CGridParam', 'CColor', 'CXYData', 'CLevels', 'CStyle', ...
+    optsnames = {'XYData', 'XYStyle', 'Mesh', 'Boundary', 'BDLabels', ...
+                 'BDColors', 'BDShowText', 'ZStyle', 'Contour', ...
+                 'CGridParam', 'CColor', 'CXYData', 'CLevels', 'CStyle', ...
                  'ColorMap', 'ColorBar', 'CBTitle', 'ColorRange', ...
                  'Title', 'XLim', 'YLim', 'ZLim', 'DAspect', ...
                  'FlowData', 'FGridParam'};
 
-    vararginval = {[], 'interp', 'off', 'off', [], 'off', ...
-                   'off', 'auto', [0,0,0], [], 10, 'patch', ...
+    vararginval = {[], 'interp', 'off', 'off', [], ...
+                   'r', 'off', 'off', 'off', ...
+                   'auto', [0,0,0], [], 10, 'patch', ...
                    'cool', 'on', [], 'minmax', ...
                    [], 'minmax', 'minmax', 'minmax', 'xyequal', ...
                    [], 'auto'};
@@ -121,8 +127,9 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
         end
     end
 
-    [xyrawdata, xystyle, showmesh, showboundary, bdlabels, zstyle, ...
-     contourplt, cgridparam, ccolor, contourrawdata, isolevels, contourstyle, ...
+    [xyrawdata, xystyle, showmesh, showboundary, bdlabels, ...
+     bdcolors, bdshowtext, zstyle, contourplt, ...
+     cgridparam, ccolor, contourrawdata, isolevels, contourstyle, ...
      setcolormap, showcolbar, colorbartitle, colorrange, ...
      plottitle, plotxlim, plotylim, plotzlim, axisaspect, ...
      flowdata, fgridparam] = vararginval{:};
@@ -224,7 +231,11 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 M=N;
             end
 
-            %Set grid resolution for cropped section rather than whole mesh
+            %Set the grid resolution depending on the cropped area, not the entire mesh
+            %ymin=min(min(ydata));
+            %ymax=max(max(ydata));
+            %xmin=min(min(xdata));
+            %xmax=max(max(xdata));
             if strcmpi(plotylim,'minmax')
                 ymin = min(min(ydata));
                 ymax = max(max(ydata));
@@ -239,10 +250,6 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 xmin = min(plotxlim);
                 xmax = max(plotxlim);
             end
-            %ymin=min(min(ydata));
-            %ymax=max(max(ydata));
-            %xmin=min(min(xdata));
-            %xmax=max(max(xdata));
 
             x=linspace(xmin,xmax,N);
             y=linspace(ymin,ymax,M);
@@ -304,7 +311,7 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                     hh=[hh;hhcneg;hhcpos];
                     varargout{1}=clabneg;
                     varargout{2}=clabpos;
-                %map all others to the 'patch' case
+                %Map all others to the 'patch' case
                 otherwise
                     hh=patch(xdata,ydata,cdata,'EdgeColor','none');
                     [clab,hhc]=contour(X,Y,C,isolevels,'LineColor',ccolor);
@@ -315,12 +322,50 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
         end
         colormap(setcolormap);
         if (isnumeric(colorrange))
+            if (min(colorrange) == max(colorrange))
+               error('''ColorRange'': Must be a numeric 2-element vector where LIM1 < LIM2');
+            end
             caxis(colorrange);
         else
-            caxis([min(min(cdata)) max(max(cdata))]);
+            if strcmpi(colorrange,'minmax') || strcmpi(colorrange,'centered')
+               %Set to [min max] of the whole mesh
+               if strcmpi(colorrange,'minmax')
+                   caxis([min(min(cdata)) max(max(cdata))]);
+               else
+                   %Colormap symmetric around zero ('centered')
+                   caxis([-max(max(abs(cdata))) max(max(abs(cdata)))]);
+               end
+            else
+               %Set to [min max] of cropped area (auto ranging)
+               [~,sz2]=size(cdata);
+               keep = true(1,sz2);
+               if ~strcmpi(plotxlim,'minmax')
+                  keepx = (xdata > min(plotxlim)) & (xdata < max(plotxlim));
+                  keep = keep & (keepx(1,:) & keepx(2,:) & keepx(3,:));
+               end
+               if ~strcmpi(plotylim,'minmax')
+                  keepy = (ydata > min(plotylim)) & (ydata < max(plotylim));
+                  keep = keep & (keepy(1,:) & keepy(2,:) & keepy(3,:));
+               end
+               crng = [min(min(cdata(:,keep))) max(max(cdata(:,keep)))];
+               if (isempty(crng) || (min(crng) == max(crng)))
+                  %E.g. too much magnification
+                  error('''ColorRange'': No color spread in the cropped section / try ''minmax''');
+               end
+               if strcmpi(colorrange,'cropminmax')
+                   caxis(crng);
+               else
+                   %Colormap symmetric around zero ('cropcentered')
+                   caxis([-max(abs(crng)) max(abs(crng))]);
+               end
+            end
         end
-        if strcmpi(showcolbar,'on')
-            hcb=colorbar;
+        if ~(strcmpi(showcolbar,'off'))
+            if strcmpi(showcolbar,'on')
+                hcb=colorbar;
+            else
+                hcb=colorbar(showcolbar);
+            end
             hh=[hcb; hh];
             if ~isempty(colorbartitle)
                 title(hcb,colorbartitle);
@@ -346,7 +391,11 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
             M=20;
         end
 
-        %Set grid resolution for cropped section rather than whole mesh
+        %Set the grid resolution depending on the cropped area, not the entire mesh
+        %ymin=min(min(ydata));
+        %ymax=max(max(ydata));
+        %xmin=min(min(xdata));
+        %xmax=max(max(xdata));
         if strcmpi(plotylim,'minmax')
             ymin = min(min(ydata));
             ymax = max(max(ydata));
@@ -361,10 +410,6 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
             xmin = min(plotxlim);
             xmax = max(plotxlim);
         end
-        %ymin=min(min(ydata));
-        %ymax=max(max(ydata));
-        %xmin=min(min(xdata));
-        %xmax=max(max(xdata));
 
         x=linspace(xmin,xmax,N);
         y=linspace(ymin,ymax,M);
@@ -387,19 +432,47 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
     %if nothing has been drawn yet
     if ~strcmpi(showboundary,'off')
         boundary=rowvec(boundary);
+        %Check for the number of boundary colors and do first checks
+        if isnumeric(bdcolors)
+            %bdcolors as numeric RGB data (three column RGB triplets)
+            [nBDColors,nRGB] = size(bdcolors);
+            if (nRGB ~= 3)
+                error('''BDColors'': Must be a three column matrix of RGB triplets');
+            end
+        else
+            %bdcolors as colorstring, e.g. 'r' or 'red'
+            nBDColors = 1;
+        end
         if ~isempty(bdlabels)
+            %Check if there are same number of bdcolors than labels
+            %If only one color value is given then color everything by this color
+            if (numel(bdlabels) ~= nBDColors) && (nBDColors > 1)
+                error('''BDColors'': Number of BDColors must be equal to number of BDLabels');
+            end
             for i=1:numel(bdlabels)
                 keep=(boundary(3,:)==bdlabels(i));
                 if any(keep)
-                    line([xpts(boundary(1,keep));xpts(boundary(2,keep))], ...
-                         [ypts(boundary(1,keep));ypts(boundary(2,keep))],'Color','red','LineWidth',2);
-                    textpos=find(keep,1,'first');
-                    text(xpts(boundary(1,textpos)),ypts(boundary(1,textpos)),num2str(bdlabels(i)));
+                    if (nBDColors > 1)
+                        line([xpts(boundary(1,keep));xpts(boundary(2,keep))], ...
+                             [ypts(boundary(1,keep));ypts(boundary(2,keep))],'Color',bdcolors(i,:),'LineWidth',2);
+                    else
+                        line([xpts(boundary(1,keep));xpts(boundary(2,keep))], ...
+                             [ypts(boundary(1,keep));ypts(boundary(2,keep))],'Color',bdcolors,'LineWidth',2);
+                    end
+                    if strcmpi(bdshowtext,'on')
+                        textpos=find(keep,1,'first');
+                        text(xpts(boundary(1,textpos)),ypts(boundary(1,textpos)),num2str(bdlabels(i)));
+                    end
                 end
             end
         else
-            line([xpts(boundary(1,:));xpts(boundary(2,:))], ...
-                 [ypts(boundary(1,:));ypts(boundary(2,:))],'Color','red','LineWidth',2);
+            %No BDLabels specified: All labels are displayed without text
+            if (nBDColors == 1)
+                line([xpts(boundary(1,:));xpts(boundary(2,:))], ...
+                     [ypts(boundary(1,:));ypts(boundary(2,:))],'Color',bdcolors,'LineWidth',2);
+            else
+                error('''BDColors'': Multple BDColors only with BDLabel specifier possible');
+            end
         end
     end
 
@@ -429,7 +502,7 @@ end
 function [S] = rowvec(S)
     [sz1,sz2]=size(S);
     if sz1>sz2
-        S=S';
+        S=S.';
     end
 end
 
@@ -454,7 +527,9 @@ function [u,v] = ffplottri2gridint(x, y, tx, ty, tu, tv)
                 Aa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*invA0;
                 Ab=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*invA0;
                 Ac=1.0-Aa-Ab;
-                pos=find(((Aa>=0) & (Ab>=0) & (Ac>=0)),1,'first');
+                %Set a negative threshold due to numerical error in Aa,Ab,Ac
+                %if the interpolation point is on the triangle edge
+                pos=find(((Aa>=-1e-13) & (Ab>=-1e-13) & (Ac>=-1e-13)),1,'first');
                 if ~isempty(pos)
                     u(my,mx)=Aa(pos).*tu(1,pos)+ ...
                              Ab(pos).*tu(2,pos)+ ...
@@ -474,7 +549,9 @@ function [u,v] = ffplottri2gridint(x, y, tx, ty, tu, tv)
                 Aa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*invA0;
                 Ab=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*invA0;
                 Ac=1.0-Aa-Ab;
-                pos=find(((Aa>=0) & (Ab>=0) & (Ac>=0)),1,'first');
+                %Set a negative threshold due to numerical error in Aa,Ab,Ac
+                %if the interpolation point is on the triangle edge
+                pos=find(((Aa>=-1e-13) & (Ab>=-1e-13) & (Ac>=-1e-13)),1,'first');
                 if ~isempty(pos)
                     u(my,mx)=Aa(pos).*tu(1,pos)+ ...
                              Ab(pos).*tu(2,pos)+ ...
@@ -528,6 +605,8 @@ function printhelp()
     fprintf('''Mesh''        Switches the mesh off / on (default=''off'')\n');
     fprintf('''Boundary''    Shows the domain boundary / edges (default=''off'')\n');
     fprintf('''BDLabels''    Draws boundary / edges with a specific label (default=[])\n');
+    fprintf('''BDColors''    Colorize boundary / edges with color (default=''r'')\n');
+    fprintf('''BDShowText''  Shows the labelnumber on the boundary / edges (default=''off'')\n');
     fprintf('''Contour''     Isovalue plot (default=''off'')\n');
     fprintf('''CColor''      Isovalue color (default=[0,0,0])\n');
     fprintf('''CXYData''     Use extra (overlay) data to draw the contour plot\n');

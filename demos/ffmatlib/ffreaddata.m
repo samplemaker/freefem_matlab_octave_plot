@@ -41,11 +41,28 @@ function [varargout] = ffreaddata(filename)
     end
     firstLine = fgetl(fid);
     frewind(fid);
-    numCols = numel(strsplit(strtrim(firstLine),' '));
-    fdata = textscan(fid,repmat('%f ',[1, numCols]),'Delimiter','\n');
+    %Poor mans test for complex numbers
+    n = numel(strfind(firstLine,'('));
+    m = numel(strfind(firstLine,')'));
+    if (n > 0) && (n == m)
+        numCols = n;
+        fdata = textscan(fid,repmat('(%f,%f) ',[1, numCols]),'Delimiter','\n');
+        nNumbers = numel(fdata{1});
+        M = zeros(nNumbers, numCols);
+        k = 1;
+        for j = 1:numCols
+          M(:,j) = fdata{k} + 1i*fdata{k+1};
+          k=k+2;
+        end
+    else
+        %Presume real numbers
+        numCols = numel(strsplit(strtrim(firstLine),' '));
+        fdata = textscan(fid,repmat('%f ',[1, numCols]),'Delimiter','\n');
+        M = cell2mat(fdata);
+    end
+    %TODO: Nothing for mixed data files
     fclose(fid);
-    M = cell2mat(fdata);
-    [sz1,sz2]=size(M);
+    [sz1,sz2] = size(M);
     if verbose
         fprintf('Size of data: (nDof, cols) %ix%i\n', sz1,sz2);
     end

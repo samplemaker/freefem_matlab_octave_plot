@@ -123,23 +123,26 @@ void fftet2gridfast(double *T, double *X, double *Y, double *Z, double **out,
            if (presel) {
               Vector ap={x[i], y[i], z[i]}, bp={x[i+1], y[i+1], z[i+1]},
                      cp={x[i+2], y[i+2], z[i+2]}, dp={x[i+3], y[i+3], z[i+3]},
-                     xp={X[idx],Y[idx],Z[idx]};
+                     xp={X[idx], Y[idx], Z[idx]};
               /* Sub-tet volumes */
               double Va=dotProduct(crossProduct(minus(dp,bp), minus(cp,bp)),
-                                                minus(xp,bp));
+                                                minus(xp,bp))*invV0[j];
               double Vb=dotProduct(crossProduct(minus(cp,ap), minus(dp,ap)),
-                                                minus(xp,ap));
+                                                minus(xp,ap))*invV0[j];
               double Vc=dotProduct(crossProduct(minus(dp,ap), minus(bp,ap)),
-                                                minus(xp,ap));
-              double Vd=dotProduct(crossProduct(minus(bp,ap), minus(cp,ap)),
-                                                minus(xp,ap));
-              /*If point is inside the tetrahedron */
-              if ((Va>=0) && (Vb>=0) && (Vc>=0) && (Vd>=0)){
+                                                minus(xp,ap))*invV0[j];
+              //double Vd=dotProduct(crossProduct(minus(bp,ap), minus(cp,ap)),minus(xp,ap))*invV0[j];
+              double Vd=1.0-Va-Vb-Vc;
+              /* If point is inside the tetrahedron */
+              /* Set a negative threshold due to numerical error in Va ... Vd
+                 if the interpolation point is on the surface
+                 TODO: Estimate exact threshold. -1e-13 is a guess */
+              if ((Va>=-1e-13) && (Vb>=-1e-13) && (Vc>=-1e-13) && (Vd>=-1e-13)){
                  /*Interpolates and stores to the output matrices */
                  for (mwSize ncols=0; ncols<nOuts; ncols++){
                     mwSize colofs=ncols*nNodes;
-                    *(out[ncols]+ofs)=invV0[j]*(Va*col[colofs+i]+Vb*col[colofs+i+1]+
-                                                Vc*col[colofs+i+2]+Vd*col[colofs+i+3]);
+                    *(out[ncols]+ofs)=(Va*col[colofs+i]+Vb*col[colofs+i+1]+
+                                       Vc*col[colofs+i+2]+Vd*col[colofs+i+3]);
                  }
                  doSearchTet=false;
               }
