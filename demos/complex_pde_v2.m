@@ -74,7 +74,7 @@ lighting gouraud;
 view([-47,24]);
 camlight('headlight');
 subplot(1,2,2);
-plot(s,real(W),'b');
+plot(s,real(w),'b');
 grid;
 xlabel('s');
 ylabel('u');
