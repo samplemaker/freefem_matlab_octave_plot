@@ -4,15 +4,16 @@ addpath('ffmatlib');
 
 %Compute a conformal plot based on a PDE simulation result
 [p,b,t]=ffreadmesh('complex_test.msh');
-[uC]=ffreaddata('complex_test.txt');
+[u]=ffreaddata('complex_test.txt');
 figure;
 hold on;
-%ZX: real part = const
-%ZY: imag part = const
-[ZX, ZY] = ffcplxmesh([0,0], [2*pi(),2*pi()], [3,3], [12,12]);
-[WX, WY] = ffipocplx(p,b,t,uC,ZX,ZY);
-plot(real(WX),imag(WX),'b','LineWidth',1);
-plot(real(WY),imag(WY),'r','LineWidth',1);
+%Z1: real part = const
+%Z2: imag part = const
+[Z1, Z2] = ffcplxmesh([0,0], [2*pi(),2*pi()], [3,3], [12,12]);
+[w] = ffinterpolate(p,b,t,real(Z1),imag(Z1),u);
+plot(real(w),imag(w),'b','LineWidth',2);
+[w] = ffinterpolate(p,b,t,real(Z2),imag(Z2),u);
+plot(real(w),imag(w),'r','LineWidth',2);
 grid;
 title('Conformal plot of a PDE solution');
 daspect([1,1,1]);
@@ -20,24 +21,23 @@ daspect([1,1,1]);
 
 %Project a polar plot onto a PDE solution
 [p,b,t]=ffreadmesh('capacitorp1.msh');
-[uC]=ffreaddata('capacitor_potential_p1only.txt');
-%ZX: real part = const
-%ZY: imag part = const
-[ZX, ZY] = ffcplxmesh([0.5,0], [4,2*pi()], [10,10], [10,11]);
+[u]=ffreaddata('capacitor_potential_p1only.txt');
+[Z1, Z2] = ffcplxmesh([0.5,0], [4,2*pi()], [10,10], [10,11]);
 %Map to polar coordinates
 strFunc='@(Z)(real(Z).*exp(1i*imag(Z)))';
 f = str2func(strFunc);
-ZU = f(ZX);
-ZV = f(ZY);
-[WU, WV] = ffipocplx(p,b,t,uC,ZU,ZV);
+U1 = f(Z1);
+U2 = f(Z2);
 figure;
 hold on;
 %constant radius
-plot3(real(ZU),imag(ZU),real(WU),'g','LineWidth',1);
+[w] = ffinterpolate(p,b,t,real(U1),imag(U1),u);
+plot3(real(U1),imag(U1),w,'g','LineWidth',2);
 %constant angle
-plot3(real(ZV),imag(ZV),real(WV),'g','LineWidth',1);
+[w] = ffinterpolate(p,b,t,real(U2),imag(U2),u);
+plot3(real(U2),imag(U2),w,'g','LineWidth',2);
 ffpdeplot(p,b,t, ...
-          'XYData',uC, ...
+          'XYData',u, ...
           'ZStyle','continuous', ...
           'Mesh','off', ...
           'CBTitle','U[V]', ...
@@ -55,13 +55,13 @@ camlight('headlight');
 N = 100;
 s = linspace(0,2*pi(),N);
 Z = 3.5*(cos(s)+1i*sin(s)).*sin(0.5*s);
-W = ffipocplx(p,b,t,uC,Z);
+w = ffinterpolate(p,b,t,real(Z),imag(Z),u);
 figure('position', [0, 0, 800, 300])
 subplot(1,2,1);
 hold on;
-plot3(real(Z),imag(Z),real(W),'g');
+plot3(real(Z),imag(Z),real(w),'g','LineWidth',2);
 ffpdeplot(p,b,t, ...
-          'XYData',uC, ...
+          'XYData',u, ...
           'ZStyle','continuous', ...
           'Mesh','off', ...
           'ColorBar','off', ...
