@@ -32,26 +32,30 @@ xdata=[xpts(t(1,:)); xpts(t(2,:)); xpts(t(3,:))];
 ydata=[ypts(t(1,:)); ypts(t(2,:)); ypts(t(3,:))];
 udata=[uC(t(1,:)), uC(t(2,:)), uC(t(3,:))].';
 
-[g_phi, g_r] = ffcplxmesh([1.5,0], [-1,2*pi()], [10,10], [10,10]);
+%ZX: real part = const
+%ZY: imag part = const
+[ZX, ZY] = ffcplxmesh([1.5,0], [-1,2*pi()], [10,10], [10,10]);
 %Map to polar coordinates
-p_phi = exp(g_phi);
-p_r = exp(g_r);
-w_phi = fftri2gridcplx(p_phi,xdata,ydata,udata);
-w_r = fftri2gridcplx(p_r,xdata,ydata,udata);
+strFunc='@(Z)(exp(Z))';
+f = str2func(strFunc);
+ZU = f(ZX);
+ZV = f(ZY);
+WU = fftri2gridcplx(ZU,xdata,ydata,udata);
+WV = fftri2gridcplx(ZV,xdata,ydata,udata);
 
 figure;
 hold on;
-handles=ffpdeplot(p,b,t, ...
-                  'XYData',uC, ...
-                  'ZStyle','continuous', ...
-                  'Mesh','off', ...
-                  'CBTitle','U[V]', ...
-                  'Title','Curved Interpolation');
+ffpdeplot(p,b,t, ...
+          'XYData',uC, ...
+          'ZStyle','continuous', ...
+          'Mesh','off', ...
+          'CBTitle','U[V]', ...
+          'Title','Curved Interpolation');
 
-plot3(real(p_phi),imag(p_phi),real(w_phi),'g');
-plot3(real(p_r),imag(p_r),real(w_r),'g');
-% plot3(real(p_phi),imag(p_phi),real(w_phi),'*r');
-% plot3(real(p_r),imag(p_r),real(w_r),'*r');
+%constant radius
+plot3(real(ZU),imag(ZU),real(WU),'g','LineWidth',1);
+%constant angle
+plot3(real(ZV),imag(ZV),real(WV),'g','LineWidth',1);
 
 ylabel('y');
 xlabel('x');
