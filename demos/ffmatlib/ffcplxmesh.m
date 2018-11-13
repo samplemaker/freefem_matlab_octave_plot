@@ -1,4 +1,4 @@
-%ffcplxmesh.m Returns a complex carthesian mesh grid
+%ffcplxmesh.m Returns a complex cartesian mesh grid
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-11-11
@@ -8,16 +8,16 @@
 %
 %   [Z1, Z2] = ffcplxmesh(r1, r2, grid, numxy);
 %
-%   Creates a complex carthesian mesh grid containing numxy grid lines and
-%   spanned by the two complex numbers r1, r2
+%   Creates a complex cartesian mesh grid spanned by the two complex
+%   numbers r1, r2 and containing numxy grid lines
 %
-%      Parameters
-%      r1, r2:  ranges r1=[Re(from),Im(from)]; r2=[Re(to),Im(to)] 
-%      numxy:   number of grid lines [numx, numy]
-%      ngrid:   multiplier for grid points [ngridx, ngridy] 
+%   Parameters
+%   r1, r2:  ranges r1=[Re(from),Im(from)]; r2=[Re(to),Im(to)]
+%   numxy:   number of grid lines [numx, numy]
+%   ngrid:   multiplier for grid points [ngridx, ngridy]
 %
-%      Example:
-%      [Z1, Z2] = ffcplxmesh([0,0], [2*pi(),2*pi()], [3,3], [5,5]);
+%   Example:
+%   [Z1, Z2] = ffcplxmesh([0,0], [2*pi(),2*pi()], [3,3], [5,5]);
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %

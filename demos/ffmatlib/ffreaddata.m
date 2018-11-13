@@ -39,37 +39,53 @@ function [varargout] = ffreaddata(filename)
     if fid < 0
         error('cannot open file %s', filename);
     end
-    firstLine = fgetl(fid);
+    firstLineStr = fgetl(fid);
     frewind(fid);
-    %Poor mans test for complex numbers
-    n = numel(strfind(firstLine,'('));
-    m = numel(strfind(firstLine,')'));
-    if (n > 0) && (n == m)
-        numCols = n;
-        fdata = textscan(fid,repmat('(%f,%f) ',[1, numCols]),'Delimiter','\n');
-        nNumbers = numel(fdata{1});
-        M = zeros(nNumbers, numCols);
-        k = 1;
-        for j = 1:numCols
-          M(:,j) = fdata{k} + 1i*fdata{k+1};
-          k=k+2;
+
+    %In a FreeFem++ data ascii text file complex numbers may appear as
+    %(-5.92176,3.15827) whereas real valued numbers may appear as 0.894621
+    %Lexer:
+    firstLineCell = strsplit(strtrim(firstLineStr),' ');
+    nCols = numel(firstLineCell);
+    %Parser:
+    formatSpec = '';
+    isComplexNo = false(1,nCols);
+    for i = 1:nCols
+        n1 = numel(strfind(char(firstLineCell(i)),'('));
+        n2 = numel(strfind(char(firstLineCell(i)),')'));
+        if (n1 > 0)
+            %presume complex number
+            formatSpec = [formatSpec ' ' '(%f,%f)'];
+            isComplexNo(i) = true;
+            if (n1 > 1) || (n1 ~= n2)
+                error('ffreaddata: parse error complex data');
+            end
+        else
+            %presume real valued number
+            formatSpec = [formatSpec ' ' '%f'];
+            isComplexNo(i) = false;
         end
-    else
-        %Presume real numbers
-        numCols = numel(strsplit(strtrim(firstLine),' '));
-        fdata = textscan(fid,repmat('%f ',[1, numCols]),'Delimiter','\n');
-        M = cell2mat(fdata);
     end
-    %TODO: Nothing for mixed data files
+    fdata = textscan(fid,strtrim(formatSpec),'Delimiter','\n');
     fclose(fid);
-    [sz1,sz2] = size(M);
+
+    varargout=cell(1,nCols);
+    k = 1;
+    for j = 1:nCols
+        if isComplexNo(j)
+            varargout{j} = fdata{k} + 1i*fdata{k+1};
+            k = k + 2;
+        else
+            varargout{j} = fdata{k};
+            k = k + 1;
+        end
+    end
+
     if verbose
-        fprintf('Size of data: (nDof, cols) %ix%i\n', sz1,sz2);
+        fprintf('formatSpec: %s\n',strtrim(formatSpec));
+        fprintf('Size of data: (nDof, cols) %ix%i\n',numel(fdata{1}),nCols);
     end
-    varargout=cell(1,sz2);
-    for i = 1:sz2
-        varargout{i} = M(:,i);
-    end
+
 end
 
 function printhelp()

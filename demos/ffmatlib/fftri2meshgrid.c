@@ -3,23 +3,27 @@
  * Author: Chloros2 <chloros2@gmx.de>
  * Created: 2018-11-13
  *
- *   [w] = fftri2meshgrid (x, y, tx, ty, tu) interpolates the real or complex
- *   data tu given on a triangle mesh defined by the two arguments tx, ty onto
- *   a meshgrid defined by the variables x, y. The mesh can be cartesian or
- *   curved. The argument tu must have a size of nTriangle columns and 3 rows.
- *   The return value w is the interpolation of tu at the grid points defined
- *   by x, y and is real if tu is real or complex if tu is complex. fftri2mesgrid
- *   uses barycentric coordinates to interpolate.
+ *   This file is a part of the ffmatlib which is hosted at
+ *   https://github.com/samplemaker/freefem_matlab_octave_plot
+ *
+ *   [w] = fftri2meshgrid (x, y, tx, ty, tu)
+ *
+ *   interpolates the real or complex data tu given on a triangle mesh
+ *   defined by the two arguments tx, ty onto a meshgrid defined by the
+ *   variables x, y. The mesh can be cartesian or curved. The argument
+ *   tu must have a size of nTriangle columns and 3 rows. The return
+ *   value w is the interpolation of tu at the grid points defined
+ *   by x, y and is real if tu is real or complex if tu is complex.
+ *   fftri2mesgrid uses barycentric coordinates to interpolate.
  *   Returns NaN's if an interpolation point is outside the triangle mesh.
  *
- *   Octave users compile the mex file with the command:
+ *   Octave users on Linux with gcc compile the mex file with the command:
  *
  *       mkoctfile --mex -Wall fftri2meshgrid.c
  *
  *   Matlab users on Windows compile the mex file with the command:
  *
  *       mex fftri2meshgrid.cpp -largeArrayDims
- *
  *
  * Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
  *

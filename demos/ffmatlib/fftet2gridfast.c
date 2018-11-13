@@ -3,20 +3,25 @@
  * Author: Chloros2 <chloros2@gmx.de>
  * Created: 2018-05-13
  *
- *   [varargout] = fftet2gridfast(tdata,X,Y,Z) interpolates data given on
- *   a tetrahedral mesh to a rectangular grid defined by X, Y and Z. The first
- *   three columns in tdata must contain the tetrahedral mesh node
- *   coordinates. The following columns must contain the scalar values at
- *   the four tetrahedra node points that need to be interpolated.
- *   The return value is the interpolation at the grid points defined by X, Y
- *   and Z. Returns NaN's if an interpolation point is outside the tetrahedral mesh.
+ *   This file is a part of the ffmatlib which is hosted at
+ *   https://github.com/samplemaker/freefem_matlab_octave_plot
+ *
+ *   [varargout] = fftet2gridfast(tdata,X,Y,Z)
+ *
+ *   interpolates data given on a tetrahedral mesh to a rectangular grid
+ *   defined by X, Y and Z. The first three columns in tdata must contain
+ *   the tetrahedral mesh node coordinates. The following columns must
+ *   contain the scalar values at the four tetrahedra node points that
+ *   need to be interpolated. The return value is the interpolation at
+ *   the grid points defined by X, Y and Z. Returns NaN's if an
+ *   interpolation point is outside the tetrahedral mesh.
  *   Runtime can be considered approx x440 faster than fftet2grid.m.
  *
- *   Octave users compile the mex file with the command:
+ *   Octave users on Linux with gcc compile the mex file with the command:
  *
  *       mkoctfile --mex -Wall fftet2gridfast.c
  *
- *   Windows users compile the mex file with the command:
+ *   Matlab users on Windows compile the mex file with the command:
  *
  *       mex fftet2gridfast.cpp -largeArrayDims
  *

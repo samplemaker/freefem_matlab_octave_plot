@@ -1,26 +1,27 @@
-/*ffplottri2grid.c Interpolates from 2D triangular mesh to 2D rectangular grid
+/*ffplottri2grid.c Interpolates from 2D triangular mesh to 2D cartesian grid
  *
  * Author: Chloros2 <chloros2@gmx.de>
  * Created: 2018-05-13
  *
- *   [u,[v]] = ffplottri2grid (x, y, tx, ty, tu[, tv]) interpolates the data [tu,tv]
- *   which is given on a triangular mesh defined by tx, ty onto a rectangular grid
- *   defined by x and y. tx, ty, tu, tv must have a size of 3xnTriangle. tv, v is
+ *   This file is a part of the ffmatlib which is hosted at
+ *   https://github.com/samplemaker/freefem_matlab_octave_plot
+ *
+ *   [u,[v]] = ffplottri2grid (x, y, tx, ty, tu[, tv])
+ *
+ *   interpolates the real valued data data [tu,tv] which is given on
+ *   a triangular mesh defined by tx, ty onto a cartesian grid defined
+ *   by x and y. tx, ty, tu, tv must have a size of 3xnTriangle. tv, v is
  *   optional. The return value [u,v] is the interpolation at the grid points
  *   x, y. Returns NaN's if an interpolation point is outside the triangle mesh.
  *   Runtime can be considered approx x33 faster than the Matlab version.
  *
- *   Octave users compile the mex file with the command:
+ *   Octave users on Linux with gcc compile the mex file with the command:
  *
  *       mkoctfile --mex -Wall ffplottri2grid.c
  *
- *   Windows users compile the mex file with the command:
+ *   Matlab users on Windows compile the mex file with the command:
  *
  *       mex ffplottri2grid.cpp -largeArrayDims
- *
- *   Hint: We evaluate the PDE solution only on the grid vertices although the
- *   underlying FE space may have a higher order (P2 element, etc.).
- *   Therefore, there is a small loss of accuracy except P1 elements are used.
  *
  * Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
  *

@@ -5,8 +5,8 @@ Vh<complex>  uC=(x+1i*y)*(x+1i*y);
 
 savemesh(Th,"complex_test.msh");
 
-{ 
-  ofstream file("complex_test.txt"); 
+{
+  ofstream file("complex_test.txt");
   for (int j=0;j<uC[].n; j++)
     file << uC[][j] << endl;
 }

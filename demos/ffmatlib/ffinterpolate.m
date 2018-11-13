@@ -1,9 +1,19 @@
-%ffinterpolate.m Interpolates PDE simulation data on a meshgrid
+%ffinterpolate.m Interpolates PDE simulation data on a curved meshgrid
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-11-11
 %
-%   Wrapper function
+%   This file is a part of the ffmatlib which is hosted at
+%   https://github.com/samplemaker/freefem_matlab_octave_plot
+%
+%   [w] = ffinterpolate(p, b, t, x, y, u);
+%
+%   interpolates the real valued or complex data u given on a triangle
+%   mesh defined by the points p, triangle t and boundary b arguments
+%   onto a curved meshgrid defined by the arguments x, y. The return
+%   value is real if u is real or complex if u is complex.
+%   wrapper function invoking fftri2mesgridint() or if build than
+%   fftri2meshgrid.c
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %
@@ -35,12 +45,6 @@ function [w] = ffinterpolate(p, b, t, x, y, u)
     end
  end
 
-%Interpolates from 2D triangular mesh to 2D mesh grid
-%[u] = fftri2meshgridint (x, y, tx, ty, tu) interpolates the complex data [tu]
-%which is given on a triangular mesh defined by tx, ty onto a
-%meshgrid defined by x, y. tx, ty, tu must have a size of 3xnTriangle. 
-%The return value [u] is the interpolation at the grid points
-%x,y. Returns NaN's if an interpolation point is outside the triangle mesh.
 function [u] = fftri2meshgridint(x, y, tx, ty, tu)
     if ~isequal(size(x), size(y))
         error('meshgrid sizes must be equal');
