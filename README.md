@@ -66,7 +66,9 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 | Name | Description |
 | --- | --- |
 | [ffpdeplot()](#ffpdeplotfct) | Creates contour(), quiver() as well as patch() plots from FreeFem++ 2D simulation data |
-| [ffplottri2grid()](#ffplottri2gridfct) | Interpolates from 2D triangular mesh to 2D rectangular grid |
+| [ffinterpolate()](#ffinterpolatefct) | Interpolates from 2D triangular mesh to 2D rectangular- or curved grid |
+| [ffplottri2grid()](#ffplottri2gridfct) | Interpolates data in order to be plot by ffpdeplot()  |
+| [fftri2meshgrid()](#fftri2meshgridfct) | Interpolates from 2D triangular mesh to 2D rectangular- or curved grid |
 | [ffpdeplot3D()](#ffpdeplot3Dfct) | Creates cross-sections, quiver3() as well as boundary plots from FreeFem++ 3D simulation data |
 | [ffreadmesh()](#ffreadmeshfct) | Reads FreeFem++ Mesh Files into Matlab/Octave |
 | [ffreaddata()](#ffreaddatafct) | Reads FreeFem++ Data Files into Matlab/Octave |
@@ -189,8 +191,9 @@ ffpdeplot(p,b,t,'FlowData',[Ex, Ey],'Boundary','on');
 
 ## ffplottri2grid()
 
-Interpolates the data `tu`, `tv` given on a triangular mesh defined by `tx` and `ty` on a rectangular grid defined by the two vectors `x` and `y`.<br>
-To create contour or quiver plots `ffpdeplot()` has its own interpolation routine in the form of a vectorized Matlab/Octave code. However to improve runtime there is a MEX implementation of this code section. If Matlab/Octave finds an executable of `ffplottri2grid.c` within its search path the faster C-implementation is used instead of the internal interpolation routine.
+Interpolates the real data `tu`, `tv` given on a triangular mesh defined by `tx` and `ty` on a carthesian grid defined by the two vectors `x` and `y`.<br>
+To create contour or quiver plots `ffpdeplot()` has its own interpolation routine in the form of a vectorized Matlab/Octave code. However to improve runtime there is a MEX implementation of this code section. If Matlab/Octave finds an executable of `ffplottri2grid.c` within its search path the faster C-implementation is used instead of the internal interpolation routine.<br>
+Note: This function should only be used as a library function in conjunction with `ffpdeplot()`. In order to interpolate real or complex data on carthesian- or curved meshgrids use the function `ffinterpolate()` instead.
 
 #### Synopsis
 
@@ -204,25 +207,62 @@ To create contour or quiver plots `ffpdeplot()` has its own interpolation routin
 
 #### Description
 
-`ffplottri2grid()` uses barycentric interpolation. `tx`, `ty` are 3xnbTriangle matrices containing the triangle vertice coordinates. `tu`, `tv` must be the same size and contain the data at the triangle vertices. The return value `u`, `v` is the interpolation at the mesh grid `mesh(x,y)`. The function returns `NaN's` if an interpolation point is outside the triangle mesh. For more information see also [Notes on MEX Compilation](#notesoncompilation).
+`ffplottri2grid()` uses barycentric interpolation. `tx`, `ty` are 3xnbTriangle matrices containing the triangle vertice coordinates. `tu`, `tv` must be real and have the same size and contain the data at the triangle vertices. The return value `u`, `v` is the real interpolation at the mesh grid `mesh(x,y)`. The function returns `NaN's` if an interpolation point is outside the triangle mesh. For more information see also [Notes on MEX Compilation](#notesoncompilation).
+
+#### Examples
+
+<a name="fftri2meshgridfct"></a>
+
+## fftri2meshgrid()
+
+Interpolates the real or complex data `tu` given on a triangular mesh defined by `tx` and `ty` onto a carthesian- or curved meshgrid defined by `x` and `y`.<br>
+Note: This function should only be used as a library function in conjunction with `ffinterpolate()`. In order to interpolate real or complex data on carthesian- or curved meshgrids use the function `ffinterpolate()` instead.
+
+#### Synopsis
+
+```Matlab
+[u] = fftri2meshgrid (x,y,tx,ty,tu)
+```
+
+#### Description
+
+`fftri2meshgrid()` uses barycentric interpolation. `tx`, `ty` must contain the triangle vertice coordinates. The arguments `tx`, `ty` and `tu` must have a size of nTriangle-columns and 3 rows. The return value `u` is the interpolation of `tu` at the grid points defined by `x`, `y` and is real if `tu` is real or complex if `tu` is complex. The function returns `NaN's` if an interpolation point is outside the triangle mesh. For more information see also [Notes on MEX Compilation](#notesoncompilation).
 
 #### Examples
 
 ```Matlab
 [p,b,t]=ffreadmesh('capacitorp1.msh');
-u=ffreaddata('capacitor_potential_p1only.txt')';
-x=linspace(-5,5,500);
-y=linspace(-5,5,500);
+u=ffreaddata('capacitor_potential_p1only.txt');
 xpts=p(1,:);
 ypts=p(2,:);
 xdata=[xpts(t(1,:)); xpts(t(2,:)); xpts(t(3,:))];
 ydata=[ypts(t(1,:)); ypts(t(2,:)); ypts(t(3,:))];
-udata=[u(t(1,:)); u(t(2,:)); u(t(3,:))];
-U=ffplottri2grid(x,y,xdata,ydata,udata);
+udata=[u(t(1,:)), u(t(2,:)), u(t(3,:))].';
+x=linspace(-5,5,500);
+y=linspace(-5,5,500);
 [X,Y]=meshgrid(x,y);
+U=fftri2meshgrid(X,Y,xdata,ydata,udata);
 surf(X,Y,U,'EdgeColor','none');
 view(3);
 ```
+
+<a name="ffinterpolatefct"></a>
+
+## ffinterpolate()
+
+Interpolates the real or complex data `u` given on a triangular mesh defined by `p`, `b` and `t` onto a carthesian- or curved meshgrid defined by `x` and `y`. The contents of the `p`, `b` and `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). The content of `u` is described in the section [ffreaddata](#ffreaddatafct).<br>
+
+#### Synopsis
+
+```Matlab
+[w] = ffinterpolate (p,b,t,x,y,u)
+```
+
+#### Description
+
+`ffinterpolate()` uses barycentric interpolation. The function returns `NaN's` if an interpolation point is outside the triangle mesh.
+
+#### Examples
 
 <a name="ffpdeplot3Dfct"></a>
 
@@ -408,6 +448,8 @@ Reads a FreeFem++ data file created by the FreeFem++ [scripts](#exportfromff) to
 [varargout] = ffreadmesh(filename)
 ```
 
+Note: The data can be real or complex.
+
 #### Examples
 
 Reads scalar data and a two dimensional vector field to the Matlab/Octave workspace:
@@ -474,19 +516,19 @@ Finally, in order to import those files into Matlab/Octave see the sections [ffr
 
 ## Notes on MEX Compilation
 
-Octave:<br>
-In Octave seek to the folder `./ffmatlib/` and invoke the two commands 
+Octave/Linux:<br>
+In Octave under a Linux system with gcc as compiler go into the folder `./ffmatlib/` and invoke the following two commands:
 
 `mkoctfile --mex -Wall  ffplottri2grid.c`  
 `mkoctfile --mex -Wall  fftet2gridfast.c`
 
-Windows:<br>
-Under Windows with Microsoft Visual Studio invoke 
+Matlab/Windows:<br>
+In Matlab under a Windows system with Microsoft Visual Studio as compiler invoke:
 
 `mex  ffplottri2grid.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`  
 `mex  fftet2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`
 
-If your build fails with Microsoft Visual Studio 10 ensure to enable C99-standart or you can try to change the file name into *.cpp, forcing MVSD to use a C++ compiler.
+Note: If your build fails with Microsoft Visual Studio 10 ensure to enable the C99-standard or you can try to change the file name into *.cpp, forcing MVSD to use a C++ compiler.
 
 ## Notes on Hardware Acceleration
 
