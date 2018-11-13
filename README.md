@@ -66,9 +66,9 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 | Name | Description |
 | --- | --- |
 | [ffpdeplot()](#ffpdeplotfct) | Creates contour(), quiver() as well as patch() plots from FreeFem++ 2D simulation data |
-| [ffinterpolate()](#ffinterpolatefct) | Interpolates from 2D triangular mesh to 2D rectangular- or curved grid |
-| [ffplottri2grid()](#ffplottri2gridfct) | Interpolates data in order to be plot by ffpdeplot()  |
-| [fftri2meshgrid()](#fftri2meshgridfct) | Interpolates from 2D triangular mesh to 2D rectangular- or curved grid |
+| [ffinterpolate()](#ffinterpolatefct) | Interpolates from 2D triangular mesh to 2D cartesian or curved grid |
+| [ffplottri2grid()](#ffplottri2gridfct) | Interpolates data in order to be plot by ffpdeplot() |
+| [fftri2meshgrid()](#fftri2meshgridfct) | Interpolates from 2D triangular mesh to 2D cartesian or curved grid |
 | [ffpdeplot3D()](#ffpdeplot3Dfct) | Creates cross-sections, quiver3() as well as boundary plots from FreeFem++ 3D simulation data |
 | [ffreadmesh()](#ffreadmeshfct) | Reads FreeFem++ Mesh Files into Matlab/Octave |
 | [ffreaddata()](#ffreaddatafct) | Reads FreeFem++ Data Files into Matlab/Octave |
@@ -116,7 +116,7 @@ The contents of the points `p`, boundaries `b` and triangles `t` arguments are e
 |          |        [] (default) | [label1,label2,...] |
 | 'BDColors' |   Colorize boundary / edges with color (linked to 'BDLabels') |
 |         |         'r' (default) | three-column matrix of RGB triplets |
-| 'BDShowText' |   Shows the labelnumber on the boundary / edges |
+| 'BDShowText' |   Shows the labelnumber on the boundary / edges (linked to 'BDLabels') |
 |         |         'on' | 'off' (default) |
 | 'Contour' |    Isovalue plot |
 |           |       'off' (default) \| 'on' |
@@ -191,9 +191,9 @@ ffpdeplot(p,b,t,'FlowData',[Ex, Ey],'Boundary','on');
 
 ## ffplottri2grid()
 
-Interpolates the real data `tu`, `tv` given on a triangular mesh defined by `tx` and `ty` on a carthesian grid defined by the two vectors `x` and `y`.<br>
+Interpolates the real data `tu`, `tv` given on a triangular mesh defined by `tx` and `ty` on a cartesian grid defined by the two vectors `x` and `y`.<br>
 To create contour or quiver plots `ffpdeplot()` has its own interpolation routine in the form of a vectorized Matlab/Octave code. However to improve runtime there is a MEX implementation of this code section. If Matlab/Octave finds an executable of `ffplottri2grid.c` within its search path the faster C-implementation is used instead of the internal interpolation routine.<br>
-Note: This function should only be used as a library function in conjunction with `ffpdeplot()`. In order to interpolate real or complex data on carthesian- or curved meshgrids use the function `ffinterpolate()` instead.
+Note: This function should only be used as a library function in conjunction with `ffpdeplot()`. In order to interpolate real or complex data on cartesian- or curved meshgrids use the function `ffinterpolate()` instead.
 
 #### Synopsis
 
@@ -215,8 +215,8 @@ Note: This function should only be used as a library function in conjunction wit
 
 ## fftri2meshgrid()
 
-Interpolates the real or complex data `tu` given on a triangular mesh defined by `tx` and `ty` onto a carthesian- or curved meshgrid defined by `x` and `y`.<br>
-Note: This function should only be used as a library function in conjunction with `ffinterpolate()`. In order to interpolate real or complex data on carthesian- or curved meshgrids use the function `ffinterpolate()` instead.
+Interpolates the real or complex data `tu` given on a triangular mesh defined by `tx` and `ty` onto a cartesian- or curved meshgrid defined by `x` and `y`.<br>
+Note: This function should only be used as a library function in conjunction with `ffinterpolate()`. In order to interpolate real or complex data on cartesian- or curved meshgrids use the function `ffinterpolate()` instead.
 
 #### Synopsis
 
@@ -250,7 +250,8 @@ view(3);
 
 ## ffinterpolate()
 
-Interpolates the real or complex data `u` given on a triangular mesh defined by `p`, `b` and `t` onto a carthesian- or curved meshgrid defined by `x` and `y`. The contents of the `p`, `b` and `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). The content of `u` is described in the section [ffreaddata](#ffreaddatafct).<br>
+Interpolates the real or complex data `u` given on a triangular mesh defined by `p`, `b` and `t` onto a cartesian- or curved meshgrid defined by `x` and `y`.<br>
+`ffinterpolate()` has its own interpolation routine in the form of a vectorized Matlab/Octave code. However to improve runtime there is a MEX implementation of this code section. If Matlab/Octave finds an executable of `ffri2meshgrid.c` within its search path the faster C-implementation is used instead of the internal interpolation routine.<br>
 
 #### Synopsis
 
@@ -260,7 +261,7 @@ Interpolates the real or complex data `u` given on a triangular mesh defined by 
 
 #### Description
 
-`ffinterpolate()` uses barycentric interpolation. The function returns `NaN's` if an interpolation point is outside the triangle mesh.
+`ffinterpolate()` uses barycentric interpolation. The function returns `NaN's` if an interpolation point is outside the triangle mesh. The contents of the `p`, `b` and `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). The content of `u` is described in the section [ffreaddata](#ffreaddatafct).
 
 #### Examples
 
