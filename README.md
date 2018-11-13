@@ -207,7 +207,7 @@ Note: This function should only be used as a library function in conjunction wit
 
 #### Description
 
-`ffplottri2grid()` uses barycentric interpolation. `tx`, `ty` are 3xnbTriangle matrices containing the triangle vertice coordinates. `tu`, `tv` must be real and have the same size and contain the data at the triangle vertices. The return value `u`, `v` is the real interpolation at the mesh grid `mesh(x,y)`. The function returns `NaN's` if an interpolation point is outside the triangle mesh. For more information see also [Notes on MEX Compilation](#notesoncompilation).
+`ffplottri2grid()` uses barycentric interpolation. `tx`, `ty` must contain the triangle vertice coordinates. The arguments `tx`, `ty`, `tu`, `tv` must be real valued and must have a size of nTriangle-columns and 3 rows. The return value `u`, `v` is the interpolation at the mesh grid `mesh(x,y)`. The function returns `NaN's` if an interpolation point is outside the triangle mesh. For more information see also [Notes on MEX Compilation](#notesoncompilation).
 
 #### Examples
 
@@ -215,7 +215,7 @@ Note: This function should only be used as a library function in conjunction wit
 
 ## fftri2meshgrid()
 
-Interpolates the real or complex data `tu` given on a triangular mesh defined by `tx` and `ty` onto a cartesian- or curved meshgrid defined by `x` and `y`.<br>
+Interpolates the real valued or complex data `tu` given on a triangular mesh defined by `tx` and `ty` onto a cartesian- or curved meshgrid defined by `x` and `y`.<br>
 Note: This function should only be used as a library function in conjunction with `ffinterpolate()`. In order to interpolate real or complex data on cartesian- or curved meshgrids use the function `ffinterpolate()` instead.
 
 #### Synopsis
@@ -250,7 +250,7 @@ view(3);
 
 ## ffinterpolate()
 
-Interpolates the real or complex data `u` given on a triangular mesh defined by `p`, `b` and `t` onto a cartesian- or curved meshgrid defined by `x` and `y`.<br>
+Interpolates the real valued or complex data `u` given on a triangular mesh defined by `p`, `b` and `t` onto a cartesian- or curved meshgrid defined by `x` and `y`.<br>
 `ffinterpolate()` has its own interpolation routine in the form of a vectorized Matlab/Octave code. However to improve runtime there is a MEX implementation of this code section. If Matlab/Octave finds an executable of `ffri2meshgrid.c` within its search path the faster C-implementation is used instead of the internal interpolation routine.<br>
 
 #### Synopsis
