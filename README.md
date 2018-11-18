@@ -403,7 +403,7 @@ A mesh file consists of three parts:
 
 These three blocks are stored in the variables `p`, `b` and `t` respectively.
 
-**2D FreeFem++ Format**
+**2D FreeFem++(*.msh)**
 
 | Parameter | Value |
 | --- | --- |
@@ -415,7 +415,7 @@ These three blocks are stored in the variables `p`, `b` and `t` respectively.
 | nbe | Number of (boundary) edges (Th.nbe) |
 | labels | Labels found in the mesh file |
 
-**3D GMSH Format**
+**3D INRIA Medit(*.mesh)**
 
 | Parameter | Value |
 | --- | --- |

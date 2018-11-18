@@ -11,9 +11,9 @@ hold on;
 %Z2: imag part = const
 [Z1, Z2] = ffcplxmesh([0,0], [2*pi(),2*pi()], [3,3], [12,12]);
 [w] = ffinterpolate(p,b,t,real(Z1),imag(Z1),u);
-plot(real(w),imag(w),'b','LineWidth',2);
+plot(real(w),imag(w),'b','LineWidth',1);
 [w] = ffinterpolate(p,b,t,real(Z2),imag(Z2),u);
-plot(real(w),imag(w),'r','LineWidth',2);
+plot(real(w),imag(w),'r','LineWidth',1);
 grid;
 title('Conformal plot of a PDE solution');
 daspect([1,1,1]);
@@ -32,10 +32,10 @@ figure;
 hold on;
 %constant radius
 [w] = ffinterpolate(p,b,t,real(U1),imag(U1),u);
-plot3(real(U1),imag(U1),w,'g','LineWidth',2);
+plot3(real(U1),imag(U1),w,'g','LineWidth',1);
 %constant angle
 [w] = ffinterpolate(p,b,t,real(U2),imag(U2),u);
-plot3(real(U2),imag(U2),w,'g','LineWidth',2);
+plot3(real(U2),imag(U2),w,'g','LineWidth',1);
 ffpdeplot(p,b,t, ...
           'XYData',u, ...
           'ZStyle','continuous', ...
@@ -59,7 +59,7 @@ w = ffinterpolate(p,b,t,real(Z),imag(Z),u);
 figure('position', [0, 0, 800, 300])
 subplot(1,2,1);
 hold on;
-plot3(real(Z),imag(Z),real(w),'g','LineWidth',2);
+plot3(real(Z),imag(Z),real(w),'g','LineWidth',1);
 ffpdeplot(p,b,t, ...
           'XYData',u, ...
           'ZStyle','continuous', ...

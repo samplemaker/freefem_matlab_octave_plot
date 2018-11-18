@@ -320,6 +320,8 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
             end
             view(2);
         end
+        %change colormap only for the axes we are currently plotting to
+        %colormap(hax,setcolormap);
         colormap(setcolormap);
         if (isnumeric(colorrange))
             if (min(colorrange) == max(colorrange))

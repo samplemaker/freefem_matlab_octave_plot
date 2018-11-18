@@ -17,7 +17,7 @@
 %      nt:  Number of triangles (Th.nt) in the Mesh
 %      nbe: Number of (boundary) edges (Th.nbe)
 %      labels: Labels found in the mesh file
-%   3D GMSH Format:
+%   3D INRIA Medit Format:
 %      p: Matrix containing the nodal points
 %      b: Matrix containing the boundary triangles
 %      t: Matrix containing the tetrahedra
@@ -26,9 +26,9 @@
 %      nbe: Number of (boundary) triangles (nbtri, Th.nbe)
 %      labels: Labels found in the mesh file
 %
-%   savemesh(Th,"2d.msh"); FreeFem++ format
-%   savemesh(Th,"2d.mesh"); writes two files ??
-%   savemesh(Th3d,"3d.mesh"); GMSH format
+%   savemesh(Th,"2d.msh"); Format - FreeFem++(*.msh)
+%   savemesh(Th,"2d.mesh"); ???
+%   savemesh(Th3d,"3d.mesh"); Format - INRIA Medit(*.mesh)
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %
@@ -52,8 +52,8 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
 
     verbose=1;
 
-    mesh_format_FF=1;
-    mesh_format_GMSH=2;
+    mesh_format_FREEFEM=1;
+    mesh_format_MEDIT=2;
     mesh_format_NONE=-1;
     meshformat=mesh_format_NONE;
 
@@ -65,21 +65,21 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
     fline=fgetl(fid);
     tests=regexpi(fline,'^(MeshVersionFormatted)\s*\d?\s*$','tokens');
     if ~isempty(tests)
-        meshformat=mesh_format_GMSH;
+        meshformat=mesh_format_MEDIT;
     else
         tests=regexpi(fline,'^(\d+)\s+(\d+)\s+(\d+)\s*$','tokens');
         if ~isempty(tests)
             testf=str2double(tests{:});
             if ~any(isnan(testf))
                 if numel(testf==3)
-                    meshformat=mesh_format_FF;
+                    meshformat=mesh_format_FREEFEM;
                 end
             end
         end
     end
 
     switch meshformat
-        case mesh_format_FF
+        case mesh_format_FREEFEM
 
               fline = fgetl(fid);
               dimension=numel(strsplit(strtrim(fline),' '))-1;
@@ -108,7 +108,7 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
               labels=unique(b(3,b(3,:)~=0));
               nlabels=numel(labels);
               if verbose
-                  fprintf('FreeFem++ .msh; dimension=%i\n',dimension);
+                  fprintf('FreeFem++(*.msh); dimension=%i\n',dimension);
                   fprintf('[Vertices nv:%i; Triangles nt:%i; Edge (Boundary) nbe:%i]\n',nv,nt,nbe);
                   fprintf('NaNs: %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
                   fprintf('Sizes: %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));
@@ -118,7 +118,7 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
                   end
               end
 
-        case mesh_format_GMSH
+        case mesh_format_MEDIT
 
               i=1;
               while (isempty(regexpi(fline,'^(Vertices)\s*$','tokens')) && ~feof(fid))
@@ -161,7 +161,7 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
               labels=unique(b(4,b(4,:)~=0));
               nlabels=numel(labels);
               if verbose
-                  fprintf('GMSH .mesh; dimension=%i\n',dimension);
+                  fprintf('INRIA Medit(*.mesh); dimension=%i\n',dimension);
                   fprintf('[Vertices nv:%i; Tetrahedras nt:%i; Triangles (Boundary) nbe:%i]\n',nv,nt,nbe);
                   fprintf('NaNs: %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
                   fprintf('Sizes: %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));
@@ -172,7 +172,7 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
               end
 
         otherwise
-            error('unknown mesh file format');
+            error('unsupported mesh file format');
     end
 
 end
