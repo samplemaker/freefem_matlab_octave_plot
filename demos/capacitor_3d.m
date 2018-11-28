@@ -43,6 +43,14 @@ ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'BDLabels',[30,31],'ColorMap','je
 
 figure;
 ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'BDLabels',[30,31], ...
+            'ColorMap','jet','ColorRange',[0 1],'ColorBar','northoutside');
+
+figure;
+ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'BDLabels',[30,31], ...
+            'ColorMap','jet','ColorRange','centered','ColorBar','on');
+
+figure;
+ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'BDLabels',[30,31], ...
             'XYZStyle','monochrome','ColorMap','jet');
 
 figure;

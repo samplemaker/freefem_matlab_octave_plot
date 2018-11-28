@@ -20,56 +20,60 @@
 %   specifies parameter name/value pairs to control the input file format
 %
 %       Parameter       Value
-%      'XYData'      Data in order to colorize the plot
-%                       FreeFem++ point data | FreeFem++ triangle data
-%      'XYStyle'     Coloring choice
-%                       'interp' (default) | 'off'
-%      'ZStyle'      Draws 3D surface plot instead of flat 2D Map plot
-%                       'continuous' | 'off' (default)
-%      'ColorMap'    ColorMap value or matrix of such values
-%                       'cool' (default) | colormap name | three-column matrix of RGB triplets
-%      'ColorBar'    Indicator in order to include a colorbar
-%                       'on' (default) | 'off' | 'northoutside' ...
-%      'CBTitle'     Colorbar Title
-%                       (default=[])
-%      'ColorRange'  Range of values to adjust the color thresholds
-%                       'minmax' (default) | 'centered' | 'cropminmax' | 'cropcentered' | [min,max]
-%      'Mesh'        Switches the mesh off / on
-%                       'on' | 'off' (default)
-%      'Boundary'    Shows the domain boundary / edges
-%                       'on' | 'off' (default)
-%      'BDLabels'    Draws boundary / edges with a specific label
-%                       [] (default) | [label1,label2,...]
-%      'BDColors'    Colorize boundary / edges with color (linked to 'BDLabels')
-%                       'r' (default) | three-column matrix of RGB triplets
-%      'BDShowText'  Shows the labelnumber on the boundary / edges
-%                       'on' | 'off' (default)
-%      'Contour'     Isovalue plot
-%                       'off' (default) | 'on'
-%      'CXYData'     Use extra (overlay) data to draw the contour plot
-%                       FreeFem++ points | FreeFem++ triangle data
-%      'CStyle'      Contour plot style
-%                       'patch' (default) | 'patchdashed' | 'patchdashedneg' | 'monochrome' | 'colormap'
-%      'CColor'      Isovalue color
-%                       [0,0,0] (default) | RGB triplet, three-element row vector | 'r' | 'g' | 'b' |
-%      'CLevels'     Number of isovalues used in the contour plot
-%                       (default=10)
-%      'CGridParam'  Number of grid points used for the contour plot
-%                       'auto' (default) | [N,M]
-%      'Title'       Title
-%                       (default=[])
-%      'XLim'        Range for the x-axis
-%                       'minmax' (default) | [min,max]
-%      'YLim'        Range for the y-axis
-%                       'minmax' (default) | [min,max]
-%      'ZLim'        Range for the z-axis
-%                       'minmax' (default) | [min,max]
-%      'DAspect'     Data unit length of the xy- and z-axes
-%                       'off' | 'xyequal' (default) | [ux,uy,uz]
-%      'FlowData'    Data for quiver plot
-%                       FreeFem++ point data | FreeFem++ triangle data
-%      'FGridParam'  Number of grid points used for quiver plot
-%                       'auto' (default) | [N,M]
+%      'XYData'       Data in order to colorize the plot
+%                        FreeFem++ point data | FreeFem++ triangle data
+%      'XYStyle'      Coloring choice
+%                        'interp' (default) | 'off'
+%      'ZStyle'       Draws 3D surface plot instead of flat 2D Map plot
+%                        'continuous' | 'off' (default)
+%      'ColorMap'     ColorMap value or matrix of such values
+%                        'cool' (default) | colormap name | three-column matrix of RGB triplets
+%      'ColorBar'     Indicator in order to include a colorbar
+%                        'on' (default) | 'off' | 'northoutside' ...
+%      'CBTitle'      Colorbar Title
+%                        (default=[])
+%      'ColorRange'   Range of values to adjust the color thresholds
+%                        'minmax' (default) | 'centered' | 'cropminmax' | 'cropcentered' | [min,max]
+%      'Mesh'         Switches the mesh off / on
+%                        'on' | 'off' (default)
+%      'Boundary'     Shows the domain boundary / edges
+%                        'on' | 'off' (default)
+%      'BDLabels'     Draws boundary / edges with a specific label
+%                        [] (default) | [label1,label2,...]
+%      'BDColors'     Colorize boundary / edges with color (linked to 'BDLabels')
+%                        'r' (default) | three-column matrix of RGB triplets
+%      'BDShowText'   Shows the labelnumber on the boundary / edges
+%                        'on' | 'off' (default)
+%      'BDTextSize'   Size of labelnumbers on the boundary / edges
+%                        scalar value greater than zero
+%      'BDTextWeight' Character thickness of labelnumbers on the boundary / edges
+%                        'normal' (default) | 'bold'
+%      'Contour'      Isovalue plot
+%                        'off' (default) | 'on'
+%      'CXYData'      Use extra (overlay) data to draw the contour plot
+%                        FreeFem++ points | FreeFem++ triangle data
+%      'CStyle'       Contour plot style
+%                        'patch' (default) | 'patchdashed' | 'patchdashedneg' | 'monochrome' | 'colormap'
+%      'CColor'       Isovalue color
+%                        [0,0,0] (default) | RGB triplet, three-element row vector | 'r' | 'g' | 'b' |
+%      'CLevels'      Number of isovalues used in the contour plot
+%                        (default=10)
+%      'CGridParam'   Number of grid points used for the contour plot
+%                        'auto' (default) | [N,M]
+%      'Title'        Title
+%                        (default=[])
+%      'XLim'         Range for the x-axis
+%                        'minmax' (default) | [min,max]
+%      'YLim'         Range for the y-axis
+%                        'minmax' (default) | [min,max]
+%      'ZLim'         Range for the z-axis
+%                        'minmax' (default) | [min,max]
+%      'DAspect'      Data unit length of the xy- and z-axes
+%                        'off' | 'xyequal' (default) | [ux,uy,uz]
+%      'FlowData'     Data for quiver plot
+%                        FreeFem++ point data | FreeFem++ triangle data
+%      'FGridParam'   Number of grid points used for quiver plot
+%                        'auto' (default) | [N,M]
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %
@@ -96,14 +100,16 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
 
     numvarargs = length(varargin);
     optsnames = {'XYData', 'XYStyle', 'Mesh', 'Boundary', 'BDLabels', ...
-                 'BDColors', 'BDShowText', 'ZStyle', 'Contour', ...
+                 'BDColors', 'BDShowText', 'BDTextWeight', 'BDTextSize', ...
+                 'ZStyle', 'Contour', ...
                  'CGridParam', 'CColor', 'CXYData', 'CLevels', 'CStyle', ...
                  'ColorMap', 'ColorBar', 'CBTitle', 'ColorRange', ...
                  'Title', 'XLim', 'YLim', 'ZLim', 'DAspect', ...
                  'FlowData', 'FGridParam'};
 
     vararginval = {[], 'interp', 'off', 'off', [], ...
-                   'r', 'off', 'off', 'off', ...
+                   'r', 'off', [], [], ...
+                   'off', 'off', ...
                    'auto', [0,0,0], [], 10, 'patch', ...
                    'cool', 'on', [], 'minmax', ...
                    [], 'minmax', 'minmax', 'minmax', 'xyequal', ...
@@ -128,7 +134,8 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
     end
 
     [xyrawdata, xystyle, showmesh, showboundary, bdlabels, ...
-     bdcolors, bdshowtext, zstyle, contourplt, ...
+     bdcolors, bdshowtext, bdtxtweight, bdtxtsize, ...
+     zstyle, contourplt, ...
      cgridparam, ccolor, contourrawdata, isolevels, contourstyle, ...
      setcolormap, showcolbar, colorbartitle, colorrange, ...
      plottitle, plotxlim, plotylim, plotzlim, axisaspect, ...
@@ -320,9 +327,10 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
             end
             view(2);
         end
-        %change colormap only for the axes we are currently plotting to
-        %colormap(hax,setcolormap);
-        colormap(setcolormap);
+        %set colormap only for the axes we are currently plotting to and not for
+        %the whole figure. does not work for older matlab versions
+        colormap(hax,setcolormap);
+        %colormap(setcolormap);
         if (isnumeric(colorrange))
             if (min(colorrange) == max(colorrange))
                error('''ColorRange'': Must be a numeric 2-element vector where LIM1 < LIM2');
@@ -463,7 +471,13 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                     end
                     if strcmpi(bdshowtext,'on')
                         textpos=find(keep,1,'first');
-                        text(xpts(boundary(1,textpos)),ypts(boundary(1,textpos)),num2str(bdlabels(i)));
+                        txt=text(xpts(boundary(1,textpos)),ypts(boundary(1,textpos)),num2str(bdlabels(i)));
+                        if ~isempty(bdtxtweight)
+                            set(txt,'FontWeight',bdtxtweight);
+                        end
+                        if ~isempty(bdtxtsize)
+                            set(txt,'FontSize',bdtxtsize);
+                        end
                     end
                 end
             end
@@ -597,30 +611,32 @@ function printhelp()
     fprintf('%s\n',' -- [handles,varargout] = ffpdeplot (points,boundary,triangles,''XYData'',u,''Contour'',''on'')');
     fprintf('%s\n',' -- [handles,varargout] = ffpdeplot (points,boundary,triangles,''FlowData'',v,''Boundary'',''on'')');
     fprintf('\n');
-    fprintf('''XYData''      Data in order to colorize the plot\n');
-    fprintf('''XYStyle''     Coloring choice (default=''interp'')\n');
-    fprintf('''ZStyle''      Draws 3D surface plot instead of flat 2D Map plot (default=''off'')\n');
-    fprintf('''ColorMap''    ColorMap value or matrix of such values (default=''on'')\n');
-    fprintf('''ColorBar''    Indicator in order to include a colorbar\n');
-    fprintf('''CBTitle''     Colorbar Title (default=[])\n');
-    fprintf('''ColorRange''  Range of values to adjust the color thresholds (default=''minmax'')\n');
-    fprintf('''Mesh''        Switches the mesh off / on (default=''off'')\n');
-    fprintf('''Boundary''    Shows the domain boundary / edges (default=''off'')\n');
-    fprintf('''BDLabels''    Draws boundary / edges with a specific label (default=[])\n');
-    fprintf('''BDColors''    Colorize boundary / edges with color (default=''r'')\n');
-    fprintf('''BDShowText''  Shows the labelnumber on the boundary / edges (default=''off'')\n');
-    fprintf('''Contour''     Isovalue plot (default=''off'')\n');
-    fprintf('''CColor''      Isovalue color (default=[0,0,0])\n');
-    fprintf('''CXYData''     Use extra (overlay) data to draw the contour plot\n');
-    fprintf('''CStyle''      Contour line style (default=''patch'')\n');
-    fprintf('''CLevels''     Number of isovalues used in the contour plot (default=10)\n');
-    fprintf('''CGridParam''  Number of grid points used for the contour plot (default=''off'')\n');
-    fprintf('''Title''       Title (default=[])\n');
-    fprintf('''XLim''        Range for the x-axis (default=''minmax'')\n');
-    fprintf('''YLim''        Range for the y-axis (default=''minmax'')\n');
-    fprintf('''ZLim''        Range for the z-axis (default=''minmax'')\n');
-    fprintf('''DAspect''     Data unit length of the xy- and z-axes (default=''xyequal'')\n');
-    fprintf('''FlowData''    Data for quiver plot\n');
-    fprintf('''FGridParam''  Number of grid points used for quiver plot (default=''off'')\n');
+    fprintf('''XYData''       Data in order to colorize the plot\n');
+    fprintf('''XYStyle''      Coloring choice (default=''interp'')\n');
+    fprintf('''ZStyle''       Draws 3D surface plot instead of flat 2D Map plot (default=''off'')\n');
+    fprintf('''ColorMap''     ColorMap value or matrix of such values (default=''on'')\n');
+    fprintf('''ColorBar''     Indicator in order to include a colorbar\n');
+    fprintf('''CBTitle''      Colorbar Title (default=[])\n');
+    fprintf('''ColorRange''   Range of values to adjust the color thresholds (default=''minmax'')\n');
+    fprintf('''Mesh''         Switches the mesh off / on (default=''off'')\n');
+    fprintf('''Boundary''     Shows the domain boundary / edges (default=''off'')\n');
+    fprintf('''BDLabels''     Draws boundary / edges with a specific label (default=[])\n');
+    fprintf('''BDColors''     Colorize boundary / edges with color (default=''r'')\n');
+    fprintf('''BDShowText''   Shows the labelnumber on the boundary / edges (default=''off'')\n');
+    fprintf('''BDTextSize''   Size of labelnumbers on the boundary / edges\n');
+    fprintf('''BDTextWeight'' Character thickness of labelnumbers on the boundary / edges\n');
+    fprintf('''Contour''      Isovalue plot (default=''off'')\n');
+    fprintf('''CColor''       Isovalue color (default=[0,0,0])\n');
+    fprintf('''CXYData''      Use extra (overlay) data to draw the contour plot\n');
+    fprintf('''CStyle''       Contour line style (default=''patch'')\n');
+    fprintf('''CLevels''      Number of isovalues used in the contour plot (default=10)\n');
+    fprintf('''CGridParam''   Number of grid points used for the contour plot (default=''off'')\n');
+    fprintf('''Title''        Title (default=[])\n');
+    fprintf('''XLim''         Range for the x-axis (default=''minmax'')\n');
+    fprintf('''YLim''         Range for the y-axis (default=''minmax'')\n');
+    fprintf('''ZLim''         Range for the z-axis (default=''minmax'')\n');
+    fprintf('''DAspect''      Data unit length of the xy- and z-axes (default=''xyequal'')\n');
+    fprintf('''FlowData''     Data for quiver plot\n');
+    fprintf('''FGridParam''   Number of grid points used for quiver plot (default=''off'')\n');
     fprintf('\n');
 end

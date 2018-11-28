@@ -18,9 +18,12 @@
 %      nbe: Number of (boundary) edges (Th.nbe)
 %      labels: Labels found in the mesh file
 %   3D INRIA Medit Format:
-%      p: Matrix containing the nodal points
-%      b: Matrix containing the boundary triangles
-%      t: Matrix containing the tetrahedra
+%      p: Matrix containing the nodal points (Vertices)
+%      b: Matrix containing the boundary triangles (Triangles)
+%      t: Matrix containing the tetrahedra (Tetrahedra)
+%      e: Matrix containing the Edges (TBD)
+%      q: Matrix containing the Quadrilaterals (TDB)
+%      Hexaedra: TBD
 %      nv:  Number of points/vertices (nbvx, Th.nv) in the Mesh
 %      nt:  Number of tetrahedra (nbtet, Th.nt) in the Mesh
 %      nbe: Number of (boundary) triangles (nbtri, Th.nbe)
@@ -63,7 +66,7 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
     end
 
     fline=fgetl(fid);
-    tests=regexpi(fline,'^(MeshVersionFormatted)\s*\d?\s*$','tokens');
+    tests=regexpi(fline,'MeshVersionFormatted');
     if ~isempty(tests)
         meshformat=mesh_format_MEDIT;
     else
@@ -120,48 +123,69 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
 
         case mesh_format_MEDIT
 
-              i=1;
-              while (isempty(regexpi(fline,'^(Vertices)\s*$','tokens')) && ~feof(fid))
-                 fline = fgetl(fid);
-                 i=i+1;
-              end
-              %points/vertices (nbvx, Th.nv)
-              nv=str2double(fgetl(fid));
-              fline=fgetl(fid);
-              dimension=numel(strsplit(strtrim(fline),' '))-1;
-              if ~(dimension==3)
-                  error('only supported dimension is 3');
-              end
-              %(q1_x, q1_y, q1_z, Blabel1)
-              tmp=textscan(fid,repmat('%f ',[1, 4]),nv-1,'Delimiter','\n');
-              p=[str2double(strsplit(strtrim(fline),' ')); cell2mat(tmp)]';
+              p = 0; t = 0; b = 0; e = 0; q = 0;
+              nv = 0; nt = 0; nbe = 0; nq = 0;
 
-              i=1;
-              while (isempty(regexpi(fline,'^(Tetrahedra)\s*$','tokens')) && ~feof(fid))
-                 fline = fgetl(fid);
-                 i=i+1;
+              while ~feof(fid)
+                   %fast forward until a section is found
+                   while (isempty(regexpi(fline,'Vertices')) && ...
+                          isempty(regexpi(fline,'Tetrahedra')) && ...
+                          isempty(regexpi(fline,'Triangles')) && ...
+                          isempty(regexpi(fline,'Quadrilaterals')) && ...
+                          isempty(regexpi(fline,'Edges')) && ...
+                          ~feof(fid))
+                      fline = fgetl(fid);
+                   end
+                   if ~isempty(regexpi(fline,'Vertices'))
+                        %points/vertices (nbvx, Th.nv)
+                        fline=fgetl(fid);
+                        nv=str2double(fline);
+                        %(q1_x, q1_y, q1_z, Blabel1)
+                        tmp=textscan(fid,repmat('%f ',[1, 4]),nv,'Delimiter','\n');
+                        p=cell2mat(tmp)';
+                   end
+                   if ~isempty(regexpi(fline,'Tetrahedra'))
+                        %ntetrahedra (nbtet, Th.nt)
+                        fline=fgetl(fid);
+                        nt=str2double(fline);
+                        %(1_1, 1_2, 1_3, 1_4, Rlabel1), (2_1, 2_2, 2_3, 2_4, Rlabel2) ...
+                        tmp=textscan(fid,repmat('%f ',[1, 5]),nt,'Delimiter','\n');
+                        t=cell2mat(tmp)';
+                   end
+                   if ~isempty(regexpi(fline,'Triangles'))
+                        %nboundary/ntriangle (nbtri, Th.nbe)
+                        fline=fgetl(fid);
+                        nbe=str2double(fline);
+                        %(1_1, 1_2, 1_3, Blabel1), (2_1, 2_2, 2_3, Blabel2) ...
+                        tmp=textscan(fid,repmat('%f ',[1, 4]),nbe,'Delimiter','\n');
+                        b=cell2mat(tmp)';
+                   end
+                   if ~isempty(regexpi(fline,'Edges'))
+                        %Edges (ne)
+                        fline=fgetl(fid);
+                        ne=str2double(fline);
+                        tmp=textscan(fid,repmat('%f ',[1, 3]),ne,'Delimiter','\n');
+                        e=cell2mat(tmp)';
+                        fprintf('Note: Edges not implemented\n');
+                   end
+                   if ~isempty(regexpi(fline,'Quadrilaterals'))
+                        %Quadrilaterals (nq)
+                        fline=fgetl(fid);
+                        nq=str2double(fline);
+                        tmp=textscan(fid,repmat('%f ',[1, 5]),nq,'Delimiter','\n');
+                        q=cell2mat(tmp)';
+                        fprintf('Note: Quadrilaterals not implemented\n');
+                   end
+                   if ~isempty(regexpi(fline,'Hexaedra'))
+                        fprintf('Note: Hexaedra not implemented\n');
+                   end
               end
-              %ntetrahedra (nbtet, Th.nt)
-              nt=str2double(fgetl(fid));
-              %(1_1, 1_2, 1_3, 1_4, Rlabel1), (2_1, 2_2, 2_3, 2_4, Rlabel2) ...
-              tmp=textscan(fid,repmat('%f ',[1, 5]),nt,'Delimiter','\n');
-              t=cell2mat(tmp)';
 
-              i=1;
-              while (isempty(regexpi(fline,'^(Triangles)\s*$','tokens')) && ~feof(fid))
-                 fline = fgetl(fid);
-                 i=i+1;
-              end
-              %nboundary/ntriangle (nbtri, Th.nbe)
-              nbe=str2double(fgetl(fid));
-              %(1_1, 1_2, 1_3, Blabel1), (2_1, 2_2, 2_3, Blabel2) ...
-              tmp=textscan(fid,repmat('%f ',[1, 4]),nbe,'Delimiter','\n');
-              b=cell2mat(tmp)';
               fclose(fid);
               labels=unique(b(4,b(4,:)~=0));
               nlabels=numel(labels);
               if verbose
-                  fprintf('INRIA Medit(*.mesh); dimension=%i\n',dimension);
+                  fprintf('INRIA Medit(*.mesh); dimension=%i\n',3);
                   fprintf('[Vertices nv:%i; Tetrahedras nt:%i; Triangles (Boundary) nbe:%i]\n',nv,nt,nbe);
                   fprintf('NaNs: %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
                   fprintf('Sizes: %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));

@@ -118,6 +118,10 @@ The contents of the points `p`, boundaries `b` and triangles `t` arguments are e
 |         |         'r' (default) | three-column matrix of RGB triplets |
 | 'BDShowText' |   Shows the labelnumber on the boundary / edges (linked to 'BDLabels') |
 |         |         'on' | 'off' (default) |
+| 'BDTextSize' |   Size of labelnumbers on the boundary / edges |
+|         |         scalar value greater than zero |
+| 'BDTextWeight' |   Character thickness of labelnumbers on the boundary / edges |
+|         |         'normal' (default) | 'bold' |
 | 'Contour' |    Isovalue plot |
 |           |       'off' (default) \| 'on' |
 | 'CColor' |     Isovalue color |

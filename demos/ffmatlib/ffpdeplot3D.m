@@ -117,6 +117,9 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
      bdlabels, sgridparam, project2d, ...
      flowdata, fgridparam, fgridparam3d, flim3d, boundingbox, slice1, slice2, slice3] = vararginval{:};
 
+    %False = Experimental: Switch between "interpolating" and "noninterpolating"
+    sliceType = true;
+    
     hax=newplot;
     fig=get(hax,'Parent');
     oldnextplotval{1}=get(hax,'nextplot');
@@ -196,28 +199,39 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                     S1=slice1(i,:);
                     S2=slice2(i,:);
                     S3=slice3(i,:);
+
                     %All tetrahedrons cut or touched by the slicing plane
                     [sliceTData] = slicetet2data(tdata,S1,S2,S3);
-                    [X,Y,Z] = gridplane3d(S1,S2,S3,N,M);
-                    %Barycentric interpolation on the slicing plane
-                    if exist('fftet2gridfast','file')
-                        [C] = fftet2gridfast(sliceTData,X,Y,Z);
-                        %Faster ?
-                        %tx=sliceTData(:,1);
-                        %ty=sliceTData(:,2);
-                        %tz=sliceTData(:,3);
-                        %V=sliceTData(:,4);
-                        %[C] = fftet2gridfast(X,Y,Z,tx,ty,tz,V);
+                    %sliceType=false: Experimental - draw instead
+                    %interpolation the actual tetrahedrons
+                    if sliceType
+                        [X,Y,Z] = gridplane3d(S1,S2,S3,N,M);
+                        %Barycentric interpolation on the slicing plane
+                        if exist('fftet2gridfast','file')
+                            [C] = fftet2gridfast(sliceTData,X,Y,Z);
+                            %Faster ?
+                            %tx=sliceTData(:,1);
+                            %ty=sliceTData(:,2);
+                            %tz=sliceTData(:,3);
+                            %V=sliceTData(:,4);
+                            %[C] = fftet2gridfast(X,Y,Z,tx,ty,tz,V);
+                        else
+                            fprintf('Note: To improve runtime build MEX function fftet2gridfast() from fftet2gridfast.c\n');
+                            [C] = fftet2gridint(sliceTData,X,Y,Z);
+                        end
+                        surf(X,Y,Z,C,'EdgeColor','none');
+                        %[SX,SY,SZ,C] = slicetet2patch(sliceTData(:,1:4));
+                        %patch(SX,SY,SZ,[0 1 1],'EdgeColor',[0 0 1],'LineWidth',1,'FaceColor','none');
                     else
-                        fprintf('Note: To improve runtime build MEX function fftet2gridfast() from fftet2gridfast.c\n');
-                        [C] = fftet2gridint(sliceTData,X,Y,Z);
+                        %TODO: Show cross section as tetrahedrons
+                        [SX,SY,SZ,C] = slicetet2patch(sliceTData(:,1:4));
+                        patch(SX,SY,SZ,C);
+                        %patch(SX,SY,SZ,[0 1 1],'EdgeColor',[0 0 1],'LineWidth',1,'FaceColor','none');
                     end
-                    surf(X,Y,Z,C,'EdgeColor','none');
+
                     %Save color settings of all slices for later use
                     colspan(:,i)=[min(min(C)) max(max(C))]';
-                    %DEBUG: Show cross section - subset tetrahedrons
-                    %[SX,SY,SZ] = slicetet2patch(sliceTData(:,1:3));
-                    %patch(SX,SY,SZ,[0 1 1],'EdgeColor',[0 0 1],'LineWidth',1,'FaceColor','none');
+
                     if ~strcmpi(boundingbox,'off')
                         plotboundingbox(slice1,slice2,slice3);
                         usesliceboundingbox=true;
@@ -255,8 +269,27 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                 [~,nv]=size(points);
                 %Convert the boundary data to euclidean coordinates
                 [cdata]=preparebddata(nv,triangles,xyzrawdata,bdlabels);
-                %Plot an color according to the FE-Space function
-                patch(xbddata,ybddata,zbddata,cdata,'EdgeColor',[0 0 0],'LineWidth',1);
+
+                %sliceType=false: Experimental - draw instead
+                %interpolation the actual tetrahedrons
+                if sliceType
+                    %Plot color according to the FE-Space function
+                    patch(xbddata,ybddata,zbddata,cdata,'EdgeColor',[0 0 0],'LineWidth',1);
+                else
+                    %In interpolation mode if boundary is specified we do
+                    %not slice the boundary because we cannot interpolate
+                    %the boundary surface
+                    if (~isempty(slice1) && ~isempty(slice2) && ~isempty(slice3))
+                        %TODO: Show cross section boundary - as triangles
+                        [BX,BY,BZ,BC] = slicebd2patch(xbddata,ybddata,zbddata,cdata,S1,S2,S3);
+                        patch(BX,BY,BZ,BC,'LineWidth',1);
+                        %patch([SX BX],[SY BY],[SZ BZ],[SC BC]);
+                        %ffpdeplot3D(p,b,t,'XYZData',u,'ColorMap','jet','Slice',S1,S2,S3,'BDLabels',[30,31]);
+                    else
+                        %Plot color according to the FE-Space function
+                        patch(xbddata,ybddata,zbddata,cdata,'EdgeColor',[0 0 0],'LineWidth',1);
+                    end
+                end
                 %Note: At this point nothing could be drawn yet or slicing can
                 %already be drawn
                 %Slicing colormap/range rules boundary colormaps/range
@@ -513,6 +546,48 @@ function [fdataout] = slicetet2data(fdata,S1,S2,S3)
       fdataout(:,i)=reshape(tmp(:,keep),4*nTotTets,1);
     end
 end
+
+
+function [varargout] = slicebd2patch(xpts,ypts,zpts,cpts,S1,S2,S3)
+
+    [~,sz2]=size(xpts);
+    npts = 3*sz2;
+    M=[reshape(xpts,npts,1), reshape(ypts,npts,1),reshape(zpts,npts,1)];
+    cdata = reshape(cpts,npts,1);
+
+    S1=colvec(S1);
+    S2=colvec(S2);
+    S3=colvec(S3);
+
+    % Theory
+    %
+    % let Xn:=cross((S2-S1),(S3-S1)) be perpendicular to the slicing plane
+    % and Xp a point in the plane. it turns out that for any point X,
+    % i.)   in the plane          --> dot(N,(X-Xp)) == 0
+    % ii.)  in front of the plane --> dot(N,(X-Xp)) > 0
+    % iii.) behind of the plane   --> dot(N,(X-Xp)) < 0
+
+    Xn=cross((S2-S1),(S3-S1));
+    Xn0=repmat(Xn',npts,1);
+    S10=repmat(S1',npts,1);
+    %Used to check which points are in front of the plane
+    pos=dot(Xn0,(M-S10),2);
+    %Bool array indicating affected points
+    keep=(any(arrangecols((pos<=0),3))==1);
+    %Extracts all affected triangles and removes the rest
+    varargout=cell(1,4);
+    %Coordinates
+    for i=1:3
+      tmp=arrangecols(M(:,i),3);
+      varargout{i}=tmp(:,keep);
+    end
+    %color
+    tmp=arrangecols(cdata,3);
+    varargout{4}=tmp(:,keep);
+end
+
+
+
 
 function [varargout] = fftet2gridint(tetdata,X,Y,Z)
 
