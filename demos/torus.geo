@@ -29,7 +29,7 @@ PHYSCUBOIDTORUSVOLUME = 102;
 //Surface of the torus
 PHYSTORUSSUFACE = 201;
 //Surface of cuboid with cut-out torus
-PHYSCUBOIDTORUSSURFACE = 102;
+PHYSCUBOIDTORUSSURFACE = 104;
 //Outer surfaces of the cuboid (i.e. for boundary conditions)
 PHYSCUBOIDSURFACE = 103;
 
