@@ -45,7 +45,21 @@ xlabel('x');
 zlabel('z');
 
 figure;
-ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'FGridParam3D',[9,9,9],'Boundary','on','BDLabels',PHYSTORUSSUFACE,'XYZStyle','monochrome');
+ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'FGridParam3D',[7,7,15],'Boundary','on','BDLabels',PHYSTORUSSUFACE,'XYZStyle','monochrome');
 ylabel('y');
 xlabel('x');
 zlabel('z');
+
+axis tight;
+
+S1=[0.0 -1.0 0.0];
+S2=[0.0 -1.0 2.0];
+S3=[0.0 1.0 0.0];
+figure;
+ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'BoundingBox','on','BDLabels',PHYSTORUSSUFACE,'XYZStyle','monochrome');
+
+ylabel('y');
+xlabel('x');
+zlabel('z');
+
+axis tight;

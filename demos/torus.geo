@@ -22,20 +22,20 @@
 
 /// DEFINITIONS ///
 
-//Volume of the TORUS
+//Volume of the torus
 PHYSTORUSVOLUME = 101;
-//Volume of CUBOID minus TORUS
+//Volume of cuboid minus torus (torus volume is a cut-out hole from cuboid)
 PHYSCUBOIDTORUSVOLUME = 102;
-//Surface of the TORUS
+//Surface of the torus
 PHYSTORUSSUFACE = 201;
-//Surface of CUBOID minus TORUS
+//Surface of cuboid with cut-out torus
 PHYSCUBOIDTORUSSURFACE = 102;
-//Outer surface of the CUBOID (e.g. for boundary conditions)
+//Outer surfaces of the cuboid (i.e. for boundary conditions)
 PHYSCUBOIDSURFACE = 103;
 
-//characteristic mesh length
+//Characteristic mesh length
 clen = 0.3;
-tlen = 0.15;
+tlen = 0.13;
 
 TSURFACE[] = {};
 TVOLUME[] = {};
@@ -62,18 +62,18 @@ num[] = Extrude {0, 0, 2.0} {
 };
 
 //Collect necessary outer surfaces
-CSURFACE[0]=num[2];
-CSURFACE[1]=num[3];
-CSURFACE[2]=num[4];
-CSURFACE[3]=num[5];
-CSURFACE[4]=num[0];
-CSURFACE[5]=S1;
+CSURFACE[0] = num[2];
+CSURFACE[1] = num[3];
+CSURFACE[2] = num[4];
+CSURFACE[3] = num[5];
+CSURFACE[4] = num[0];
+CSURFACE[5] = S1;
 
 /// TORUS ///
 
-TR = 0.2; //torus small radius
-DY = 0.7; //torus big radius
-DZ = 1.0; //shifts
+TR = 0.2; //Torus small radius
+DY = 0.7; //Torus large radius
+DZ = 1.0; //Torus shifts
 P11 = newp; Point(P11) = {0,DY,DZ,clen};
 P12 = newp; Point(P12) = {0,DY,DZ+TR,tlen};
 P13 = newp; Point(P13) = {0,DY+TR,DZ,tlen};
@@ -95,48 +95,52 @@ numT3[] = Extrude {{0, 0, 1}, {0, 0, 0}, 2*Pi/3} {
  Surface{numT2[0]};
 };
 
-TVOLUME[0]=numT1[1];
-TVOLUME[1]=numT2[1];
-TVOLUME[2]=numT3[1];
+TVOLUME[0] = numT1[1];
+TVOLUME[1] = numT2[1];
+TVOLUME[2] = numT3[1];
 
-//Collect necessary torus surface in order to be joined by loops
-TSURFACE[0]=numT1[2];
-TSURFACE[1]=numT1[3];
-TSURFACE[2]=numT1[4];
-TSURFACE[3]=numT1[5];
-TSURFACE[4]=numT2[2];
-TSURFACE[5]=numT2[3];
-TSURFACE[6]=numT2[4];
-TSURFACE[7]=numT2[5];
-TSURFACE[8]=numT3[2];
-TSURFACE[9]=numT3[3];
-TSURFACE[10]=numT3[4];
-TSURFACE[11]=numT3[5];
+//Collect necessary torus surface in order to be joined by the loops
+TSURFACE[0] = numT1[2];
+TSURFACE[1] = numT1[3];
+TSURFACE[2] = numT1[4];
+TSURFACE[3] = numT1[5];
+TSURFACE[4] = numT2[2];
+TSURFACE[5] = numT2[3];
+TSURFACE[6] = numT2[4];
+TSURFACE[7] = numT2[5];
+TSURFACE[8] = numT3[2];
+TSURFACE[9] = numT3[3];
+TSURFACE[10] = numT3[4];
+TSURFACE[11] = numT3[5];
 
-//start and end surface from torus crossection
+//Start and end surface from torus (crossection)
 //TSURFACE[4]=numT1[0];
 //TSURFACE[5]=S11;
 
-/// VOLUME AND SURFACE ///
+/// VOLUME AND SURFACES ///
+
+//Torus surface and volume
 
 SL11 = newsl; Surface Loop(SL11) = {TSURFACE[]};
 V11 = newv; Volume(V11) = {SL11};
 
-//exclude the torus from the cuboid --> the cuboid surfaces are the
-//set of the rectangle + torus surfaces (all boundaries!)
+//Cuboid surfaces and volume
+
+//Cut-out the torus from the cuboid: volume = loop over all
+//cuboid rectangle surfaces + torus surfaces (= CSURFACE + TSURFACE)
 SL1 = newsl; Surface Loop(SL1) = {TSURFACE[],CSURFACE[]};
 V1 = newv; Volume(V1) = {SL1};
-
-//the cuboid rectangle outer surface to apply boundary conditions
+//The cuboid rectangle outer surfaces (i.e. to apply boundary conditions)
 SL2 = newsl; Surface Loop(SL2) = {CSURFACE[]};
 
 Physical Volume(PHYSTORUSVOLUME) = V11;
-//torus volume already excluded by the surface loop!
+//Note: Torus volume is already excluded by the surface loop!
 Physical Volume(PHYSCUBOIDTORUSVOLUME) = V1;
 
 Physical Surface(PHYSTORUSSUFACE) = {TSURFACE[]};
-//exclude the torus from the cuboid --> the cuboid surfaces are the
-//set of the rectangle + torus surfaces (all boundaries!)
+//Cut-out the torus from the cuboid: volume = loop over all
+//cuboid rectangle surfaces + torus surfaces (= CSURFACE + TSURFACE)
 Physical Surface(PHYSCUBOIDTORUSSURFACE) = {CSURFACE[],TSURFACE[]};
-//the cuboid rectangle outer surface to apply boundary conditions
+//The cuboid rectangle outer surfaces (i.e. to apply boundary conditions)
 Physical Surface(PHYSCUBOIDSURFACE) = {CSURFACE[]};
+
