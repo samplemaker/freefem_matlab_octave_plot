@@ -1,0 +1,81 @@
+/* magnetostatic3D.edp Magetostatic problem of a toroidal current
+ *
+ * Author: Chloros2 <chloros2@gmx.de>
+ * Created: 2018-11-30
+ *
+ * Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hopeC that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see
+ * <https://www.gnu.org/licenses/>.
+ *
+ */
+
+load "UMFPACK64";
+load "msh3"
+load "medit"
+load "gmsh"
+
+//see torus.geo
+int PHYSTORUSVOLUME = 101;
+int PHYSCUBOIDSURFACE = 103;
+
+mesh3 Th3d = gmshload3("torus.msh");
+
+fespace Vh(Th3d,P1);
+Vh p=0;
+Vh q;
+
+//Nedelec function space
+fespace Nh(Th3d,Edge03d);
+Nh [Ax,Ay,Az],[Wx,Wy,Wz];
+
+int nedges=Ax[].n;
+
+real J0=100000.0; //electric current density [A/m^2]
+Nh [Tx,Ty,Tz]=(1.0/sqrt(x*x+y*y))*J0*(region==PHYSTORUSVOLUME)*[y,-x,0];
+
+//cout << Th3d(0.,0.,0.).region << endl;
+//cout << Th3d(0.15,0.,0.).region << endl;
+
+macro curl(Ax,Ay,Az) [dy(Az)-dz(Ay),dz(Ax)-dx(Az),dx(Ay)-dy(Ax)] //
+macro grad(u) [dx(u),dy(u),dz(u)] //
+
+real nuinv=1.0/(4.0*pi*1e-7);
+
+problem magnetostatic([Ax,Ay,Az,p],[Wx,Wy,Wz,q],solver=UMFPACK)=
+                int3d(Th3d)(curl(Ax,Ay,Az)'*curl(Wx,Wy,Wz)*nuinv
+                           +grad(p)'*[Wx,Wy,Wz]       //coulomb gauge: div(A)=0
+                           +grad(q)'*[Ax,Ay,Az])
+               -int3d(Th3d)([Tx,Ty,Tz]'*[Wx,Wy,Wz])   //current density
+               +on(PHYSCUBOIDSURFACE,Ax=0,Ay=0,Az=0); //
+
+magnetostatic;
+
+//Magnetic induction
+Vh Bx, By, Bz;
+
+Bx=dy(Az)-dz(Ay);
+By=dz(Ax)-dx(Az);
+Bz=dx(Ay)-dy(Ax);
+
+medit("Magnetic Induction",Th3d,[Bx,By,Bz],order=1);
+
+//Export for ffmatlib
+savemesh(Th3d,"torus.mesh");
+
+{
+ofstream file("torus.txt");
+for (int j=0; j<Vh.ndof; j++)
+   file << Bx[][j] << " " << By[][j] << " " << Bz[][j] << endl;
+}

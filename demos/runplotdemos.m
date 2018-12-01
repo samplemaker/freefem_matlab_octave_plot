@@ -40,4 +40,11 @@ system('FreeFem++ -ns -nw -v 0 capacitor_3d.edp');
 capacitor_3d
 pause(5);
 close all;
+fprintf('magnetostatic3D.edp\n');
+system('gmsh -3 torus.geo');
+system('FreeFem++ -ns -nw -v 0 magnetostatic3D.edp');
+magnetostatic3D
+pause(5);
+close all;
+
 
