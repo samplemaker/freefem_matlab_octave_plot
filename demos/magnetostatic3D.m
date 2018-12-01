@@ -25,12 +25,16 @@ addpath('ffmatlib');
 
 %see torus.geo
 PHYSTORUSSUFACE = 201;
+PHYSCUBOIDSURFACE = 103;
 
 [p,b,t,nv,nbe,nt,labels]=ffreadmesh('torus.mesh');
 [Ex,Ey,Ez]=ffreaddata('torus.txt');
 
 figure;
-ffpdeplot3D(p,b,t,'XYZStyle','monochrome','BDLabels',PHYSTORUSSUFACE);
+ffpdeplot3D(p,b,t,'XYZStyle','monochrome','BDLabels',[PHYSTORUSSUFACE]);
+hold on;
+ffpdeplot3D(p,b,t,'XYZStyle','noface','BDLabels',[PHYSCUBOIDSURFACE]);
+axis tight;
 str={sprintf('nVertex: %i',nv);
      sprintf('nTets:   %i',nt);
      sprintf('nTris:   %i',nbe)};
