@@ -43,23 +43,33 @@ annotation('textbox',[0.05 0.05 0.2 0.15],'String',str, ...
 ylabel('y');
 xlabel('x');
 zlabel('z');
+lighting gouraud;
+view([-47,24]);
+camlight('headlight');
 
 figure;
-ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'FGridParam3D',[7,7,15],'Boundary','on','BDLabels',PHYSTORUSSUFACE,'XYZStyle','monochrome');
+ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'FGridParam3D',[15,15,15],'Boundary','on','BDLabels',PHYSTORUSSUFACE,'XYZStyle','monochrome','FMode3D','random');
+ylabel('y');
+xlabel('x');
+zlabel('z');
+grid;
+
+axis tight;
+lighting gouraud;
+view([-47,24]);
+camlight('headlight');
+
+S1=[0.0 -1.3 0.0];
+S2=[0.0 -1.3 2.0];
+S3=[0.0 1.3 0.0];
+figure;
+ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'BoundingBox','on','BDLabels',PHYSTORUSSUFACE,'XYZStyle','monochrome','FGridParam',[25,25]);
+
 ylabel('y');
 xlabel('x');
 zlabel('z');
 
-axis tight;
-
-S1=[0.0 -1.0 0.0];
-S2=[0.0 -1.0 2.0];
-S3=[0.0 1.0 0.0];
-figure;
-ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'BoundingBox','on','BDLabels',PHYSTORUSSUFACE,'XYZStyle','monochrome');
-
-ylabel('y');
-xlabel('x');
-zlabel('z');
-
-axis tight;
+axis tight off;
+lighting gouraud;
+view([-47,24]);
+camlight('headlight');

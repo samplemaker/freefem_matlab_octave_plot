@@ -48,6 +48,8 @@
 %                       'auto' (default) | [N,M,L]
 %      'FLim3D'        Bounding box for a spatial quiver3 plot
 %                       'auto' (default) | [xmin,xmax;ymin,ymax;zmin,zmax]
+%      'FMode3D'       Arrow distribution choice
+%                       'cartesian' (default) | 'random'
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %
@@ -78,12 +80,12 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     optsnames = {'XYZData', 'XYZStyle', 'Boundary', ...
                  'ColorMap', 'ColorBar', 'CBTitle', 'ColorRange', ...
                  'BDLabels', 'SGridParam', 'Project2D', ...
-                 'FlowData', 'FGridParam', 'FGridParam3D', 'FLim3D', 'BoundingBox', 'Slice'};
+                 'FlowData', 'FGridParam', 'FGridParam3D', 'FLim3D', 'FMode3D', 'BoundingBox', 'Slice'};
 
     vararginval = {[], 'interp', 'on', ...
                    'cool', 'off', [], 'minmax', ...
                    [], [75,75], 'off', ...
-                   [], 'auto', 'auto', 'auto', 'off', [], [], []};
+                   [], 'auto', 'auto', 'auto', 'cartesian', 'off', [], [], []};
 
     if (numvarargs>0)
         if (~mod(numvarargs,2))
@@ -115,11 +117,11 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     [xyzrawdata, xyzstyle, showboundary, ...
      setcolormap, showcolbar, colorbartitle, colorrange, ...
      bdlabels, sgridparam, project2d, ...
-     flowdata, fgridparam, fgridparam3d, flim3d, boundingbox, slice1, slice2, slice3] = vararginval{:};
+     flowdata, fgridparam, fgridparam3d, flim3d, fmode, boundingbox, slice1, slice2, slice3] = vararginval{:};
 
     %False = Experimental: Switch between "interpolating" and "noninterpolating"
     sliceType = true;
-    
+
     hax=newplot;
     fig=get(hax,'Parent');
     oldnextplotval{1}=get(hax,'nextplot');
@@ -363,10 +365,16 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                 zmx=max(points(3,:));
                 zmn=min(points(3,:));
             end
-            x=xmn:((xmx-xmn)/(N-1)):xmx;
-            y=ymn:((ymx-ymn)/(M-1)):ymx;
-            z=zmn:((zmx-zmn)/(L-1)):zmx;
-            [x,y,z]=meshgrid(x,y,z);
+            if strcmpi(fmode,'cartesian')
+                x=xmn:((xmx-xmn)/(N-1)):xmx;
+                y=ymn:((ymx-ymn)/(M-1)):ymx;
+                z=zmn:((zmx-zmn)/(L-1)):zmx;
+                [x,y,z]=meshgrid(x,y,z);
+            else
+                x=xmn+(xmx-xmn)*rand(N,M,L);
+                y=ymn+(ymx-ymn)*rand(N,M,L);
+                z=zmn+(zmx-zmn)*rand(N,M,L);
+            end
             %Interpolate on the meshgrid and plot
             if exist('fftet2gridfast','file')
                 [Ex,Ey,Ez]=fftet2gridfast(fdata,x,y,z);
@@ -731,5 +739,6 @@ function printhelp()
     fprintf('''FGridParam''   Number of grid points used for quiver3 plot at cross-section (default=''auto'')\n');
     fprintf('''FGridParam3D'' Number of grid points used for a spatial quiver3 plot (default=''auto'')\n');
     fprintf('''FLim3D''       Bounding box for a spatial quiver3 plot (default=''auto'')\n');
+    fprintf('''FMode3D''      Arrow distribution choice (default=''cartesian'')\n');
     fprintf('\n');
 end
