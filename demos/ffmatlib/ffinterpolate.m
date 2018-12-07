@@ -1,19 +1,19 @@
-%ffinterpolate.m Interpolates PDE simulation data on a curved meshgrid
+%ffinterpolate.m Interpolates PDE simulation data on a cartesian or curved meshgrid
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-11-11
 %
-%   This file is a part of the ffmatlib which is hosted at
+%   This file is part of the ffmatlib which is hosted at
 %   https://github.com/samplemaker/freefem_matlab_octave_plot
 %
-%   [w] = ffinterpolate(p, b, t, x, y, u);
+%   [w1, w2] = ffinterpolate(p, b, t, x, y, u1, u2);
 %
-%   interpolates the real valued or complex data u given on a triangle
-%   mesh defined by the points p, triangle t and boundary b arguments
-%   onto a curved meshgrid defined by the arguments x, y. The return
-%   value is real if u is real or complex if u is complex.
-%   wrapper function invoking fftri2mesgridint() or if build than
-%   fftri2meshgrid.c
+%   interpolates the real valued or complex data u1, u2 given on a
+%   triangular mesh defined by the points p, triangle t and boundary b
+%   arguments onto a cartesian or curved meshgrid defined by the arguments
+%   x, y. The return values are real if u1, u2 is real or complex if u1, u2
+%   is complex. This is a wrapper function invoking fftri2grid() or if
+%   built fftri2gridfast.c
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %
@@ -31,46 +31,28 @@
 % along with this program.  If not, see
 % <https://www.gnu.org/licenses/>.
 %
-function [w] = ffinterpolate(p, b, t, x, y, u)
+
+function [w1, w2] = ffinterpolate(p, ~, t, x, y, u1, u2)
     xpts=p(1,:);
     ypts=p(2,:);
     xdata=[xpts(t(1,:)); xpts(t(2,:)); xpts(t(3,:))];
     ydata=[ypts(t(1,:)); ypts(t(2,:)); ypts(t(3,:))];
-    udata=[u(t(1,:)), u(t(2,:)), u(t(3,:))].';
-    if exist('fftri2meshgrid','file')
-        w = fftri2meshgrid(x,y,xdata,ydata,udata);
+    u1data=[u1(t(1,:)), u1(t(2,:)), u1(t(3,:))].';
+    if (nargin == 6)
+       if exist('fftri2gridfast','file')
+           w1 = fftri2gridfast(x,y,xdata,ydata,u1data);
+       else
+           fprintf('Note: To improve runtime build MEX function fftri2gridfast() from fftri2gridfast.c\n');
+           w1 = fftri2grid(x,y,xdata,ydata,u1data);
+       end
     else
-        fprintf('Note: To improve runtime build MEX function fftri2meshgrid() from fftri2meshgrid.c\n');
-        w = fftri2meshgridint(x,y,xdata,ydata,udata);
+       u2data=[u2(t(1,:)), u2(t(2,:)), u2(t(3,:))].';
+       if exist('fftri2gridfast','file')
+           [w1,w2] = fftri2gridfast(x,y,xdata,ydata,u1data,u2data);
+       else
+           fprintf('Note: To improve runtime build MEX function fftri2gridfast() from fftri2gridfast.c\n');
+           [w1,w2] = fftri2grid(x,y,xdata,ydata,u1data,u2data);
+       end
     end
  end
 
-function [u] = fftri2meshgridint(x, y, tx, ty, tu)
-    if ~isequal(size(x), size(y))
-        error('meshgrid sizes must be equal');
-    end
-    [ny,nx]=size(x);
-    ax=tx(1,:);
-    ay=ty(1,:);
-    bx=tx(2,:);
-    by=ty(2,:);
-    cx=tx(3,:);
-    cy=ty(3,:);
-    invA0=(1.0)./((by-cy).*(ax-cx)+(cx-bx).*(ay-cy));
-    u=NaN(ny,nx);
-    for mx=1:nx
-        for my=1:ny
-            px=x(my,mx);
-            py=y(my,mx);
-            Aa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*invA0;
-            Ab=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*invA0;
-            Ac=1.0-Aa-Ab;
-            pos=find(((Aa>=-1e-13) & (Ab>=-1e-13) & (Ac>=-1e-13)),1,'first');
-            if ~isempty(pos)
-                u(my,mx)=Aa(pos).*tu(1,pos)+ ...
-                         Ab(pos).*tu(2,pos)+ ...
-                         Ac(pos).*tu(3,pos);
-            end
-        end
-    end
-end

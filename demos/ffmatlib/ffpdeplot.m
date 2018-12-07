@@ -272,13 +272,13 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
             else
                 ccdata=cdata;
             end
-            if exist('ffplottri2grid','file')
-                C=ffplottri2grid(x,y,xdata,ydata,ccdata);
+            if exist('fftri2gridfast','file')
+                C=fftri2gridfast(X,Y,xdata,ydata,ccdata);
             else
                 if (N>100)
-                    fprintf('Note: To improve runtime build MEX function ffplottri2grid() from ffplottri2grid.c\n');
+                    fprintf('Note: To improve runtime build MEX function fftri2gridfast() from fftri2gridfast.c\n');
                 end
-                C=ffplottri2gridint(x,y,xdata,ydata,ccdata);
+                C=fftri2grid(X,Y,xdata,ydata,ccdata);
             end
             switch (contourstyle)
                 %Filled iso value plot
@@ -424,10 +424,10 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
         x=linspace(xmin,xmax,N);
         y=linspace(ymin,ymax,M);
         [X,Y]=meshgrid(x,y);
-        if exist('ffplottri2grid','file')
-            [U,V]=ffplottri2grid(x,y,xdata,ydata,udata,vdata);
+        if exist('fftri2gridfast','file')
+            [U,V]=fftri2gridfast(X,Y,xdata,ydata,udata,vdata);
         else
-            [U,V]=ffplottri2gridint(x,y,xdata,ydata,udata,vdata);
+            [U,V]=fftri2grid(X,Y,xdata,ydata,udata,vdata);
         end
         idx=(~isnan(U)) & (~isnan(V));
         hq=quiver(X(idx),Y(idx),U(idx),V(idx));
@@ -522,61 +522,6 @@ function [S] = rowvec(S)
     end
 end
 
-%Triangle to rectangular grid interpolation. Employs barycentric interpolation.
-%Note: In order to improve runtime keep code for scalar and vector field
-%problems separated. Cases can be distinguished by the number of calling arguments
-function [u,v] = ffplottri2gridint(x, y, tx, ty, tu, tv)
-    ax=tx(1,:);
-    ay=ty(1,:);
-    bx=tx(2,:);
-    by=ty(2,:);
-    cx=tx(3,:);
-    cy=ty(3,:);
-    invA0=(1.0)./((by-cy).*(ax-cx)+(cx-bx).*(ay-cy));
-    if (nargin == 6)
-        u=NaN(numel(y),numel(x));
-        v=NaN(numel(y),numel(x));
-        for mx=1:numel(x)
-            for my=1:numel(y)
-                px=x(mx);
-                py=y(my);
-                Aa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*invA0;
-                Ab=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*invA0;
-                Ac=1.0-Aa-Ab;
-                %Set a negative threshold due to numerical error in Aa,Ab,Ac
-                %if the interpolation point is on the triangle edge
-                pos=find(((Aa>=-1e-13) & (Ab>=-1e-13) & (Ac>=-1e-13)),1,'first');
-                if ~isempty(pos)
-                    u(my,mx)=Aa(pos).*tu(1,pos)+ ...
-                             Ab(pos).*tu(2,pos)+ ...
-                             Ac(pos).*tu(3,pos);
-                    v(my,mx)=Aa(pos).*tv(1,pos)+ ...
-                             Ab(pos).*tv(2,pos)+ ...
-                             Ac(pos).*tv(3,pos);
-                end
-            end
-        end
-    else
-        u=NaN(numel(y),numel(x));
-        for mx=1:numel(x)
-            for my=1:numel(y)
-                px=x(mx);
-                py=y(my);
-                Aa=((by-cy).*(px-cx)+(cx-bx).*(py-cy)).*invA0;
-                Ab=((cy-ay).*(px-cx)+(ax-cx).*(py-cy)).*invA0;
-                Ac=1.0-Aa-Ab;
-                %Set a negative threshold due to numerical error in Aa,Ab,Ac
-                %if the interpolation point is on the triangle edge
-                pos=find(((Aa>=-1e-13) & (Ab>=-1e-13) & (Ac>=-1e-13)),1,'first');
-                if ~isempty(pos)
-                    u(my,mx)=Aa(pos).*tu(1,pos)+ ...
-                             Ab(pos).*tu(2,pos)+ ...
-                             Ac(pos).*tu(3,pos);
-                end
-            end
-        end
-    end
-end
 
 function [varargout] = preparedata(points,triangles,data)
     M=rowvec(data);

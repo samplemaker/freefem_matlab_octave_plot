@@ -1,29 +1,33 @@
-/*fftri2meshgrid.c Interpolates from 2D triangular mesh to a 2D curved grid
+/*fftri2gridfast.c Interpolates from 2D triangular mesh to a 2D cartesian or curved grid
  *
  * Author: Chloros2 <chloros2@gmx.de>
  * Created: 2018-11-13
  *
- *   This file is a part of the ffmatlib which is hosted at
+ *   This file is part of the ffmatlib which is hosted at
  *   https://github.com/samplemaker/freefem_matlab_octave_plot
  *
- *   [w] = fftri2meshgrid (x, y, tx, ty, tu)
+ *   [w1, [w2]] = fftri2gridfast (x, y, tx, ty, tu1, [tu2])
  *
- *   interpolates the real or complex data tu given on a triangle mesh
+ *   interpolates the real or complex data tu1, tu2 given on a triangular mesh
  *   defined by the two arguments tx, ty onto a meshgrid defined by the
  *   variables x, y. The mesh can be cartesian or curved. The argument
- *   tu must have a size of nTriangle columns and 3 rows. The return
- *   value w is the interpolation of tu at the grid points defined
- *   by x, y and is real if tu is real or complex if tu is complex.
- *   fftri2mesgrid uses barycentric coordinates to interpolate.
- *   Returns NaN's if an interpolation point is outside the triangle mesh.
+ *   tu1, tu2 must have a size of nTriangle columns and 3 rows. The return
+ *   value w1, w2 is the interpolation of tu1, tu2 at the grid points defined
+ *   by x, y. The result w1, w2 is real if tu1, tu2 is real or complex if
+ *   tu1, tu2 is complex. fftri2gridfast.c uses barycentric coordinates to
+ *   interpolate. Returns NaN's if an interpolation point is outside the
+ *   triangle mesh. The argument tu2 is optional.
+ *   fftri2gridfast.c is the mex implementation of the function
+ *   fftri2grid.c.
  *
  *   Octave users on Linux with gcc compile the mex file with the command:
  *
- *       mkoctfile --mex -Wall fftri2meshgrid.c
+ *       mkoctfile --mex -Wall fftri2gridfast.c
  *
- *   Matlab users on Windows compile the mex file with the command:
+ *   Matlab users on Windows with microsoft visual studio compile the mex
+ *   file with the command:
  *
- *       mex fftri2meshgrid.cpp -largeArrayDims
+ *       mex fftri2gridfast.cpp -largeArrayDims
  *
  * Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
  *
@@ -51,8 +55,10 @@
 #define max3(a,b,c) ( ((a)>(b)) ? (((a)>(c)) ? (a):(c)) : (((b)>(c)) ? (b):(c)) )
 
 void
-fftri2meshgrid(double *x, double *y, double *tx, double *ty, double *tu, double *tv,
-               double *wu, double *wv, mwSize nTri, mwSize nx,  mwSize ny){
+fftri2meshgrid(double *x, double *y, double *tx, double *ty,
+               double *tu1Re, double *tu1Im, double *w1Re, double *w1Im,
+               double *tu2Re, double *tu2Im, double *w2Re, double *w2Im,
+               int nOuts, mwSize nTri, mwSize nx,  mwSize ny){
 
   double *invA0=(double *)mxMalloc(nTri*sizeof(double));
   double init=mxGetNaN( );
@@ -68,9 +74,15 @@ fftri2meshgrid(double *x, double *y, double *tx, double *ty, double *tu, double 
   for (mwSize mx=0; mx<nx; mx++){
      for (mwSize my=0; my<ny; my++){
         mwSize ofs = (mx*ny)+my;
-        *(wu+ofs) = init;
-        if (tv != NULL){
-           *(wv+ofs) = init;
+        *(w1Re+ofs) = init;
+        if (tu1Im != NULL){
+           *(w1Im+ofs) = init;
+        }
+        if (nOuts == 2){
+           *(w2Re+ofs) = init;
+           if (tu2Im != NULL){
+              *(w2Im+ofs) = init;
+           }
         }
         mwSize i=0, j=0;
         bool doSearchTri=true;
@@ -94,10 +106,17 @@ fftri2meshgrid(double *x, double *y, double *tx, double *ty, double *tu, double 
                 if the interpolation point is on the triangle edge */
               if ((Aa>=-1e-13) && (Ab>=-1e-13) && (Ac>=-1e-13)){
                  /*Interpolates real and imaginary part */
-                 *(wu+ofs) = Aa*tu[i]+Ab*tu[i+1]+Ac*tu[i+2];
+                 *(w1Re+ofs) = Aa*tu1Re[i]+Ab*tu1Re[i+1]+Ac*tu1Re[i+2];
                  /*If input data tu is real no imaginary part of w is written */
-                 if (tv != NULL){
-                    *(wv+ofs) = Aa*tv[i]+Ab*tv[i+1]+Ac*tv[i+2];
+                 if (tu1Im != NULL){
+                    *(w1Im+ofs) = Aa*tu1Im[i]+Ab*tu1Im[i+1]+Ac*tu1Im[i+2];
+                 }
+                 if (nOuts==2){
+                    *(w2Re+ofs) = Aa*tu2Re[i]+Ab*tu2Re[i+1]+Ac*tu2Re[i+2];
+                    /*If input data tu is real no imaginary part of w is written */
+                    if (tu2Im != NULL){
+                       *(w2Im+ofs) = Aa*tu2Im[i]+Ab*tu2Im[i+1]+Ac*tu2Im[i+2];
+                    }
                  }
                  doSearchTri=false;
               }
@@ -113,12 +132,26 @@ fftri2meshgrid(double *x, double *y, double *tx, double *ty, double *tu, double 
 void mexFunction(int nlhs, mxArray *plhs[],
                  int nrhs, const mxArray *prhs[]){
 
-  double *x, *y, *tx, *ty, *tuRe, *tuIm, *wRe, *wIm;
+  double *x, *y, *tx, *ty;
+  double *tu1Re, *tu1Im, *w1Re, *w1Im;
+  double *tu2Re, *tu2Im, *w2Re, *w2Im;
   mwSize nColX, mRowX, nColY, mRowY;
-  mwSize nColTX, mRowTX, nColTY, mRowTY, nColTU, mRowTU;
+  mwSize nColTX, mRowTX, nColTY, mRowTY;
+  mwSize nColTU1, mRowTU1, nColTU2, mRowTU2;
+
+  tu1Re = NULL; tu1Im = NULL;
+  w1Re = NULL; w1Im = NULL;
+  tu2Re = NULL; tu2Im = NULL;
+  w2Re = NULL; w2Im = NULL;
 
   switch(nrhs) {
-    //w = fftri2meshgrid (x, y, tx, ty, tu)
+    //[w1,w2] = tri2gridfst (x, y, tx, ty, tu1, tu2)
+    case 6:
+      if (nlhs!=2){
+         mexErrMsgTxt("2 output arguments required");
+      }
+    break;
+    //w = fftri2meshgrid (x, y, tx, ty, tu1)
     case 5:
       if (nlhs != 1){
          mexErrMsgTxt("1 output arguments required");
@@ -148,49 +181,78 @@ void mexFunction(int nlhs, mxArray *plhs[],
   nColTY = (mwSize)mxGetN(prhs[3]);
   mRowTY = (mwSize)mxGetM(prhs[3]);
 
-  /*Get pointers to real and imaginary parts of tu */
-  tuRe = mxGetPr(prhs[4]);
-  nColTU = (mwSize)mxGetN(prhs[4]);
-  mRowTU = (mwSize)mxGetM(prhs[4]);
-
-  /*Check if tu is complex. If no output w shall be real as well */
-  bool tuIsComplex = false;
+  /*Get pointers to real and imaginary parts of tu1 */
+  tu1Re = mxGetPr(prhs[4]);
+  nColTU1 = (mwSize)mxGetN(prhs[4]);
+  mRowTU1 = (mwSize)mxGetM(prhs[4]);
+  /*Check if tu1 is complex. If no then output w1 must be real as well */
+  bool tu1IsComplex = false;
   if (mxIsComplex(prhs[4])){
-     tuIm = mxGetPi(prhs[4]);
-     tuIsComplex = true;
-  }else{
-     tuIm = NULL;
+     tu1Im = mxGetPi(prhs[4]);
+     tu1IsComplex = true;
   }
 
   if (!((nColX==nColY) && (mRowX==mRowY))){
       mexErrMsgTxt("Arguments 1,2 must have same dimensions");
   }
-  if (!((nColTX==nColTY) && (nColTX==nColTU))){
+  if (!((nColTX==nColTY) && (nColTX==nColTU1))){
       mexErrMsgTxt("Arguments 3,4,5 must have same number of columns");
   }
-  if (!((mRowTX==3) && (mRowTY==3) && (mRowTU==3))){
+  if (!((mRowTX==3) && (mRowTY==3) && (mRowTU1==3))){
       mexErrMsgTxt("Arguments 3,4,5 must have 3 rows");
+  }
+
+  bool tu2IsComplex = false;
+  if (nrhs==6){
+      /*Get pointers to real and imaginary parts of tu2 */
+      tu2Re = mxGetPr(prhs[5]);
+      nColTU2 = (mwSize)mxGetN(prhs[5]);
+      mRowTU2 = (mwSize)mxGetM(prhs[5]);
+     /*Check if tu2 is complex. If no then output w2 must be real as well */
+     if (mxIsComplex(prhs[5])){
+        tu2Im = mxGetPi(prhs[5]);
+        tu2IsComplex = true;
+     }
+     if (!((mRowTU2==3) && (nColTU1==nColTU2))){
+        mexErrMsgTxt("6th argument incompatible to previous ones");
+     }
   }
 
   mwSize nX = nColX;
   mwSize nY = mRowX;
   mwSize nTri = nColTX;
-  mexPrintf("nXcols:%i nYrows:%i nTri:%i\n",nX,nY,nTri);
+  //mexPrintf("nXcols:%i nYrows:%i nTri:%i\n",nX,nY,nTri);
 
   /*If the input is complex the output must be complex as well */
-  if (tuIsComplex){
+  if (tu1IsComplex){
      /*Create two real matrices and set the output pointer to it */
      plhs[0] = mxCreateDoubleMatrix(nY, nX, mxCOMPLEX);
-     wRe = mxGetPr(plhs[0]);
-     wIm = mxGetPi(plhs[0]);
-     mexPrintf("data is complex\n");
+     w1Re = mxGetPr(plhs[0]);
+     w1Im = mxGetPi(plhs[0]);
+     //mexPrintf("data1 is complex\n");
   }else{
      /*Create one real matrix and set the output pointer to it */
      plhs[0] = mxCreateDoubleMatrix(nY, nX, mxREAL);
-     wRe = mxGetPr(plhs[0]);
-     wIm = NULL;
-     mexPrintf("data is real\n");
+     w1Re = mxGetPr(plhs[0]);
+     //mexPrintf("data1 is real\n");
   }
 
-  fftri2meshgrid (x, y, tx, ty, tuRe, tuIm, wRe, wIm, nTri, nX, nY);
+  if (nrhs==6){
+     /*If the input is complex the output must be complex as well */
+     if (tu2IsComplex){
+        /*Create two real matrices and set the output pointer to it */
+        plhs[1] = mxCreateDoubleMatrix(nY, nX, mxCOMPLEX);
+        w2Re = mxGetPr(plhs[1]);
+        w2Im = mxGetPi(plhs[1]);
+        //mexPrintf("data2 is complex\n");
+     }else{
+        /*Create one real matrix and set the output pointer to it */
+        plhs[1] = mxCreateDoubleMatrix(nY, nX, mxREAL);
+        w2Re = mxGetPr(plhs[1]);
+        //mexPrintf("data2 is real\n");
+     }
+  }
+
+  fftri2meshgrid (x, y, tx, ty, tu1Re, tu1Im, w1Re, w1Im, tu2Re, tu2Im,
+                  w2Re, w2Im, nlhs, nTri, nX, nY);
 }

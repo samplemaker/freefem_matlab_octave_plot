@@ -67,8 +67,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 | --- | --- |
 | [ffpdeplot()](#ffpdeplotfct) | Creates contour(), quiver() as well as patch() plots from FreeFem++ 2D simulation data |
 | [ffinterpolate()](#ffinterpolatefct) | Interpolates from 2D triangular mesh to 2D cartesian or curved grid |
-| [ffplottri2grid()](#ffplottri2gridfct) | Interpolates data in order to be plot by ffpdeplot() |
-| [fftri2meshgrid()](#fftri2meshgridfct) | Interpolates from 2D triangular mesh to 2D cartesian or curved grid |
+| [fftri2grid()](#fftri2gridfct) | Interpolates from 2D triangular mesh to 2D cartesian or curved grid |
 | [ffpdeplot3D()](#ffpdeplot3Dfct) | Creates cross-sections, quiver3() as well as boundary plots from FreeFem++ 3D simulation data |
 | [ffreadmesh()](#ffreadmeshfct) | Reads FreeFem++ Mesh Files into Matlab/Octave |
 | [ffreaddata()](#ffreaddatafct) | Reads FreeFem++ Data Files into Matlab/Octave |
@@ -191,46 +190,23 @@ Quiver Plot (vector field):
 ffpdeplot(p,b,t,'FlowData',[Ex, Ey],'Boundary','on');
 ```
 
-<a name="ffplottri2gridfct"></a>
+<a name="fftri2gridfct"></a>
 
-## ffplottri2grid()
+## fftri2grid() / fftri2gridfast()
 
-Interpolates the real data `tu`, `tv` given on a triangular mesh defined by `tx` and `ty` on a cartesian grid defined by the two vectors `x` and `y`.<br>
-To create contour or quiver plots `ffpdeplot()` has its own interpolation routine in the form of a vectorized Matlab/Octave code. However to improve runtime there is a MEX implementation of this code section. If Matlab/Octave finds an executable of `ffplottri2grid.c` within its search path the faster C-implementation is used instead of the internal interpolation routine.<br>
-Note: This function should only be used as a library function in conjunction with `ffpdeplot()`. In order to interpolate real or complex data on cartesian- or curved meshgrids use the function `ffinterpolate()` instead.
+Interpolates the real valued or complex data `tu1`, `tu2` given on a triangular mesh defined by `tx` and `ty` onto a cartesian- or curved meshgrid defined by `x` and `y`. The data `tu2` is optional and can be omitted.<br>
 
 #### Synopsis
 
 ```Matlab
-[u] = ffplottri2grid (x,y,tx,ty,tu)
-```
-
-```Matlab
-[u,v] = ffplottri2grid (x,y,tx,ty,tu,tv)
+[w1,[w2]] = fftri2grid (x,y,tx,ty,tu1,[tu2])
+[w1,[w2]] = fftri2gridfast (x,y,tx,ty,tu1,[tu2])
 ```
 
 #### Description
 
-`ffplottri2grid()` uses barycentric interpolation. `tx`, `ty` must contain the triangle vertice coordinates. The arguments `tx`, `ty`, `tu`, `tv` must be real valued and must have a size of nTriangle-columns and 3 rows. The return value `u`, `v` is the interpolation at the mesh grid `mesh(x,y)`. The function returns `NaN's` if an interpolation point is outside the triangle mesh. For more information see also [Notes on MEX Compilation](#notesoncompilation).
-
-#### Examples
-
-<a name="fftri2meshgridfct"></a>
-
-## fftri2meshgrid()
-
-Interpolates the real valued or complex data `tu` given on a triangular mesh defined by `tx` and `ty` onto a cartesian- or curved meshgrid defined by `x` and `y`.<br>
-Note: This function should only be used as a library function in conjunction with `ffinterpolate()`. In order to interpolate real or complex data on cartesian- or curved meshgrids use the function `ffinterpolate()` instead.
-
-#### Synopsis
-
-```Matlab
-[u] = fftri2meshgrid (x,y,tx,ty,tu)
-```
-
-#### Description
-
-`fftri2meshgrid()` uses barycentric interpolation. `tx`, `ty` must contain the triangle vertice coordinates. The arguments `tx`, `ty` and `tu` must have a size of nTriangle-columns and 3 rows. The return value `u` is the interpolation of `tu` at the grid points defined by `x`, `y` and is real if `tu` is real or complex if `tu` is complex. The function returns `NaN's` if an interpolation point is outside the triangle mesh. For more information see also [Notes on MEX Compilation](#notesoncompilation).
+`fftri2grid()` uses barycentric interpolation. `tx`, `ty` must contain the triangle vertice coordinates. The arguments `tx`, `ty`, `tu1` and `tu2` must have a size of nTriangle-columns and 3 rows. The returned data `w1`, `w2` is the interpolation of `tu1`, `tu2` at the grid points defined by `x`, `y` and is real if `tu1`, `tu2` is real or complex if `tu1`, `tu2` is complex. The function returns `NaN's` if an interpolation point is outside the triangle mesh. `ffri2gridfast.c` if the faster mex implementation of this function and need to be build before use. `ffri2grid.m` is the slower matlab code variant. For more information see also [Notes on MEX Compilation](#notesoncompilation).<br>
+Note that this is a library function and should not be used directly. To interpolate data use the wrapper function `ffinterpolate.m` instead.
 
 #### Examples
 
@@ -245,7 +221,7 @@ udata=[u(t(1,:)), u(t(2,:)), u(t(3,:))].';
 x=linspace(-5,5,500);
 y=linspace(-5,5,500);
 [X,Y]=meshgrid(x,y);
-U=fftri2meshgrid(X,Y,xdata,ydata,udata);
+U=fftri2grid(X,Y,xdata,ydata,udata);
 surf(X,Y,U,'EdgeColor','none');
 view(3);
 ```
@@ -254,18 +230,17 @@ view(3);
 
 ## ffinterpolate()
 
-Interpolates the real valued or complex data `u` given on a triangular mesh defined by `p`, `b` and `t` onto a cartesian- or curved meshgrid defined by `x` and `y`.<br>
-`ffinterpolate()` has its own interpolation routine in the form of a vectorized Matlab/Octave code. However to improve runtime there is a MEX implementation of this code section. If Matlab/Octave finds an executable of `ffri2meshgrid.c` within its search path the faster C-implementation is used instead of the internal interpolation routine.<br>
+Interpolates the real valued or complex data `u1`, `u2` given on a triangular mesh defined by `p`, `b` and `t` onto a cartesian- or curved meshgrid defined by `x` and `y`. The data `u2` is optional and can be omitted.<br>
 
 #### Synopsis
 
 ```Matlab
-[w] = ffinterpolate (p,b,t,x,y,u)
+[w1,[w2]] = ffinterpolate (p,b,t,x,y,u1,u2)
 ```
 
 #### Description
 
-`ffinterpolate()` uses barycentric interpolation. The function returns `NaN's` if an interpolation point is outside the triangle mesh. The contents of the `p`, `b` and `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). The content of `u` is described in the section [ffreaddata](#ffreaddatafct).
+`ffinterpolate()` uses barycentric interpolation. The function returns `NaN's` if an interpolation point is outside the triangle mesh. The contents of the `p`, `b` and `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). The content of `u` is described in the section [ffreaddata](#ffreaddatafct). To improve runtime there is a MEX implementation of the interpolation section. If Matlab/Octave finds an executable of `ffri2gridfast.c` within its search path the faster C-implementation is used instead of `ffri2grid.m`.
 
 #### Examples
 
@@ -321,6 +296,9 @@ The contents of the points `p`, boundaries `b` and triangles `t` arguments are e
 |           |       'auto' (default) \| [N,M,L] |
 | 'FLim3D' |    Bounding box for a spatial quiver3 plot |
 |           |       'auto' (default) \| [xmin,xmax;ymin,ymax;zmin,zmax] |
+| 'FMode3D' |    Arrow distribution choice |
+|           |       'cartesian' (default) | 'random' |
+
 
 #### Examples
 
@@ -524,13 +502,13 @@ Finally, in order to import those files into Matlab/Octave see the sections [ffr
 Octave/Linux:<br>
 In Octave under a Linux system with gcc as compiler go into the folder `./ffmatlib/` and invoke the following two commands:
 
-`mkoctfile --mex -Wall  ffplottri2grid.c`  
+`mkoctfile --mex -Wall  fftri2gridfast.c`  
 `mkoctfile --mex -Wall  fftet2gridfast.c`
 
 Matlab/Windows:<br>
 In Matlab under a Windows system with Microsoft Visual Studio as compiler invoke:
 
-`mex  ffplottri2grid.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`  
+`mex  fftri2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`  
 `mex  fftet2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`
 
 Note: If your build fails with Microsoft Visual Studio 10 ensure to enable the C99-standard or you can try to change the file name into *.cpp, forcing MVSD to use a C++ compiler.
