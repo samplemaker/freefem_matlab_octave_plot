@@ -52,7 +52,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 <a name="3dcapacitorexample"></a>
 
-### 3D-Parallel Plate Capacitor
+### 3D-Parallel Plate Capacitor (Electrostatic)
 
 [capacitor_3d.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/capacitor_3d.m)  
 [capacitor_3d.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/capacitor_3d.edp)  
@@ -62,11 +62,11 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 <a name="3dcoilexample"></a>
 
-### 3D-Toroidal Current
+### 3D-Toroidal Current (Magnetostatic)
 
 [magnetostatic3D.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/magnetostatic3D.m)  
 [magnetostatic3D.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/magnetostatic3D.edp)  
-[torus.geo](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/torus.geo)  
+[torus.geo (GMSH)](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/torus.geo)  
 
 [Screenshot: 3D Vector field](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/toroid_3d_spatial_vectorfield.png)  
 [Screenshot: Vector field - Slice](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/toroid_3d_spatial_vectorfield2.png)  
@@ -204,7 +204,7 @@ ffpdeplot(p,b,t,'FlowData',[Ex, Ey],'Boundary','on');
 
 ## fftri2grid() / fftri2gridfast()
 
-Interpolates the real valued or complex data `tu1`, `tu2` given on a triangular mesh defined by `tx` and `ty` onto a cartesian- or curved meshgrid defined by `x` and `y`. The data `tu2` is optional and can be omitted.<br>
+Interpolates the real valued or complex data `tu1`, `tu2` given on a triangular mesh defined by `tx` and `ty` onto a cartesian- or curved meshgrid defined by `x` and `y`. The parameter `tu2` is optional and can be omitted.<br>
 
 #### Synopsis
 
@@ -240,12 +240,12 @@ view(3);
 
 ## ffinterpolate()
 
-Interpolates the real valued or complex data `u1`, `u2` given on a triangular mesh defined by `p`, `b` and `t` onto a cartesian- or curved meshgrid defined by `x` and `y`. The data `u2` is optional and can be omitted.<br>
+Interpolates the real valued or complex data `u1`, `u2` given on a triangular mesh defined by `p`, `b` and `t` onto a cartesian- or curved meshgrid defined by `x` and `y`. The parameter `u2` is optional and can be omitted.<br>
 
 #### Synopsis
 
 ```Matlab
-[w1,[w2]] = ffinterpolate (p,b,t,x,y,u1,u2)
+[w1,[w2]] = ffinterpolate (p,b,t,x,y,u1,[u2])
 ```
 
 #### Description
@@ -253,6 +253,17 @@ Interpolates the real valued or complex data `u1`, `u2` given on a triangular me
 `ffinterpolate()` uses barycentric interpolation. The function returns `NaN's` if an interpolation point is outside the triangle mesh. The contents of the `p`, `b` and `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). The content of `u` is described in the section [ffreaddata](#ffreaddatafct). To improve runtime there is a MEX implementation of the interpolation section. If Matlab/Octave finds an executable of `ffri2gridfast.c` within its search path the faster C-implementation is used instead of `ffri2grid.m`.
 
 #### Examples
+
+```Matlab
+[p,b,t] = ffreadmesh('capacitorp1.msh');
+u = ffreaddata('capacitor_potential_p1only.txt');
+s = linspace(0,2*pi(),100);
+Z = 3.5*(cos(s)+1i*sin(s)).*sin(0.5*s);
+w = ffinterpolate(p,b,t,real(Z),imag(Z),u);
+plot3(real(Z),imag(Z),real(w),'g','LineWidth',2);
+hold on;
+ffpdeplot(p,b,t,'XYData',u,'ZStyle','continuous','ColorBar','off');
+```
 
 <a name="ffpdeplot3Dfct"></a>
 
