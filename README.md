@@ -60,6 +60,16 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 [Screenshot: 3D Slice](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_3d_slices.png)  
 [Screenshot: 3D Vector field](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_3d_spatial_vectorfield.png)  
 
+<a name="3dcoilexample"></a>
+
+### 3D-Toroidal Current
+
+[magnetostatic3D.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/magnetostatic3D.m)  
+[magnetostatic3D.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/magnetostatic3D.edp)  
+[torus.geo](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/demos/torus.geo)  
+
+[Screenshot: 3D Vector field](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/toroid_3d_spatial_vectorfield.png)  
+
 
 ## Function Reference
 
@@ -511,7 +521,9 @@ In Matlab under a Windows system with Microsoft Visual Studio as compiler invoke
 `mex  fftri2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`  
 `mex  fftet2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`
 
-Note: If your build fails with Microsoft Visual Studio 10 ensure to enable the C99-standard or you can try to change the file name into *.cpp, forcing MVSD to use a C++ compiler.
+Note: If your build fails with Microsoft Visual Studio 10 ensure to enable the C99-standard or you can try to change the file name into *.cpp, forcing MVSD to use a C++ compiler.<br><br>
+
+Since R2018 Matlab has a new memory layout for complex numbers. Old MEX files are incompatible with the new Interleaved Complex API. New ffmatlib MEX-files are available but completely untested. If you want to be a pilot testing volunter and if you want to segfault your computer feel free to send me an email.
 
 ## Notes on Hardware Acceleration
 

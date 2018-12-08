@@ -20,6 +20,9 @@
  *   fftri2gridfast.c is the mex implementation of the function
  *   fftri2grid.c.
  *
+ *   This code is compatible with OCTAVE and MATLAB before R2018
+ *   (old Complex API)
+ *
  *   Octave users on Linux with gcc compile the mex file with the command:
  *
  *       mkoctfile --mex -Wall fftri2gridfast.c
@@ -55,7 +58,7 @@
 #define max3(a,b,c) ( ((a)>(b)) ? (((a)>(c)) ? (a):(c)) : (((b)>(c)) ? (b):(c)) )
 
 void
-fftri2meshgrid(double *x, double *y, double *tx, double *ty,
+fftri2gridfast(double *x, double *y, double *tx, double *ty,
                double *tu1Re, double *tu1Im, double *w1Re, double *w1Im,
                double *tu2Re, double *tu2Im, double *w2Re, double *w2Im,
                int nOuts, mwSize nTri, mwSize nx,  mwSize ny){
@@ -253,6 +256,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
      }
   }
 
-  fftri2meshgrid (x, y, tx, ty, tu1Re, tu1Im, w1Re, w1Im, tu2Re, tu2Im,
+  fftri2gridfast (x, y, tx, ty, tu1Re, tu1Im, w1Re, w1Im, tu2Re, tu2Im,
                   w2Re, w2Im, nlhs, nTri, nX, nY);
 }
