@@ -162,7 +162,7 @@ The return value `handles` contains handles to the plot figures. The return valu
 
 #### Examples
 
-First load the mesh and the simulation data:
+First of all the mesh and the simulation data is loaded:
 
 ```Matlab
 [p,b,t]=ffreadmesh('capacitorp1.msh');
@@ -215,8 +215,8 @@ Interpolates the real valued or complex data `tu1`, `tu2` given on a triangular 
 
 #### Description
 
-`fftri2grid()` uses barycentric interpolation. `tx`, `ty` must contain the triangle vertice coordinates. The arguments `tx`, `ty`, `tu1` and `tu2` must have a size of nTriangle-columns and 3 rows. The returned data `w1`, `w2` is the interpolation of `tu1`, `tu2` at the grid points defined by `x`, `y` and is real if `tu1`, `tu2` is real or complex if `tu1`, `tu2` is complex. The function returns `NaN's` if an interpolation point is outside the triangle mesh. `ffri2gridfast.c` if the faster mex implementation of this function and need to be build before use. `ffri2grid.m` is the slower matlab code variant. For more information see also [Notes on MEX Compilation](#notesoncompilation).<br>
-Note that this is a library function and should not be used directly. To interpolate data use the wrapper function `ffinterpolate.m` instead.
+`fftri2grid()` uses barycentric interpolation. `tx`, `ty` must contain the triangle vertice coordinates. The arguments `tx`, `ty`, `tu1` and `tu2` must have a size of nTriangle-columns x 3 rows. The returned data `w1`, `w2` is the interpolation of `tu1`, `tu2` at the grid points defined by `x`, `y` and is real if `tu1`, `tu2` is real or complex if `tu1`, `tu2` is complex. The function returns `NaN's` if an interpolation point is outside the triangle mesh. `fftri2gridfast.c` is a fast MEX implementation and must be build before use. `fftri2grid.m` native Matlab code but slower implementation. For more information see also [Notes on MEX Compilation](#notesoncompilation).<br>
+`fftri2grid()` is a library function and should not be used directly. In order to interpolate data the wrapper function `ffinterpolate.m` should be used instead.
 
 #### Examples
 
@@ -240,7 +240,7 @@ view(3);
 
 ## ffinterpolate()
 
-Interpolates the real valued or complex data `u1`, `u2` given on a triangular mesh defined by `p`, `b` and `t` onto a cartesian- or curved meshgrid defined by `x` and `y`. The parameter `u2` is optional and can be omitted.<br>
+Interpolates the real valued or complex data `u1`, `u2` given on a triangular (2D) mesh defined by `p`, `b` and `t` onto a cartesian- or curved meshgrid defined by `x` and `y`. The parameter `u2` is optional and can be omitted.<br>
 
 #### Synopsis
 
@@ -250,7 +250,7 @@ Interpolates the real valued or complex data `u1`, `u2` given on a triangular me
 
 #### Description
 
-`ffinterpolate()` uses barycentric interpolation. The function returns `NaN's` if an interpolation point is outside the triangle mesh. The contents of the `p`, `b` and `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). The content of `u` is described in the section [ffreaddata](#ffreaddatafct). To improve runtime there is a MEX implementation of the interpolation section. If Matlab/Octave finds an executable of `ffri2gridfast.c` within its search path the faster C-implementation is used instead of `ffri2grid.m`.
+`ffinterpolate()` uses barycentric interpolation. The function returns `NaN's` if an interpolation point is outside the triangle mesh. The contents of the `p`, `b` and `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). The content of `u` is described in the section [ffreaddata](#ffreaddatafct). To improve runtime there is a MEX implementation of the interpolation section. If Matlab/Octave finds an executable of `fftri2gridfast.c` within its search path the faster C-implementation is used instead of `fftri2grid.m`.
 
 #### Examples
 
@@ -269,7 +269,7 @@ ffpdeplot(p,b,t,'XYData',u,'ZStyle','continuous','ColorBar','off');
 
 ## ffpdeplot3D()
 
-The purpose of the library function `ffpdeplot3D()` is to create cross-sections, to selectively plot boundaries and to create quiver3() plots from 3D simulation data. See also the example [3D-Parallel Plate Capacitor](#3dcapacitorexample). Note: This function is still under construction.
+The purpose of the library function `ffpdeplot3D()` is to create cross-sections, to selectively plot boundaries and to create quiver3() plots from 3D simulation data. This function is still under construction.
 
 #### Synopsis
 
@@ -279,7 +279,7 @@ The purpose of the library function `ffpdeplot3D()` is to create cross-sections,
 
 #### Description / Name-Value Pair Arguments
 
-The contents of the points `p`, boundaries `b` and triangles `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). Although the function can be run as pure Matlab code it is strongly recommended to build the MEX file of the underlying library function in `fftet2gridfast.c` to improve execution speed. See also chapter [Notes on MEX Compilation](#notesoncompilation).
+The contents of the points `p`, boundaries `b` and triangles `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). Although the function can be run as pure Matlab code it is strongly recommended to build the MEX file of the library function `fftet2gridfast.c` to improve execution speed. See also chapter [Notes on MEX Compilation](#notesoncompilation).
 
 `ffpdeplot3D()` can be called with name-value pair arguments as per following table:
 
@@ -323,7 +323,7 @@ The contents of the points `p`, boundaries `b` and triangles `t` arguments are e
 
 #### Examples
 
-First load the mesh and the simulation data:
+First of all the mesh and the simulation data is loaded:
 
 ```Matlab
 [p,b,t]=ffreadmesh('cap3d.mesh');
@@ -341,7 +341,7 @@ In three dimensions some boundaries can be buried inside the domain and therefor
 ffpdeplot3D(p,b,t,'BDLabels',[30,31],'XYZStyle','monochrome');
 ```
 
-To color the domain boundaries according the PDE solution `u` run:
+The domain boundaries can be colored according to the PDE solution `u`:
 ```Matlab
 ffpdeplot3D(p,b,t,'XYZData',u,'ColorMap','jet');
 ```
@@ -486,7 +486,7 @@ FE-Space functions must also be exported to ASCII files. However two different d
 1.) The FE-Space function is given on each mesh node (preferred method)  
 2.) The FE-Space function is given as a triangle/vertice list  
 
-In this sense P1-Element simulations can be written directly into an ASCII file because the degree of freedom (=Vh.ndof) of a P1-space function is equal to the number of nodes in the mesh. In order to export simulation data created from higher order FE-Elements the FE-Space data must first be converted to P1-Element data. For this purpose you can use the `=` operator in FreeFem++. I.e. you can simply write `Vh u=v` where `u` is from type P1 and `v` is from type P2.
+In this sense P1-Element simulations can be written directly into an ASCII file because the degree of freedom (=Vh.ndof) of a P1-space function is equal to the number of nodes in the mesh. In order to export simulation data created from higher order FE-Elements the FE-Space data must be converted to P1-Element data first of all. For this purpose the `=` operator can be used. For example the statement `Vh u=v` copies the data from `v` to `u` where `u` is from type P1 and `v` is (for example) from type P2.
 
 Saves the P1-Element scalar function `u`:
 ```Matlab
@@ -504,7 +504,7 @@ for (int j=0; j<Ex[].n; j++)
 }
 ```
 
-Note: If periodic boundary conditions are set you have to cycle through all mesh vertices and write the interpolation of the FE-Space function for each vertex:
+Note: If periodic boundary conditions are given the data is written by cycling through all vertices:
 
 ```Matlab
 ofstream file("periodic.txt");
@@ -514,38 +514,40 @@ for (int i=0; i<nbvertices; i++){
 }
 ```
 
-Finally, in order to import those files into Matlab/Octave see the sections [ffreadmesh](#ffreadmeshfct) and [ffreaddata](#ffreaddatafct).
+In order to import the created files into the Matlab/Octave workspace the functions [ffreadmesh](#ffreadmeshfct) and [ffreaddata](#ffreaddatafct) must be used.
 
 <a name="notesoncompilation"></a>
 
 ## Notes on MEX Compilation
 
+Go into the folder `./ffmatlib/`.
+
 Octave/Linux:<br>
-In Octave under a Linux system with gcc as compiler go into the folder `./ffmatlib/` and invoke the following two commands:
+In Octave under a Linux system with gcc as compiler the MEX files are build with:
 
 `mkoctfile --mex -Wall  fftri2gridfast.c`  
 `mkoctfile --mex -Wall  fftet2gridfast.c`
 
 Matlab/Windows:<br>
-In Matlab under a Windows system with Microsoft Visual Studio as compiler invoke:
+In Matlab under a Windows system with Microsoft Visual Studio as compiler the MEX files are build with:
 
 `mex  fftri2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`  
 `mex  fftet2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`
 
-Note: If your build fails with Microsoft Visual Studio 10 ensure to enable the C99-standard or you can try to change the file name into *.cpp, forcing MVSD to use a C++ compiler.<br>
+If the build fails with Microsoft Visual Studio 10 try to enable the C99-standard or try to change the file name into *.cpp, forcing MVS to use a C++ compiler.<br>
 
-Since release R2018 Matlab implements a new memory layout to handle complex numbers. Old MEX files are incompatible with the new Interleaved Complex API. New ffmatlib MEX-files are available but completely untested. If you want to be a pilot testing volunteer and if you want to segfault your computer feel free to send me an email.
+Since release R2018 Matlab implements a new memory layout to handle complex numbers. Old MEX files are incompatible with the new Interleaved Complex API. New ffmatlib MEX-files are available but completely untested. If you want to be a pilot testing volunteer feel free to send me an email.
 
 ## Notes on Hardware Acceleration
 
-It should be emphasized that the responsiveness of the plots is highly dependent on the degree of freedom of the PDE problem and the capabilities of the graphics hardware. For larger problems (lots of thousand of vertices), a dedicated graphics card rather than on board graphics should be used. Make use of hardware acceleration extensively. Some notes on trouble shooting and tweaking:<br><br>
+It should be emphasized that the responsiveness of the plots is highly dependent on the degree of freedom of the PDE problem and the capabilities of the graphics hardware. For larger problems (lots of thousand of vertices), a dedicated graphics card rather than on board graphics should be used. Hardware acceleration should be used extensively. Some notes on trouble shooting and tweaking:<br><br>
  If `get(gcf,'RendererMode')` is set to auto Matlab/Octave will decide on its own which renderer is the best for the current graphic task.
 
   * `get(figure_handle,'Renderer')` returns the current figure() renderer
   * `set(figure_handle,'Renderer','OpenGL')` forces a figure() to switch to OpenGL
   * `set(figure_handle,'Renderer','painters')` forces a figure() to switch to vector graphics
 
-Generally OpenGL can be considered to be faster than painters. To get an OpenGL info you can type `opengl info` within Matlab. Ensure the line `Software` shows `false` otherwise OpenGL will run in software mode. If hardware-accelerated OpenGL is available on the system, you can manually change the modes using the `opengl software` and `opengl hardware` commands.
+Generally OpenGL can be considered to be faster than painters. To get an OpenGL info type `opengl info` within Matlab. Ensure the line `Software` shows `false` otherwise OpenGL will run in software mode. If hardware-accelerated OpenGL is available on the system, the modes can be changed manually using the `opengl software` and `opengl hardware` commands.
 
 ## Software
 
