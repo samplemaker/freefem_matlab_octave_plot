@@ -20,7 +20,7 @@
 %   specifies parameter name/value pairs to control the input file format
 %
 %       Parameter       Value
-%      'XYData'       Data in order to colorize the plot
+%      'XYData'       PDE data used to create the plot
 %                        FreeFem++ point data | FreeFem++ triangle data
 %      'XYStyle'      Coloring choice
 %                        'interp' (default) | 'off'
@@ -556,7 +556,7 @@ function printhelp()
     fprintf('%s\n',' -- [handles,varargout] = ffpdeplot (points,boundary,triangles,''XYData'',u,''Contour'',''on'')');
     fprintf('%s\n',' -- [handles,varargout] = ffpdeplot (points,boundary,triangles,''FlowData'',v,''Boundary'',''on'')');
     fprintf('\n');
-    fprintf('''XYData''       Data in order to colorize the plot\n');
+    fprintf('''XYData''       PDE data used to create the plot\n');
     fprintf('''XYStyle''      Coloring choice (default=''interp'')\n');
     fprintf('''ZStyle''       Draws 3D surface plot instead of flat 2D Map plot (default=''off'')\n');
     fprintf('''ColorMap''     ColorMap value or matrix of such values (default=''on'')\n');

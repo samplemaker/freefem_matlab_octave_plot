@@ -33,7 +33,7 @@ int PHYSCUBOIDSURFACE = 103;
 mesh3 Th3d = gmshload3("torus.msh");
 
 fespace Vh(Th3d,P1);
-Vh p=0;
+Vh p;
 Vh q;
 
 //Nedelec function space
@@ -58,9 +58,17 @@ problem magnetostatic([Ax,Ay,Az,p],[Wx,Wy,Wz,q],solver=UMFPACK)=
                            +grad(p)'*[Wx,Wy,Wz]       //coulomb gauge: div(A)=0
                            +grad(q)'*[Ax,Ay,Az])
                -int3d(Th3d)([Tx,Ty,Tz]'*[Wx,Wy,Wz])   //current density
-               +on(PHYSCUBOIDSURFACE,Ax=0,Ay=0,Az=0); //
+               +on(PHYSCUBOIDSURFACE,Ax=0,Ay=0,Az=0)
+               +on(PHYSCUBOIDSURFACE,p=0); //
 
 magnetostatic;
+
+//Current flux density checks
+Vh Jx, Jy, Jz;
+
+Jx=Tx;
+Jy=Ty;
+Jz=Tz;
 
 //Magnetic induction
 Vh Bx, By, Bz;
@@ -72,10 +80,22 @@ Bz=dx(Ay)-dy(Ax);
 medit("Magnetic Induction",Th3d,[Bx,By,Bz],order=1);
 
 //Export for ffmatlib
-savemesh(Th3d,"torus.mesh");
+savemesh(Th3d,"torus_induction.mesh");
 
 {
 ofstream file("torus.txt");
 for (int j=0; j<Vh.ndof; j++)
    file << Bx[][j] << " " << By[][j] << " " << Bz[][j] << endl;
+}
+
+{
+ofstream file("torus_current.txt");
+for (int j=0; j<Vh.ndof; j++)
+   file << Jx[][j] << " " << Jy[][j] << " " << Jz[][j] << endl;
+}
+
+{
+ofstream file("torus_p.txt");
+for (int j=0; j<p[].n; j++)
+   file << p[][j] << endl;
 }

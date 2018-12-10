@@ -34,8 +34,8 @@ PHYSCUBOIDTORUSSURFACE = 104;
 PHYSCUBOIDSURFACE = 103;
 
 //Characteristic mesh length
-clen = 0.2;
-tlen = 0.09;
+clen = 0.22;
+tlen = 0.12;
 
 TSURFACE[] = {};
 TVOLUME[] = {};

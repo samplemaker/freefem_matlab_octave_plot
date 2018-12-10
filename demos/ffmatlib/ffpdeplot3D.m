@@ -16,7 +16,7 @@
 %   specifies parameter name/value pairs to control the input file format
 %
 %       Parameter       Value
-%      'XYData'        Data in order to colorize the plot
+%      'XYData'        PDE data used to create the plot
 %                       FreeFem++ data
 %      'XYZStyle'      Plot style for boundary
 %                       'interp' (default) | 'noface' | 'monochrome'
@@ -723,7 +723,7 @@ function printhelp()
     fprintf('%s\n',' -- ffpdeplot3D(p,b,t,''XYZData'',u,''Slice'',S1,S2,S3,''XYZStyle'',''noface'',''ColorMap'',''jet'')');
     fprintf('%s\n',' -- ffpdeplot3D(p,b,t,''FlowData'',[Ex,Ey,Ez],''Slice'',S1,S2,S3,''Boundary'',''off'',''BoundingBox'',''on'')');
     fprintf('\n');
-    fprintf('''XYData''       Data in order to colorize the plot\n');
+    fprintf('''XYData''       PDE data used to create the plot\n');
     fprintf('''XYZStyle''     Plot style for boundary (default=''interp'')\n');
     fprintf('''Boundary''     Shows the domain boundary / edges (default=''on'')\n');
     fprintf('''BoundingBox''  Shows the bounding box of a slice (default=''off'')\n');

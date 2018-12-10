@@ -28,7 +28,9 @@ PHYSTORUSSUFACE = 201;
 PHYSCUBOIDSURFACE = 103;
 
 [p,b,t,nv,nbe,nt,labels]=ffreadmesh('torus.mesh');
-[Ex,Ey,Ez]=ffreaddata('torus.txt');
+[Bx,By,Bz]=ffreaddata('torus.txt');
+[Jx,Jy,Jz]=ffreaddata('torus_current.txt');
+[u]=ffreaddata('torus_p.txt');
 
 figure;
 ffpdeplot3D(p,b,t,'XYZStyle','monochrome','BDLabels',[PHYSTORUSSUFACE]);
@@ -48,12 +50,11 @@ view([-47,24]);
 camlight('headlight');
 
 figure;
-ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'FGridParam3D',[15,15,15],'Boundary','on','BDLabels',PHYSTORUSSUFACE,'XYZStyle','monochrome','FMode3D','random');
+ffpdeplot3D(p,b,t,'FlowData',[Bx,By,Bz],'FGridParam3D',[15,15,15],'Boundary','on','BDLabels',PHYSTORUSSUFACE,'XYZStyle','monochrome','FMode3D','random');
 ylabel('y');
 xlabel('x');
 zlabel('z');
 grid;
-
 axis tight;
 lighting gouraud;
 view([-47,24]);
@@ -63,13 +64,23 @@ S1=[0.0 -1.3 0.0];
 S2=[0.0 -1.3 2.0];
 S3=[0.0 1.3 0.0];
 figure;
-ffpdeplot3D(p,b,t,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'BoundingBox','on','BDLabels',PHYSTORUSSUFACE,'XYZStyle','monochrome','FGridParam',[25,25]);
-
+ffpdeplot3D(p,b,t,'FlowData',[Bx,By,Bz],'Slice',S1,S2,S3,'BoundingBox','on','BDLabels',PHYSTORUSSUFACE,'XYZStyle','monochrome','FGridParam',[25,25]);
 ylabel('y');
 xlabel('x');
 zlabel('z');
-
 axis tight off;
 lighting gouraud;
 view([-47,24]);
 camlight('headlight');
+
+S1=[0.0 -1.3 0.0];
+S2=[0.0 -1.3 2.0];
+S3=[0.0 1.3 0.0];
+figure;
+ffpdeplot3D(p,b,t,'FlowData',[Jx,Jy,Jz],'Slice',S1,S2,S3,'BoundingBox','on','Boundary','off','FGridParam',[50,50]);
+
+S1=[0.0 -1.3 0.0; -1.3 1.3 1];
+S2=[0.0 -1.3 2.0; -1.3 -1.3 1];
+S3=[0.0 1.3 0.0; 1.3 1.3 1];
+figure;
+ffpdeplot3D(p,b,t,'XYZData',u,'Slice',S1,S2,S3,'SGridParam',[50,50],'Boundary','off','ColorMap',jet(150),'Colorbar','on','BoundingBox','on');

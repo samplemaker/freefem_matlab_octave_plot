@@ -7,12 +7,12 @@ Once you have successfully simulated a PDE problem using FreeFem++ you may want 
 ## Getting started
 
   * Click on the button `Clone or download` (above) and then on the button `Download ZIP`
-  * Unzip and change to the directory `demos` and run all FreeFem++ *.epd scripts to create simulation data for plotting
+  * Unzip and change to the directory `demos` and run all FreeFem++ *.edp scripts to create simulation data for plotting
   * Run the matlab `*.m` demo files with Matlab or Octave
 
 Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpath(path to ffmatlib)` command if you are working in a different directory.
 
-## Demos
+## Examples
 
 <a name="2dcapacitorexample"></a>
 
@@ -76,8 +76,8 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 | Name | Description |
 | --- | --- |
 | [ffpdeplot()](#ffpdeplotfct) | Creates contour(), quiver() as well as patch() plots from FreeFem++ 2D simulation data |
-| [ffinterpolate()](#ffinterpolatefct) | Interpolates from 2D triangular mesh to 2D cartesian or curved grid |
-| [fftri2grid()](#fftri2gridfct) | Interpolates from 2D triangular mesh to 2D cartesian or curved grid |
+| [ffinterpolate()](#ffinterpolatefct) | Interpolates from 2D triangular mesh to 2D cartesian or curved grid (user function) |
+| [fftri2grid()](#fftri2gridfct) | Interpolates from 2D triangular mesh to 2D cartesian or curved grid (low level function) |
 | [ffpdeplot3D()](#ffpdeplot3Dfct) | Creates cross-sections, quiver3() as well as boundary plots from FreeFem++ 3D simulation data |
 | [ffreadmesh()](#ffreadmeshfct) | Reads FreeFem++ Mesh Files into Matlab/Octave |
 | [ffreaddata()](#ffreaddatafct) | Reads FreeFem++ Data Files into Matlab/Octave |
@@ -86,7 +86,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 ## ffpdeplot()
 
-`ffpdeplot()` is a function specially tailored to FreeFem++ that offers most of the features of the classic Matlab `pdeplot()` command. `contour()` plots (= 2D iso value) and `patch()` plots (= 2D map data) can be created as well as combinations of both. In addition `quiver()` plots (= 2D vector field) can be created and domain border edges can be displayed. The display of the flow data as well as the border edges is additive and can be superimposed on the contour data as well as the patch data or their combinations.
+`ffpdeplot()` is a function specially tailored to FreeFem++ that offers most of the features of the classic Matlab `pdeplot()` command. `contour()` plots (2D iso values) and `patch()` plots (2D map data) can be created as well as combinations of both. In addition `quiver()` plots (2D vector fields) can be created and domain border edges can be displayed. The display of the flow data as well as the border edges is additive and can be superimposed on the contour data as well as the patch data or their combinations.
 
 The FEM mesh is entered by vertex coordinates, the boundary values, and the triangles in terms of connectivity as provided by the FreeFem++ `savemesh(Th, "mesh_file.msh")` command. The simulation data can be entered as values at the mesh nodes.
 
@@ -103,7 +103,7 @@ The contents of the points `p`, boundaries `b` and triangles `t` arguments are e
 
 | Parameter | Value |
 | --- | --- |
-| 'XYData' |     Data in order to colorize the plot |
+| 'XYData' |     PDE data used to create the plot |
 |           |       FreeFem++ point data \| FreeFem++ triangle data |
 | 'XYStyle' |    Coloring choice |
 |           |       'interp' (default) \| 'off' |
@@ -285,7 +285,7 @@ The contents of the points `p`, boundaries `b` and triangles `t` arguments are e
 
 | Parameter | Value |
 | --- | --- |
-| 'XYData' |     Data in order to colorize the plot |
+| 'XYData' |     PDE data used to create the plot |
 |           |       FreeFem++ data |
 | 'XYStyle' |    Plot style for boundary |
 |           |       'interp' (default) \| 'noface' \| 'monochrome' |
