@@ -28,7 +28,7 @@ PHYSTORUSSUFACE = 201;
 PHYSCUBOIDSURFACE = 103;
 
 [p,b,t,nv,nbe,nt,labels]=ffreadmesh('torus.mesh');
-[Bx,By,Bz]=ffreaddata('torus.txt');
+[Bx,By,Bz]=ffreaddata('torus_induction.txt');
 [Jx,Jy,Jz]=ffreaddata('torus_current.txt');
 [u]=ffreaddata('torus_p.txt');
 

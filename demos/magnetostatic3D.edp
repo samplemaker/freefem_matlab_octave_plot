@@ -80,10 +80,10 @@ Bz=dx(Ay)-dy(Ax);
 medit("Magnetic Induction",Th3d,[Bx,By,Bz],order=1);
 
 //Export for ffmatlib
-savemesh(Th3d,"torus_induction.mesh");
+savemesh(Th3d,"torus.mesh");
 
 {
-ofstream file("torus.txt");
+ofstream file("torus_induction.txt");
 for (int j=0; j<Vh.ndof; j++)
    file << Bx[][j] << " " << By[][j] << " " << Bz[][j] << endl;
 }
