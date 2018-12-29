@@ -1,0 +1,16 @@
+RELEASE NOTES
+-------------
+
+Release v1.0:
+  - 2D
+  - 3D
+  - P1 Lagrangian Finite Elements
+
+Development:
+  - Add full P2 Lagrangian Finite Elements support in 2D and for 3D cross-sections (ffpdeplot3D() boundaries still shown as P1)
+  - Introduction of the FE-Space Sequence Vh
+  - Introduction of the ffexport.idp macros
+  - Fix periodic problem plots (use the Vh sequence)
+  - Remove the 'CStyle' option from ffpdeplot()
+
+
