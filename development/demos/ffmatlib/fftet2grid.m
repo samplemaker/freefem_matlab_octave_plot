@@ -203,22 +203,24 @@ function [varargout] = fftet2grid(x, y, z, tx, ty, tz, varargin)
     tzmn=min(min(tz(1,:),tz(2,:)),min(tz(3,:),tz(4,:)));
     for mx=1:nx
         for my=1:ny
-            xp=[x(my,mx),y(my,mx),z(my,mx)]';
-            Xp=repmat(xp,1,ntet);
             preselect=((x(my,mx) <= txmx) & ...
                        (x(my,mx) >= txmn) & ...
                        (y(my,mx) <= tymx) & ...
                        (y(my,mx) >= tymn) & ...
                        (z(my,mx) <= tzmx) & ...
                        (z(my,mx) >= tzmn));
-            pp1=p1(:,preselect); pp2=p2(:,preselect); pp3=p3(:,preselect); pp4=p4(:,preselect);
-            Xpp=Xp(:,preselect); invVTETT=invVTET(:,preselect);
-            V1=volume(pp4-pp2,pp3-pp2,Xpp-pp2).*invVTETT;
-            V2=volume(pp3-pp1,pp4-pp1,Xpp-pp1).*invVTETT;
-            V3=volume(pp4-pp1,pp2-pp1,Xpp-pp1).*invVTETT;
-            %V1=dot(cross(pp4-pp2,pp3-pp2),Xpp-pp2,1).*invVTETT;
-            %V2=dot(cross(pp3-pp1,pp4-pp1),Xpp-pp1,1).*invVTETT;
-            %V3=dot(cross(pp4-pp1,pp2-pp1),Xpp-pp1,1).*invVTETT;
+            pp1=p1(:,preselect); pp2=p2(:,preselect);
+            pp3=p3(:,preselect); pp4=p4(:,preselect);
+            invVTETT=invVTET(:,preselect);
+            [~,sz2]=size(invVTETT);
+            O=ones(1,sz2);
+            Xp=[x(my,mx)*O; y(my,mx)*O; z(my,mx)*O];
+            V1=volume(pp4-pp2,pp3-pp2,Xp-pp2).*invVTETT;
+            V2=volume(pp3-pp1,pp4-pp1,Xp-pp1).*invVTETT;
+            V3=volume(pp4-pp1,pp2-pp1,Xp-pp1).*invVTETT;
+            %V1=dot(cross(pp4-pp2,pp3-pp2),Xp-pp2,1).*invVTETT;
+            %V2=dot(cross(pp3-pp1,pp4-pp1),Xp-pp1,1).*invVTETT;
+            %V3=dot(cross(pp4-pp1,pp2-pp1),Xp-pp1,1).*invVTETT;
             V4=1.0-V1-V2-V3;
             pos=find(((V1>=-1e-13) & (V2>=-1e-13) & (V3>=-1e-13) & (V4>=-1e-13)),1,'first');
             if ~isempty(pos)
