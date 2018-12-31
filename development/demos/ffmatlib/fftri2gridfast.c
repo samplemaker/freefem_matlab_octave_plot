@@ -8,18 +8,15 @@
  *
  *   [w1, ...] = fftri2gridfast (x, y, tx, ty, tu1, ...)
  *
- *   fftri2grid interpolates the real or complex multidimensional data
- *   tu1, tu2, ... given for a triangular mesh, defined by the two arguments
- *   tx, ty to a meshgrid defined by the variables x, y. The mesh can be
- *   cartesian or curved. The arguments tu1, tu2, ... must have a size of
- *   nTriangle columns x 3 rows. The return values w1, w2, ... are the interpolations
- *   of tu1, tu2, ... at the grid points defined by x, y. The results w1, w2, ...
- *   are real if tu1, tu2, ... is real or complex if tu1, tu2, ... is complex.
- *   fftri2grid uses barycentric coordinates to interpolate. The function returns
- *   NaN's if an interpolation point is outside the triangle mesh.
- *
- *   fftri2gridfast.c is the mex implementation of the function fftri2grid.m.
- *
+ *   fftri2grid computes the function values w1, w2, ... over a mesh grid defined
+ *   by the arguments x, y from a set of functions u1, u2, ... with values
+ *   given on a triangular mesh tx, ty. The values are computed using first order
+ *   or second order approximating basis functions (P1 or P2 - Lagrangian Finite
+ *   Elements). The function values w1, w2, ... are real if tu1, tu2, ... are real
+ *   or complex if tu1, tu2, ... are complex. The mesh grid x, y can be cartesian
+ *   or curved. fftri2grid returns NaNs when an interpolation point is outside the
+ *   triangular mesh. fftri2gridfast.c is a runtime optimized mex implementation
+ *   of the function fftri2grid.m.
  *
  *   This code is compatible with OCTAVE and MATLAB before R2018
  *   (old Complex API)

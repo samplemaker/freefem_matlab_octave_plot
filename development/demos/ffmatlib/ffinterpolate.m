@@ -11,11 +11,11 @@
 
 %% Description
 %
-%  ffinterpolate() interpolates the real or complex valued multidimensional data
+%  ffinterpolate interpolates the real or complex valued multidimensional data
 %  u1, ... given on a triangular mesh defined by the points p, triangles t and
 %  boundary b, onto a cartesian or curved grid defined by the arguments x, y.
-%  The return values w1, ... are real if the input u1, ... is real or complex
-%  if the input u1, ... is complex. ffinterpolate() is a wrapper function that
+%  The return values w1, ... are real if u1, ... are real or complex
+%  if u1, ... are complex. ffinterpolate() is a wrapper function that
 %  calls the library functions fftri2grid() and fftri2gridfast().
 %
 

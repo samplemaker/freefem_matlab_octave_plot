@@ -16,7 +16,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 <a name="2dcapacitorexample"></a>
 
-### 2D-Parallel Plate Capacitor (Electrostatic)
+### 2D-Problem
 
 [capacitor_2d.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/development/demos/capacitor_2d.m)  
 [capacitor_2d.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/development/demos/capacitor_2d.edp)  
@@ -29,7 +29,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 <a name="3dcapacitorexample"></a>
 
-### 3D-Parallel Plate Capacitor (Electrostatic)
+### 3D-Problem
 
 [capacitor_3d.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/development/demos/capacitor_3d.m)  
 [capacitor_3d.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/development/demos/capacitor_3d.edp)  
@@ -172,18 +172,18 @@ ffpdeplot(p,b,t,'VhSeq',vh,'FlowData',[Ex, Ey],'Boundary','on');
 
 ## fftri2grid() / fftri2gridfast()
 
-Interpolates the real or complex multidimensional data `tu1`, `tu2`, ... given for a triangular mesh, defined by the two arguments `tx`, `ty` to a meshgrid defined by the variables `x`, `y`. The mesh can be cartesian or curved. 
+Interpolates from a 2D triangular mesh to a 2D cartesian or curved grid.
 
 #### Synopsis
 
 ```Matlab
-[w1, ...] = fftri2grid(x,y,tx,ty,tu1, ...)
-[w1, ...] = fftri2gridfast(x,y,tx,ty,tu1, ...)
+[varargout] = fftri2grid(x,y,tx,ty,varargin)
+[varargout] = fftri2gridfast(x,y,tx,ty,varargin)
 ```
 
 #### Description
 
-The arguments `tu1`, `tu2`, ... must have a size of nTriangle columns x 3 rows. The return values `w1`, `w2`, ... are the interpolations of `tu1`, `tu2`, ... at the grid points defined by `x`, `y`. The results `w1`, `w2`, ... are real if `tu1`, `tu2`, ... is real or complex if `tu1`, `tu2`, ... is complex. `fftri2grid` uses barycentric coordinates to interpolate. The function returns NaN's if an interpolation point is outside the triangle mesh. `fftri2gridfast.c` is a MEX implementation with optimized runtime and must be build before use. `fftri2grid.m` is a native matlab implementation, but slower than the MEX version. For more information see also [Notes on MEX Compilation](#notesoncompilation). `fftri2grid()` is a low level function and should not be called directly. To interpolate data, the wrapper function `ffinterpolate.m` should be used instead.
+`fftri2grid` computes the function values `w1`, `w2`, ... over a mesh grid defined by the arguments `x`, `y` from a set of functions `u1`, `u2`, ... with values given on a triangular mesh `tx`, `ty`. The values are computed using first order or second order approximating basis functions (P1 or P2 - Lagrangian Finite Elements). The function values `w1`, `w2`, ... are real if `tu1`, `tu2`, ... are real or complex if `tu1`, `tu2`, ... are complex. The mesh grid `x`, `y` can be cartesian or curved. `fftri2grid` returns NaNs when an interpolation point is outside the triangular mesh. `fftri2gridfast.c` is a runtime optimized mex implementation of the function `fftri2grid.m`. For more information see also [Notes on MEX Compilation](#notesoncompilation). `fftri2grid()` is a low level function and should not be called directly. To interpolate data, the wrapper function `ffinterpolate.m` should be used instead.
 
 #### Examples
 
@@ -213,12 +213,12 @@ Interpolates the real or complex valued multidimensional data `u1`, ... given on
 #### Synopsis
 
 ```Matlab
-[w1, ...] = ffinterpolate(p,~,t,vh,x,y,u1, ...)
+[varargout] = ffinterpolate(p,~,t,vh,x,y,varargin)
 ```
 
 #### Description
 
-The return values ​​`w1`, ... are real if the input `u1`, ... is real or complex if the input `u1`, ... is complex. `ffinterpolate` is a wrapper function that calls the library function `fftri2grid`. If Matlab/Octave finds an executable of `fftri2gridfast.c` within its search path the runtime optimized C-implementation is used instead of the native version `fftri2grid.m`. The contents of the `p`, `b` and `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). The content of `u1`, ... is described in the section [ffreaddata](#ffreaddatafct).
+The return values `w1`, ... are real if `u1`, ... are real or complex if `u1`, ... are complex. `ffinterpolate` is a wrapper function that calls the library function `fftri2grid`. If Matlab/Octave finds an executable of `fftri2gridfast.c` within its search path the runtime optimized C-implementation is used instead of the native version `fftri2grid.m`. The contents of the `p`, `b` and `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). The content of `u1`, ... is described in the section [ffreaddata](#ffreaddatafct).
 
 #### Examples
 
@@ -254,6 +254,8 @@ The contents of the points `p`, boundaries `b` and triangles `t` arguments are e
 
 | Parameter | Value |
 | --- | --- |
+| 'VhSeq'       | Finite element connectivity |
+|               |  FreeFem++ macro definition |
 | 'XYData'      | PDE data used to create the plot |
 |               |  FreeFem++ data |
 | 'XYStyle'     | Plot style for boundary |

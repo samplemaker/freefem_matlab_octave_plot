@@ -11,17 +11,15 @@
 
 %% Description
 %
-%  fftet2grid interpolates the real or complex multidimensional data
-%  tu1, tu2, ... given for a tetrahedral mesh, defined by the three arguments
-%  tx, ty, tz to a meshgrid defined by the variables x, y. The mesh can be
-%  cartesian or curved. The arguments tu1, tu2, ... must have a size of
-%  nTetrahedrons columns x 4 rows. The return values w1, w2, ... are the interpolations
-%  of tu1, tu2, ... at the grid points defined by x, y. The results w1, w2, ...
-%  are real if tu1, tu2, ... is real or complex if tu1, tu2, ... is complex.
-%  fftet2grid uses barycentric coordinates to interpolate. The function returns
-%  NaN's if an interpolation point is outside the triangle mesh.
-%
-%  fftet2gridfast.c is the mex implementation of the function fftet2grid.m.
+%  fftet2grid computes the function values w1, w2, ... over a mesh grid defined
+%  by the arguments x, y, z from a set of functions u1, u2, ... with values
+%  given on a tetrahedral mesh tx, ty, tz. The values are computed using first order
+%  or second order approximating basis functions (P1 or P2 - Lagrangian Finite
+%  Elements). The function values w1, w2, ... are real if tu1, tu2, ... are real
+%  or complex if tu1, tu2, ... are complex. The mesh grid x, y, z  can be cartesian
+%  or curved. fftet2grid returns NaNs when an interpolation point is outside the
+%  tetrahedral mesh. fftet2gridfast.c is a runtime optimized mex implementation
+%  of the function fftet2grid.m.
 %
 
 %% Tetrahedron numbering
