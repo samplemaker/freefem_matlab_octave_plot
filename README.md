@@ -65,7 +65,7 @@ Is a function specially tailored to FreeFem++ that offers most of the features o
 
 #### Description / Name-Value Pair Arguments
 
-The FEM mesh is entered through its vertices, the boundary values and the triangles as provided by the FreeFem++ command `savemesh(Th, "filename.msh")`. The finite element connectivity data as well as the PDE simulation data are provided using the FreeFem++ macros `ffExportVh(filename.txt, Th, Vh)` and `ffExportData1(filename.txt, u)`. The contents of the points `p`, boundaries `b` and triangles `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). `hax` is the axes handle.  
+The FEM mesh is entered through its vertices, the boundary values and the triangles as provided by the FreeFem++ command `savemesh(Th, "filename.msh")`. The finite element connectivity data as well as the PDE simulation data are provided using the FreeFem++ macros `ffSaveVh(Th, Vh, filename.txt)` and `ffSaveData(u, filename.txt)`. The contents of the points `p`, boundaries `b` and triangles `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). `hax` is the axes handle.  
 
 `ffpdeplot()` can be called with name-value pair arguments as per following table:
 
@@ -459,14 +459,14 @@ savemesh(Th,"2d_mesh_file.msh");
 savemesh(Th3d,"3d_mesh_file.mesh");
 ```
 
-The FE-Space connectivity and the PDE simulation data can be written with the help of macros located in the `ffexport.idp` file. Following command saves the FE-Space sequence `Vh`:
+The FE-Space connectivity and the PDE simulation data can be written with the help of macros located in the `ffmatlib.idp` file. Following command saves the FE-Space sequence `Vh`:
 ```Matlab
-ffExportVh("vh.txt",Th,Vh);
+ffSaveVh(Th,Vh,"vh.txt");
 ```
 
 Following command saves three data arrays into one text file:
 ```Matlab
-ffExportData3("data.txt",u,Ex,Ey);
+ffSaveData3(u,Ex,Ey,"data.txt");
 ```
 
 In order to import the created files into the Matlab/Octave workspace the functions [ffreadmesh](#ffreadmeshfct) and [ffreaddata](#ffreaddatafct) must be used.

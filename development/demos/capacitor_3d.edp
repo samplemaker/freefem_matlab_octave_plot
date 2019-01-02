@@ -25,7 +25,7 @@
  *
  */
 
-include "ffexport.idp"
+include "ffmatlib.idp"
 
 load "msh3"
 load "medit"
@@ -179,9 +179,9 @@ cout << "nDoF:\t\t\t" << Vh.ndof << endl;
 cout << endl;
 
 savemesh(Thn3d,"cap3d.mesh");
-ffExportVh("cap3vh.txt",Thn3d,Vh);
-ffExportData1("cap3dpot.txt",u);
-ffExportData3("cap3dvec.txt",Ex,Ey,Ez);
+ffSaveVh(Thn3d,Vh,"cap3vh.txt");
+ffSaveData(u,"cap3dpot.txt");
+ffSaveData3(Ex,Ey,Ez,"cap3dvec.txt");
 
 medit("U",Thn3d,u);
 

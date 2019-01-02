@@ -1,4 +1,4 @@
-/*ffexport.idp Export macros for the ffmatlib (plot solutions for Matlab / Octave)
+/*ffmatlib.idp Export Macros (Plot Solutions for Matlab and Octave)
  *
  * Author: Chloros2 <chloros2@gmx.de>
  * Created: 2018-12-21
@@ -24,8 +24,8 @@
  *
  */
 
-//Export finite element connectivity (j-th degree of freedom for i-th element)
-macro ffExportVh(filename, Th, Vh){
+//Save finite element connectivity (j-th degree of freedom for i-th element)
+macro ffSaveVh(Th, Vh, filename){
   {
   ofstream file(filename);
   for (int i=0; i<Th.nt; i++){
@@ -36,8 +36,8 @@ macro ffExportVh(filename, Th, Vh){
   }
 } //EOM
 
-//Export of FE Space data
-macro ffExportData1(filename, u){
+//Save FE Space data
+macro ffSaveData(u, filename){
   {
   ofstream file(filename);
   for (int j=0; j<u[].n; j++){
@@ -46,7 +46,7 @@ macro ffExportData1(filename, u){
   }
 } //EOM
 
-macro ffExportData2(filename, u1, u2){
+macro ffSaveData2(u1, u2, filename){
   {
   ofstream file(filename);
   int datalen=u1[].n;
@@ -60,7 +60,7 @@ macro ffExportData2(filename, u1, u2){
   }
 } //EOM
 
-macro ffExportData3(filename, u1, u2, u3){
+macro ffSaveData3(u1, u2, u3, filename){
   {
   ofstream file(filename);
   int datalen=u1[].n;
@@ -74,7 +74,7 @@ macro ffExportData3(filename, u1, u2, u3){
   }
 } //EOM
 
-macro ffExportData4(filename, u1, u2, u3, u4){
+macro ffSaveData4(u1, u2, u3, u4, filename){
   {
   ofstream file(filename);
   int datalen=u1[].n;

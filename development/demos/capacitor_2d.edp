@@ -1,4 +1,4 @@
-/* capacitor_2d_p1.edp Parallel plate Capacitor
+/* Electrostatic Parallel Plate Capacitor Problem
  *
  *  Solves the Laplace Equation on a parallel plate capacitor boundary.
  *  P1 Elements are used in written in order to be plot with Matlab / Octave.
@@ -25,7 +25,7 @@
  */
 
 
-include "ffexport.idp"
+include "ffmatlib.idp"
 
 verbosity=0;
 int CA=3, CK=4, CB=5;
@@ -109,8 +109,8 @@ cout << "nDoF/Element:\t\t" << Vh.ndofK << endl;
 cout << endl;
 
 savemesh(Th,"capacitor_2d.msh");
-ffExportVh("capacitor_vh_2d.txt",Th,Vh);
-ffExportData3("capacitor_data_2d.txt",u,Ex,Ey);
+ffSaveVh(Th,Vh,"capacitor_vh_2d.txt");
+ffSaveData3(u,Ex,Ey,"capacitor_data_2d.txt");
 
 plot(u,bw=true);
 plot(Th,wait=true);
