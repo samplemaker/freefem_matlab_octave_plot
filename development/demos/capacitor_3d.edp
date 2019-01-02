@@ -141,7 +141,7 @@ mesh3 Tha43d=buildlayers(Tha2,l*(z[5]-z[4]),
 
 mesh3 Thn3d=Tha03d+Tha13d+Tha23d+Tha33d+Tha43d;
 
-fespace Vh(Thn3d,P2);
+fespace Vh(Thn3d,P1);
 Vh u,v,h;
 
 //Terminal K on Ground
