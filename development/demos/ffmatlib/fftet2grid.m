@@ -61,7 +61,7 @@
 %  4           7            1
 %
 
-%% Interpolation for P1-Elements
+%% P1-Element Approximation
 %
 % Choose a coordinate transformation $$ (x_1,x_2,x_3) \rightarrow (w_1,w_2,w_3) $$ where
 %
@@ -74,7 +74,7 @@
 %
 % $$ \rightarrow u_p(w_1,w_2,w_3)=c_1+c_2w_1+c_3w_2+c_4w_3 $$
 %
-% This equation can be solved for the constants depending on the function $$u$$ given at
+% This equation can be solved for the constants depending on $$ u $$ given at
 % the triangle edge/vertices. The base functions turn out to be:
 %
 % $$ N_1=w_1(2w_1-1) $$
@@ -91,7 +91,7 @@
 % $$ u_p=u_1N_1+u_2N_2+u_3N_3+u_4N_4 $$
 %
 
-%% Interpolation for P2-Elements
+%% P2-Element Approximation
 %
 % Choose a coordinate transformation $$ (x_1,x_2,x_3) \rightarrow (w_1,w_2,w_3) $$ where
 %
@@ -104,7 +104,7 @@
 %
 % $$ \rightarrow u_p(w_1,w_2,w_3)=c_1+c_2w_1+c_3w_2+c_4w_3+c_5w_1w_2+c_6w_1w_3+c_7w_2w_3+c_8w_1^2+c_9w_2^2+c_{10}w_3^2 $$
 %
-% This equation can be solved for the constants depending on the function $$ u $$ given at
+% This equation can be solved for the constants depending on $$ u $$ given at
 % the tetrahedron edge/vertices. The base functions turn out to be:
 %
 % $$ N_1=w_1(2w_1-1) $$
@@ -127,7 +127,7 @@
 %
 % $$ N_{10}=4w_3(1-w_1-w_2-w_3) $$
 %
-% The interpolation of $$u_p$$ at the point p with the coordinates $$ (x,y,z) $$ is
+% The interpolation of $$ u_p $$ at the point p with the coordinates $$ (x,y,z) $$ is
 % calculated by the values given on the tetrahedron edge/vertices by:
 %
 % $$ u_p=u_1N_1+u_2N_2+u_3N_3+u_4N_4+u_5N_5+u_6N_6+u_7N_7+u_8N_8+u_9N_9+u_{10}N_{10} $$
@@ -224,7 +224,7 @@ function [varargout] = fftet2grid(x, y, z, tx, ty, tz, varargin)
             if ~isempty(pos)
               for i=1:nDim
                 U{i}=varargin{i}(:,preselect);
-              end  
+              end
                 w1=V1(pos);
                 w2=V2(pos);
                 w3=V3(pos);

@@ -46,15 +46,21 @@
 %                        'on' (default) | 'off' | 'northoutside' ...
 %      'CBTitle'      Colorbar Title
 %                        (default=[])
-%      'ColorRange'   Range of values to adjust the color thresholds
+%      'ColorRange'   Range of values to adjust the colormap thresholds
 %                        'off' | 'minmax' (default) | 'centered' | 'cropminmax' | 'cropcentered' | [min,max]
 %      'Mesh'         Switches the mesh off / on
 %                        'on' | 'off' (default)
+%      'MColor'       Color to colorize the mesh
+%                        'auto' (default) | RGB triplet | 'r' | 'g' | 'b'
+%      'RLabels'      Meshplot of specified regions
+%                        [] (default) | [region1,region2,...]
+%      'RColors'      Colorize regions with a specific color (linked to 'RLabels')
+%                        'b' (default) | three-column matrix of RGB triplets
 %      'Boundary'     Shows the domain boundary / edges
 %                        'on' | 'off' (default)
 %      'BDLabels'     Draws boundary / edges with a specific label
 %                        [] (default) | [label1,label2,...]
-%      'BDColors'     Colorize boundary / edges with color (linked to 'BDLabels')
+%      'BDColors'     Colorize boundary / edges with a specific color (linked to 'BDLabels')
 %                        'r' (default) | three-column matrix of RGB triplets
 %      'BDShowText'   Shows the labelnumber on the boundary / edges
 %                        'on' | 'off' (default)
@@ -84,6 +90,8 @@
 %                        'off' | 'xyequal' (default) | [ux,uy,uz]
 %      'FlowData'     Data for quiver plot
 %                        FreeFem++ point data | FreeFem++ triangle data
+%      'FColor'       Color to colorize the quiver arrows
+%                        'b' (default) | RGB triplet | 'r' | 'g'
 %      'FGridParam'   Number of grid points used for quiver plot
 %                        'auto' (default) | [N,M]
 
@@ -120,21 +128,21 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
     end
 
     numvarargs = length(varargin);
-    optsnames = {'VhSeq', 'XYData', 'XYStyle', 'Mesh', 'Boundary', 'BDLabels', ...
+    optsnames = {'VhSeq', 'XYData', 'XYStyle', 'Mesh', 'MColor', 'Boundary', 'BDLabels', ...
                  'BDColors', 'BDShowText', 'BDTextWeight', 'BDTextSize', ...
-                 'ZStyle', 'Contour', ...
+                 'RLabels', 'RColors', 'ZStyle', 'Contour', ...
                  'CGridParam', 'CColor', 'CLevels', 'CStyle', ...
                  'ColorMap', 'ColorBar', 'CBTitle', 'ColorRange', ...
                  'Title', 'XLim', 'YLim', 'ZLim', 'DAspect', ...
-                 'FlowData', 'FGridParam'};
+                 'FlowData', 'FColor', 'FGridParam'};
 
-    vararginval = {[], [], 'interp', 'off', 'off', [], ...
+    vararginval = {[], [], 'interp', 'off', [], 'off', [], ...
                    'r', 'off', [], [], ...
-                   'off', 'off', ...
+                   [], 'b', 'off', 'off', ...
                    'auto', [0,0,0], 10, 'colored', ...
                    'cool', 'on', [], 'minmax', ...
                    [], 'minmax', 'minmax', 'minmax', 'xyequal', ...
-                   [], 'auto'};
+                   [], 'b', 'auto'};
 
     hax=[];
     if (numvarargs>0)
@@ -162,13 +170,13 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
         end
     end
 
-    [vhseq, xyrawdata, xystyle, showmesh, showboundary, bdlabels, ...
+    [vhseq, xyrawdata, xystyle, showmesh, mcolor, showboundary, bdlabels, ...
      bdcolors, bdshowtext, bdtxtweight, bdtxtsize, ...
-     zstyle, contourplt, ...
+     rlabels, rcolors, zstyle, contourplt, ...
      cgridparam, ccolor, isolevels, contourstyle, ...
      setcolormap, showcolbar, colorbartitle, colorrange, ...
      plottitle, plotxlim, plotylim, plotzlim, axisaspect, ...
-     flowrawdata, fgridparam] = vararginval{:};
+     flowrawdata, fcolor, fgridparam] = vararginval{:};
 
     %newplot() checks the values of the NextPlot-properties and prepare the
     %figure for plotting based on these values. If there is no current figure,
@@ -180,7 +188,7 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
 %             fig = obj;
 %         end
 %         obj = get(obj,'parent');
-%     end 
+%     end
     fig=get(hax,'Parent');
     oldnextplotval{1}=get(hax,'nextplot');
     oldnextplotval{2}=get(fig,'nextplot');
@@ -216,13 +224,14 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 if (strcmpi(xystyle,'interp'))
                     %With Mesh
                     if ~strcmpi(showmesh,'off')
+                        meshcol = getmcol(mcolor,[0 0 0]);
                         switch (elementType)
                             case ('P1')
-                                hh=patch(xdata,ydata,cdata,'EdgeColor',[0 0 0]);
+                                hh=patch(xdata,ydata,cdata,'EdgeColor',meshcol);
                             case ('P2')
                                 hh=patch(xdata,ydata,cdata,'EdgeColor','none');
                                 hhm=patch(xmesh,ymesh,[1 1 1],'FaceColor','none', ...
-                                          'EdgeColor',[0 0 0]);
+                                          'EdgeColor',meshcol);
                                 hh=[hh; hhm];
                             otherwise
                                 error('Unknown Lagrangian Finite Element. Only P1 and P2 allowed');
@@ -235,8 +244,9 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 %Note: Case is duplicate. In this case coloring is explicetly
                 %disabled by the XYStyle parameter.
                 else
+                    meshcol = getmcol(mcolor,[0 0 1]);
                     hh=patch(xmesh,ymesh,[1 1 1],'FaceColor','none', ...
-                             'EdgeColor',[0 0 1]);
+                             'EdgeColor',meshcol);
                 end
                 %Once xyrawdata is given there is no way to create an empty plot
                 view(2);
@@ -247,15 +257,16 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 if (strcmpi(xystyle,'interp'))
                     %With Mesh
                     if ~strcmpi(showmesh,'off')
+                        meshcol = getmcol(mcolor,[0 0 0]);
                         switch (elementType)
                             case ('P1')
-                                hh=patch(xdata,ydata,cdata,cdata,'EdgeColor',[0 0 0]);
+                                hh=patch(xdata,ydata,cdata,cdata,'EdgeColor',meshcol);
                             case ('P2')
                                 hh=patch(xdata,ydata,cdata,cdata,'EdgeColor','none');
                                 %Display the mesh at the triangle points {1,6,2,4,3,5}
                                 %otherwise parts of mesh can be hidden by the
                                 %previous patch plot data
-                                hhm=patch(xdataz,ydataz,cdataz,[1 1 1],'FaceColor','none', 'EdgeColor',[0 0 0]);
+                                hhm=patch(xdataz,ydataz,cdataz,[1 1 1],'FaceColor','none','EdgeColor',meshcol);
                                 hh=[hh; hhm];
                             otherwise
                                 error('Unknown Lagrangian Finite Element. Only P1 and P2 allowed');
@@ -266,11 +277,12 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                     end
                 %Uncolored 3D Plot - Mesh only
                 else
+                    meshcol = getmcol(mcolor,[0 0 1]);
                     switch (elementType)
                         case ('P1')
-                            hh=patch(xdata,ydata,cdata,[1 1 1],'FaceColor','none', 'EdgeColor',[0 0 1]);
+                            hh=patch(xdata,ydata,cdata,[1 1 1],'FaceColor','none', 'EdgeColor',meshcol);
                         case ('P2')
-                            hh=patch(xdataz,ydataz,cdataz,[1 1 1],'FaceColor','none', 'EdgeColor',[0 0 1]);
+                            hh=patch(xdataz,ydataz,cdataz,[1 1 1],'FaceColor','none', 'EdgeColor',meshcol);
                         otherwise
                             error('Unknown Lagrangian Finite Element. Only P1 and P2 allowed');
                     end
@@ -423,36 +435,36 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 caxis(colorrange);
             else
                 if strcmpi(colorrange,'minmax') || strcmpi(colorrange,'centered')
-                   %Set to [min max] of the whole mesh
-                   if strcmpi(colorrange,'minmax')
-                       caxis([min(min(cdata)) max(max(cdata))]);
-                   else
-                       %Colormap symmetric around zero ('centered')
-                       caxis([-max(max(abs(cdata))) max(max(abs(cdata)))]);
-                   end
+                    %Set to [min max] of the whole mesh
+                    if strcmpi(colorrange,'minmax')
+                        caxis([min(min(cdata)) max(max(cdata))]);
+                    else
+                    %Colormap symmetric around zero ('centered')
+                        caxis([-max(max(abs(cdata))) max(max(abs(cdata)))]);
+                    end
                 else
-                   %Set to [min max] of cropped area (auto ranging)
-                   [~,sz2]=size(cdata);
-                   keep = true(1,sz2);
-                   if ~strcmpi(plotxlim,'minmax')
-                      keepx = (xdata > min(plotxlim)) & (xdata < max(plotxlim));
-                      keep = keep & (keepx(1,:) & keepx(2,:) & keepx(3,:));
-                   end
-                   if ~strcmpi(plotylim,'minmax')
-                      keepy = (ydata > min(plotylim)) & (ydata < max(plotylim));
-                      keep = keep & (keepy(1,:) & keepy(2,:) & keepy(3,:));
-                   end
-                   crng = [min(min(cdata(:,keep))) max(max(cdata(:,keep)))];
-                   if (isempty(crng) || (min(crng) == max(crng)))
-                      %E.g. too much magnification
-                      error('''ColorRange'': No color spread in the cropped section / try ''minmax''');
-                   end
-                   if strcmpi(colorrange,'cropminmax')
-                       caxis(crng);
-                   else
-                       %Colormap symmetric around zero ('cropcentered')
-                       caxis([-max(abs(crng)) max(abs(crng))]);
-                   end
+                    %Set to [min max] of cropped area (auto ranging)
+                    [~,sz2]=size(cdata);
+                    keep = true(1,sz2);
+                    if ~strcmpi(plotxlim,'minmax')
+                        keepx = (xdata > min(plotxlim)) & (xdata < max(plotxlim));
+                        keep = keep & (keepx(1,:) & keepx(2,:) & keepx(3,:));
+                    end
+                    if ~strcmpi(plotylim,'minmax')
+                        keepy = (ydata > min(plotylim)) & (ydata < max(plotylim));
+                        keep = keep & (keepy(1,:) & keepy(2,:) & keepy(3,:));
+                    end
+                    crng = [min(min(cdata(:,keep))) max(max(cdata(:,keep)))];
+                    if (isempty(crng) || (min(crng) == max(crng)))
+                        %E.g. too much magnification
+                        error('''ColorRange'': No color spread in the cropped section / try ''minmax''');
+                    end
+                    if strcmpi(colorrange,'cropminmax')
+                        caxis(crng);
+                    else
+                        %Colormap symmetric around zero ('cropcentered')
+                        caxis([-max(abs(crng)) max(abs(crng))]);
+                    end
                 end
             end
         end
@@ -470,7 +482,41 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
     %Uncolored, flat 2D mesh plot (no xyrawdata is given)
     else
         if ~strcmpi(showmesh,'off')
-            hh=patch(xmesh,ymesh,[1 1 1],'FaceColor','none','EdgeColor',[0 0 1]);
+            meshcol = getmcol(mcolor,[0 0 1]);
+            if ~isempty(rlabels)
+                if isnumeric(rcolors)
+                    %bdcolors as numeric RGB data (three column RGB triplets)
+                    [nRColors,nRGB] = size(rcolors);
+                    if (nRGB ~= 3)
+                        error('''RColors'': Must be a three column matrix of RGB triplets');
+                    end
+                else
+                    %as colorstring, e.g. 'r' or 'red'
+                    nRColors = 1;
+                end
+                for i=1:numel(rlabels)
+                    tmp=triangles(1:3,(triangles(4,:)==rlabels(i)));
+                    if any(tmp)
+                        xreg=[xpts(tmp(1,:)); xpts(tmp(2,:)); xpts(tmp(3,:))];
+                        yreg=[ypts(tmp(1,:)); ypts(tmp(2,:)); ypts(tmp(3,:))];
+                        if (nRColors > 1)
+                            hq=patch(xreg,yreg,[1 1 1],'FaceColor','none','EdgeColor',rcolors(i,:));
+                        else
+                            hq=patch(xreg,yreg,[1 1 1],'FaceColor','none','EdgeColor',meshcol);
+                        end
+                        if ~isempty(hh)
+                            hh=[hh; hq];
+                        else
+                            hh=hq;
+                        end
+                    else
+                        fprintf('Region Label:%i\n',rlabels(i));
+                        error('Region Label not found in Mesh');
+                    end
+                end
+            else
+                hh=patch(xmesh,ymesh,[1 1 1],'FaceColor','none','EdgeColor',meshcol);
+            end
             view(2);
         end
         %If "mesh" is switched of we can exit at this point without any plot
@@ -537,7 +583,7 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
         end
 
         idx=(~isnan(U)) & (~isnan(V));
-        hq=quiver(X(idx),Y(idx),U(idx),V(idx));
+        hq=quiver(X(idx),Y(idx),U(idx),V(idx),'Color',fcolor);
         if ~isempty(hh)
             hh=[hh; hq];
         else
@@ -586,6 +632,9 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                             set(txt,'FontSize',bdtxtsize);
                         end
                     end
+                else
+                    fprintf('Boundary Label:%i\n',bdlabels(i));
+                    error('Boundary Label not found in Mesh');
                 end
             end
         else
@@ -629,6 +678,14 @@ function [S] = rowvec(S)
     end
 end
 
+function meshcol = getmcol(mcolor,defaultcol)
+    if ~isempty(mcolor) && ~strcmpi(mcolor,'auto')
+        meshcol=mcolor;
+    else
+        meshcol=defaultcol;
+    end
+end
+
 function isAxes = IsAxes(hax)
     try
         isAxes = strcmp(get(hax, 'type'), 'axes');
@@ -657,6 +714,9 @@ function printhelp()
     fprintf('''CBTitle''      Colorbar Title (default=[])\n');
     fprintf('''ColorRange''   Range of values to adjust the color thresholds (default=''minmax'')\n');
     fprintf('''Mesh''         Switches the mesh off / on (default=''off'')\n');
+    fprintf('''MColor''       Color to colorize the mesh (default=''auto'')\n');
+    fprintf('''RColors''      Colorize regions with a specific color (linked to ''RLabels'')\n');
+    fprintf('''RLabels''      Meshplot of specified regions\n');
     fprintf('''Boundary''     Shows the domain boundary / edges (default=''off'')\n');
     fprintf('''BDLabels''     Draws boundary / edges with a specific label (default=[])\n');
     fprintf('''BDColors''     Colorize boundary / edges with color (default=''r'')\n');
@@ -674,6 +734,7 @@ function printhelp()
     fprintf('''ZLim''         Range for the z-axis (default=''minmax'')\n');
     fprintf('''DAspect''      Data unit length of the xy- and z-axes (default=''xyequal'')\n');
     fprintf('''FlowData''     Data for quiver plot\n');
+    fprintf('''FColor''       Color to colorize the quiver arrows (default=''b'')\n');
     fprintf('''FGridParam''   Number of grid points used for quiver plot (default=''off'')\n');
     fprintf('\n');
 end

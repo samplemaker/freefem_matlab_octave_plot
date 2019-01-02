@@ -522,7 +522,7 @@ function [touchedTets] = sliceTets(xmesh,ymesh,zmesh,S1,S2,S3)
 
     [~,nt]=size(xmesh);
     xyzmesh=[reshape(xmesh,4*nt,1), reshape(ymesh,4*nt,1),reshape(zmesh,4*nt,1)];
- 
+
     S1=colvec(S1);
     S2=colvec(S2);
     S3=colvec(S3);

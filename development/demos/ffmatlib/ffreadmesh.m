@@ -3,7 +3,7 @@
 %  Author: Chloros2 <chloros2@gmx.de>
 %  Created: 2018-12-18
 %
-% [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
+% [p,b,t,nv,nbe,nt,labels,regions]=ffreadmesh(filename)
 %
 %  This file is part of the ffmatlib which is hosted at
 %  https://github.com/samplemaker/freefem_matlab_octave_plot
@@ -14,8 +14,8 @@
 %  ffreadmesh reads a FreeFem++ mesh file created by the FreeFem++
 %  savemesh(Th,"2dmesh.msh") or savemesh(Th3d,"3dmesh.mesh") command.
 %  The possible formats are:
-%  savemesh(Th,"2d.msh"):    Format - FreeFem++(*.msh)
-%  savemesh(Th3d,"3d.mesh"): Format - INRIA Medit(*.mesh)
+%  savemesh(Th,"2d.msh"):    Format - FreeFem++ (*.msh)
+%  savemesh(Th3d,"3d.mesh"): Format - INRIA Medit (*.mesh)
 %
 
 %% Input Parameters
@@ -67,38 +67,40 @@
 
 %% Code
 
-function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
+function [p,b,t,nv,nbe,nt,labels,regions]=ffreadmesh(filename)
 
     verbose=false;
 
-    mesh_format_FREEFEM=1;
-    mesh_format_MEDIT=2;
-    mesh_format_NONE=-1;
-    meshformat=mesh_format_NONE;
+    FORMAT_FREEFEM=1;
+    FORMAT_MEDIT=2;
+    FORMAT_NONE=-1;
+
+    meshformat=FORMAT_NONE;
 
     fid=fopen(filename,'r');
     if fid < 0
-      error('cannot open file');
+        fprintf('file: %s\n',filename);
+        error('cannot open mesh-file');
     end
 
     fline=fgetl(fid);
     tests=regexpi(fline,'MeshVersionFormatted');
     if ~isempty(tests)
-        meshformat=mesh_format_MEDIT;
+        meshformat=FORMAT_MEDIT;
     else
-        tests=regexpi(fline,'^(\d+)\s+(\d+)\s+(\d+)\s*$','tokens');
+        tests=strsplit(strtrim(fline),' ');
         if ~isempty(tests)
-            testf=str2double(tests{:});
+            testf=str2double(tests);
             if ~any(isnan(testf))
                 if numel(testf==3)
-                    meshformat=mesh_format_FREEFEM;
+                    meshformat=FORMAT_FREEFEM;
                 end
             end
         end
     end
 
     switch meshformat
-        case mesh_format_FREEFEM
+        case FORMAT_FREEFEM
 
               fline = fgetl(fid);
               dimension=numel(strsplit(strtrim(fline),' '))-1;
@@ -124,10 +126,13 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
               tmp=textscan(fid,repmat('%f ',[1, 3]),nbe,'Delimiter','\n');
               b=cell2mat(tmp)';
               fclose(fid);
-              labels=unique(b(3,b(3,:)~=0));
+              %labels=unique(b(3,b(3,:)~=0));
+              labels=unique(b(3,:));
               nlabels=numel(labels);
+              regions=unique(t(4,:));
+              nregions=numel(regions);
               if verbose
-                  fprintf('FreeFem++(*.msh); dimension=%i\n',dimension);
+                  fprintf('FreeFem++ (*.msh); dimension=%i\n',dimension);
                   fprintf('[Vertices nv:%i; Triangles nt:%i; Edge (Boundary) nbe:%i]\n',nv,nt,nbe);
                   fprintf('NaNs: %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
                   fprintf('Sizes: %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));
@@ -135,9 +140,13 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
                   if nlabels<10
                       fprintf(['They are: ' repmat('%i ',1,size(labels,2)) '\n'],labels);
                   end
+                  fprintf('Regions found: %i\n' ,nregions);
+                  if nregions<10
+                      fprintf(['They are: ' repmat('%i ',1,size(regions,2)) '\n'],regions);
+                  end
               end
 
-        case mesh_format_MEDIT
+        case FORMAT_MEDIT
 
               p = 0; t = 0; b = 0; e = 0; q = 0;
               nv = 0; nt = 0; nbe = 0; nq = 0;
@@ -198,10 +207,12 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
               end
 
               fclose(fid);
-              labels=unique(b(4,b(4,:)~=0));
+              labels=unique(b(4,:));
               nlabels=numel(labels);
+              regions=unique(t(5,:));
+              nregions=numel(regions);
               if verbose
-                  fprintf('INRIA Medit(*.mesh); dimension=%i\n',3);
+                  fprintf('INRIA Medit (*.mesh); dimension=%i\n',3);
                   fprintf('[Vertices nv:%i; Tetrahedras nt:%i; Triangles (Boundary) nbe:%i]\n',nv,nt,nbe);
                   fprintf('NaNs: %i %i %i\n',any(any(isnan(p))),any(any(isnan(t))),any(any(isnan(b))));
                   fprintf('Sizes: %ix%i %ix%i %ix%i\n',size(p),size(t),size(b));
@@ -209,10 +220,15 @@ function [p,b,t,nv,nbe,nt,labels]=ffreadmesh(filename)
                   if nlabels<10
                       fprintf(['They are: ' repmat('%i ',1,size(labels,2)) '\n'],labels);
                   end
+                  fprintf('Regions found: %i\n' ,nregions);
+                  if nregions<10
+                      fprintf(['They are: ' repmat('%i ',1,size(regions,2)) '\n'],regions);
+                  end
               end
 
         otherwise
-            error('unsupported mesh file format');
+              fprintf('file: %s\n',filename);
+              error('cannot determine mesh file format');
     end
 
 end

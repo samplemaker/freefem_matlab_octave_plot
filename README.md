@@ -85,10 +85,16 @@ The FEM mesh is entered through its vertices, the boundary values and the triang
 |               |  'on' (default) \| 'off' \| 'northoutside' ... |
 | 'CBTitle'     | Colorbar Title |
 |               |  (default=[]) |
-| 'ColorRange'  | Range of values to adjust the color thresholds |
+| 'ColorRange'  | Range of values to adjust the colormap thresholds |
 |               |  'off' \| 'minmax' (default) \| 'centered' \| 'cropminmax' \| 'cropcentered' \| [min,max] |
 | 'Mesh'        | Switches the mesh off / on |
 |               |  'on' \| 'off' (default) |
+| 'MColor'      | Color to colorize the mesh |
+|               |  'auto' (default) \| RGB triplet \| 'r' \| 'g' \| 'b' |
+| 'RLabels'     | Meshplot of specified regions |
+|               |  [] (default) \| [region1,region2,...] |
+| 'RColors'     | Colorize regions with a specific color (linked to 'RLabels') |
+|               |  'b' (default) \| three-column matrix of RGB triplets |
 | 'Boundary'    | Shows the domain boundary / edges |
 |               |  'on' \| 'off' (default) |
 | 'BDLabels'    | Draws boundary / edges with a specific label |
@@ -123,6 +129,8 @@ The FEM mesh is entered through its vertices, the boundary values and the triang
 |               |  'off' \| 'xyequal' (default) \| [ux,uy,uz] |
 | 'FlowData'    | Data for quiver plot |
 |               |  FreeFem++ point data \| FreeFem++ triangle data |
+| 'FColor'      | Color to colorize the quiver arrows |
+|               |  'b' (default) \| RGB triplet \| 'r' \| 'g' |
 | 'FGridParam'  | Number of grid points used for quiver plot |
 |               |  'auto' (default) \| [N,M] |
 
@@ -378,7 +386,7 @@ A mesh file consists of three parts:
 
 These three blocks are stored in the variables `p`, `b` and `t` respectively.
 
-**2D FreeFem++(*.msh)**
+**2D FreeFem++ (*.msh)**
 
 | Parameter | Value |
 | --- | --- |
@@ -390,7 +398,7 @@ These three blocks are stored in the variables `p`, `b` and `t` respectively.
 | nbe | Number of (boundary) edges (Th.nbe) |
 | labels | Labels found in the mesh file |
 
-**3D INRIA Medit(*.mesh)**
+**3D INRIA Medit (*.mesh)**
 
 | Parameter | Value |
 | --- | --- |
