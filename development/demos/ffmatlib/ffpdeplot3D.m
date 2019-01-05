@@ -4,7 +4,6 @@
 %  Created: 2018-06-15
 %
 % [] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
-% [] = ffpdeplot3D(points,triangles,tetrahedra,hax,varargin)
 %
 %  This file is part of the ffmatlib which is hosted at
 %  https://github.com/samplemaker/freefem_matlab_octave_plot
@@ -18,7 +17,6 @@
 %% Input Parameters
 %
 %   [handles,varargout] = ffpdeplot3D (p,b,t,'PARAM1',val1,'PARAM2',val2,...)
-%   [handles,varargout] = ffpdeplot3D (p,b,t,hax,'PARAM1',val1,'PARAM2',val2,...)
 %
 %   specifies parameter name/value pairs to control the input file format
 %
@@ -107,38 +105,30 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                    [], 'auto', 'auto', ...
                    'auto', 'cartesian', 'off', [], [], []};
 
-    hax=[];
     if (numvarargs>0)
         if (~mod(numvarargs,2))
-            hasHAX=0;
-        else
-            hasHAX=1;
-            %presume first vararg is the axis handle
-            if ~isempty(varargin{1}) && IsAxes(varargin{1})
-                hax=varargin{1};
-            else
-                printhelp();
-                error('4th argument must be a axes handle');
+            i=1;
+            while (i<numvarargs)
+                pos=find(strcmpi(optsnames,varargin(i)));
+                if ~isempty(pos)
+                    if strcmpi('Slice',varargin(i))
+                        vararginval(pos)=varargin(i+1);
+                        vararginval(pos+1)=varargin(i+2);
+                        vararginval(pos+2)=varargin(i+3);
+                        i=i+4;
+                    else
+                        vararginval(pos)=varargin(i+1);
+                        i=i+2;
+                    end
+                else
+                    printhelp();
+                    fprintf('%s\n',char(varargin(i)));
+                    error('unknown input parameter');
+                end
             end
-        end
-        i=1+hasHAX;
-        while (i<numvarargs)
-           pos=find(strcmpi(optsnames,varargin(i)));
-           if ~isempty(pos)
-               if strcmpi('Slice',varargin(i))
-                   vararginval(pos)=varargin(i+1);
-                   vararginval(pos+1)=varargin(i+2);
-                   vararginval(pos+2)=varargin(i+3);
-                   i=i+4;
-               else
-                   vararginval(pos)=varargin(i+1);
-                   i=i+2;
-               end
-           else
-               printhelp();
-               fprintf('%s\n',char(varargin(i)));
-               error('unknown input parameter');
-           end
+        else
+            printhelp();
+            error('wrong number arguments');
         end
     end
 
@@ -154,15 +144,13 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     %newplot() checks the values of the NextPlot-properties and prepare the
     %figure for plotting based on these values. If there is no current figure,
     %newplot creates one.
-    hax=newplot(hax);
+    hax=newplot();
     fig=get(hax,'Parent');
     oldnextplotval{1}=get(hax,'nextplot');
     oldnextplotval{2}=get(fig,'nextplot');
     %switch hold on
     set(hax,'nextplot','add');
     set(fig,'nextplot','add');
-    set(fig,'CurrentAxes',hax);
-    set(0,'CurrentFigure',fig);
     %fprintf('nextplot hax: %s, fig: %s\n',oldnextplotval{1},oldnextplotval{2});
 
     %Set colormap/colorrange based on domain data or based on the subset of a slice
@@ -653,18 +641,9 @@ function [S] = colvec(S)
     end
 end
 
-function isAxes = IsAxes(hax)
-    try
-        isAxes = strcmp(get(hax, 'type'), 'axes');
-    catch
-        isAxes = false;
-    end
-end
-
 function printhelp()
     fprintf('%s\n\n','Invalid call to ffpdeplot3D. Correct usage is:');
     fprintf('%s\n',' -- [handles,varargout] = ffpdeplot3D (p,b,t,varargin)');
-    fprintf('%s\n',' -- [handles,varargout] = ffpdeplot3D (p,b,t,hax,varargin)');
     fprintf('%s\n',' -- ffpdeplot3D(p,b,t,''XYZData'',u)');
     fprintf('%s\n',' -- ffpdeplot3D(p,b,t,''BDLabels'',[30,31],''XYZStyle'',''monochrome'')');
     fprintf('%s\n',' -- ffpdeplot3D(p,b,t,''XYZData'',u,''Slice'',S1,S2,S3,''Boundary'',''off'',''ColorMap'',''jet'')');

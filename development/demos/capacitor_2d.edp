@@ -59,7 +59,7 @@ mesh Th = buildmesh(enclosure(3*n)+
 mesh Zoom = buildmesh(bzoom(2*n)+
                       bottomA(-w2*n)+topA(-w2*n)+rightA(-h*n)+leftA(-h*n)+
                       bottomK(-w2*n)+topK(-w2*n)+rightK(-h*n)+leftK(-h*n));
-fespace Vh(Th,P1);
+fespace Vh(Th,P2);
 fespace ZVh(Zoom,P2);
 
 Vh u,v;
