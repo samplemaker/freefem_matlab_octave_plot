@@ -198,15 +198,12 @@ Interpolates from a 2D triangular mesh to a 2D cartesian or curved grid.
 [p,b,t]=ffreadmesh('capacitor_2d.msh');
 [vh]=ffreaddata('capacitor_vh_2d.txt');
 [u,Ex,Ey]=ffreaddata('capacitor_data_2d.txt');
-xpts=p(1,:);
-ypts=p(2,:);
-xdata=[xpts(t(1,:)); xpts(t(2,:)); xpts(t(3,:))];
-ydata=[ypts(t(1,:)); ypts(t(2,:)); ypts(t(3,:))];
-udata=[u(t(1,:)), u(t(2,:)), u(t(3,:))].';
+[~,pdeData]=convert_pde_data(p,t,vh,u');
+[xmesh,~,ymesh,~]=prepare_mesh(p,t);
 x=linspace(-5,5,500);
 y=linspace(-5,5,500);
 [X,Y]=meshgrid(x,y);
-U=fftri2grid(X,Y,xdata,ydata,udata);
+U=fftri2grid(X,Y,xmesh,ymesh,pdeData{1});
 surf(X,Y,U,'EdgeColor','none');
 view(3);
 ```
@@ -235,7 +232,7 @@ The return values `w1`, ... are real if `u1`, ... are real or complex if `u1`, .
 [u,Ex,Ey]=ffreaddata('capacitor_data_2d.txt');
 s = linspace(0,2*pi(),100);
 Z = 3.5*(cos(s)+1i*sin(s)).*sin(0.5*s);
-w = ffinterpolate(p,b,t,real(Z),imag(Z),u);
+w = ffinterpolate(p,b,t,vh,real(Z),imag(Z),u);
 plot3(real(Z),imag(Z),real(w),'g','LineWidth',2);
 hold on;
 ffpdeplot(p,b,t,'VhSeq',vh,'XYData',u,'ZStyle','continuous','ColorBar','off');
