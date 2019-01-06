@@ -59,9 +59,10 @@ function [elementType, xydata] = convert_pde_data(points,triangles,vhseq,xyrawda
     xydata=cell(1,ndim);
     %Detect Lagrangian Finite Element based on a check between vhseq and the number of triangles
     if (~isempty(vhseq))
-        if (max(vhseq+1)~=length(xyrawdata(1,:)))
-            error('Datalength of PDE data ''XYData'' or ''FlowData'' does not match with Vh-Space connectivity ''VhSeq''');
-        end
+        %does not work for vectorized spaces
+        %if (max(vhseq+1)~=length(xyrawdata(1,:)))
+            %error('Datalength of PDE data ''XYData'' or ''FlowData'' does not match with Vh-Space connectivity ''VhSeq''');
+        %end
         switch (length(vhseq))
             case (3*nt)
                 elementType='P1'; %nDoF=3 / element

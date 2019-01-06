@@ -28,6 +28,7 @@
 macro ffSaveVh(Th, Vh, filename){
   {
   ofstream file(filename);
+  file.precision(10);
   for (int i=0; i<Th.nt; i++){
     for (int j=0; j<Vh.ndofK; j++){
       file << Vh(i,j) << "\n";
@@ -40,6 +41,7 @@ macro ffSaveVh(Th, Vh, filename){
 macro ffSaveData(u, filename){
   {
   ofstream file(filename);
+  file.precision(10);
   for (int j=0; j<u[].n; j++){
     file << u[][j] << endl;
   }
@@ -54,6 +56,7 @@ macro ffSaveData2(u1, u2, filename){
     cout << "error: arguments must have same size" << endl;
     exit(1);
   }
+  file.precision(10);
   for (int j=0; j<datalen; j++){
     file << u1[][j] << " " << u2[][j] << endl;
   }
@@ -68,6 +71,7 @@ macro ffSaveData3(u1, u2, u3, filename){
     cout << "error: arguments must have same size" << endl;
     exit(1);
   }
+  file.precision(10);
   for (int j=0; j<datalen; j++){
     file << u1[][j] << " " << u2[][j] << " " << u3[][j] << endl;
   }
@@ -82,6 +86,7 @@ macro ffSaveData4(u1, u2, u3, u4, filename){
     cout << "error: arguments must have same size" << endl;
     exit(1);
   }
+  file.precision(10);
   for (int j=0; j<datalen; j++){
     file << u1[][j] << " " << u2[][j] << " " << u3[][j] << " " << u4[][j] << endl;
   }
