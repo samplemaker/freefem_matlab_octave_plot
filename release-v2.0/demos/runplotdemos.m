@@ -14,6 +14,9 @@ system('FreeFem++ -ns -nw -v 0 demo_Lshape.edp');
 capacitor_2d
 pause(5);
 close all;
+bdcoloring
+pause(5);
+close all;
 interpolate
 pause(5);
 close all;
