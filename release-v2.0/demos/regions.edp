@@ -1,0 +1,33 @@
+include "ffmatlib.idp"
+
+real[int] XX=[-1,1,-1,1];
+real[int] YY=[-1,-1,1,1];
+
+real[int] PHI=[0.0,0.5,0.6,0.7];
+
+int[int] CC=[1,2,3,4];
+
+real r0=0.2;
+real ra=3;
+border outer(t=0,2*pi){ x=ra*cos(t); y=ra*sin(t);label=123;}
+
+border cycloides(t=0,2*pi;i){x=r0*(3.0*cos(t+PHI[i])+0.3*cos(3.0*t))+XX[i];
+                             y=r0*(3.0*sin(t+PHI[i])-0.3*sin(3.0*t))+YY[i];
+                             label=CC[i];}
+
+int[int] NN=40*[-1,1,1,1];
+
+mesh Th = buildmesh(cycloides(NN)+outer(100));
+
+plot(Th,wait=1);
+
+fespace Vh (Th, P1);
+
+int reg1 = Th(XX[2],YY[2]).region, reg2 = Th(XX[1],YY[1]).region;
+
+Vh u=2.0*(region == reg1)-1.0*(region == reg2);
+
+savemesh(Th,"region.msh");
+ffSaveVh(Th,Vh,"region_vh.txt");
+ffSaveData(u,"region_data.txt");
+
