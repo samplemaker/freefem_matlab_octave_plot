@@ -1,4 +1,4 @@
-%periodic_bc.m Plot a periodic boundary condition problem
+% periodic boundary condition problem
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-10-31

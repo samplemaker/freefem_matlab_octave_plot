@@ -1,4 +1,4 @@
-%capacitor_3d.m The parallel plate capacitor problem
+% 3D parallel plate capacitor problem
 %
 % Author: Chloros2 <chloros2@gmx.de>
 % Created: 2018-05-13

@@ -1,4 +1,4 @@
-/* Electrostatic Parallel Plate Capacitor Problem
+/* 3D parallel plate capacitor problem
  *
  *  Solves the Laplace Equation on a parallel plate capacitor (dirichlet) boundary.
  *  FE-Mesh and space functions are written to text files in order to be plot with

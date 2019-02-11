@@ -18,8 +18,8 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 ### 2D-Problem
 
-[capacitor_2d.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/development/demos/capacitor_2d.m)  
-[capacitor_2d.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/development/demos/capacitor_2d.edp)  
+[capacitor_2d.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/release-v2.0/demos/capacitor_2d.m)  
+[capacitor_2d.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/release-v2.0/demos/capacitor_2d.edp)  
 
 [Screenshot: 3D Patch](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_3d_gouraud.png)  
 [Screenshot: Mesh](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_2d_mesh.png)  
@@ -31,8 +31,8 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 ### 3D-Problem
 
-[capacitor_3d.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/development/demos/capacitor_3d.m)  
-[capacitor_3d.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/development/demos/capacitor_3d.edp)  
+[capacitor_3d.m](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/release-v2.0/demos/capacitor_3d.m)  
+[capacitor_3d.edp](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/release-v2.0/demos/capacitor_3d.edp)  
 
 [Screenshot: 3D Slice](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_3d_slices.png)  
 [Screenshot: 3D Vector field](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_3d_spatial_vectorfield.png)  

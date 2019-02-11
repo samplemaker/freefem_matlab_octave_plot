@@ -1,7 +1,4 @@
-/* Electrostatic Parallel Plate Capacitor Problem
- *
- *  Solves the Laplace Equation on a parallel plate capacitor boundary.
- *  P1 Elements are used in written in order to be plot with Matlab / Octave.
+/* 2D parallel plate capacitor problem
  *
  * Author: Chloros2 <chloros2@gmx.de>
  * Created: 2018-05-19
