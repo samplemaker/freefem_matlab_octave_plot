@@ -9,6 +9,8 @@ fprintf('region.edp\n');
 system('FreeFem++ -ns -nw -v 0 regions.edp');
 fprintf('periodic_bc.edp\n');
 system('FreeFem++ -ns -nw -v 0 periodic_bc.edp');
+fprintf('convective_rolls.edp\n');
+system('FreeFem++ -ns -nw -v 0 convective_rolls.edp');
 fprintf('demo_Lshape.edp\n');
 system('FreeFem++ -ns -nw -v 0 demo_Lshape.edp');
 capacitor_2d
@@ -29,6 +31,10 @@ close all;
 periodic_bc
 pause(5);
 close all;
+convective_rolls
+pause(5);
+close all;
 demo_Lshape
 pause(5);
 close all;
+
