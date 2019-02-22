@@ -1,7 +1,7 @@
 /* Interpolates from a 2D triangular mesh to a 2D cartesian or curved grid
  *
  * Author: Chloros2 <chloros2@gmx.de>
- * Created: 2018-11-13
+ * Created: 2019-02-22
  *
  *   This file is part of the ffmatlib which is hosted at
  *   https://github.com/samplemaker/freefem_matlab_octave_plot
@@ -18,17 +18,13 @@
  *   triangular mesh. fftri2gridfast.c is a runtime optimized mex implementation
  *   of the function fftri2grid.m.
  *
- *   This code is compatible with OCTAVE and MATLAB before version R2018
- *   (two separate matrices from type double used for real and imaginary part).
+ *   IMPORTANT: This code is compatible with MATLAB version R2018 and later
+ *   versions only (uses new the "Interleaved Complex API").
  *
- *   Octave users on Linux with gcc compile the mex file with the command:
+ *   To build the source on Windows with (mingw) gcc execute:
  *
- *       mkoctfile --mex -Wall fftri2gridfast.c
- *
- *   Matlab users on Windows with microsoft visual studio compile the mex
- *   file with the command:
- *
- *       mex fftri2gridfast.c -largeArrayDims
+ *   setenv('MW_MINGW64_LOC','path to mingw');
+ *   mex -R2018a fftri2gridfast_matlab_R2018.c
  *
  * Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
  *
@@ -70,13 +66,13 @@ typedef enum {
 } feElement;
 
 void
-fftri2gridfast(double *x, double *y, double *tx, double *ty,
-               double **tuRe, double **tuIm, double **wRe, double **wIm,
+fftri2gridfast(mxDouble *x, mxDouble *y, mxDouble *tx, mxDouble *ty,
+               mxDouble **tuRe, mxComplexDouble **tuCplx, mxDouble **wRe, mxComplexDouble **wCplx,
                mwSize nOuts, mwSize nTri, mwSize nx,  mwSize ny,
                feElement elementType){
 
-  double *invA0=(double *)mxMalloc(nTri*sizeof(double));
-  double init=mxGetNaN( );
+  mxDouble *invA0=(mxDouble *)mxMalloc(nTri*sizeof(mxDouble));
+  mxDouble init=mxGetNaN( );
 
   /*Triangle areas */
   mwSize j=0;
@@ -90,9 +86,9 @@ fftri2gridfast(double *x, double *y, double *tx, double *ty,
     for (mwSize my=0; my<ny; my++){
       mwSize ofs=(mx*ny)+my;
       for (mwSize nArg=0; nArg<nOuts; nArg++){
-        if (tuIm[nArg] != NULL){
-          *(wIm[nArg]+ofs)=init;
-          *(wRe[nArg]+ofs)=init;
+        if (tuCplx[nArg] != NULL){
+          (*(wCplx[nArg]+ofs)).real = init;
+          (*(wCplx[nArg]+ofs)).imag = init;
         }
         else{
           *(wRe[nArg]+ofs)=init;
@@ -110,11 +106,11 @@ fftri2gridfast(double *x, double *y, double *tx, double *ty,
         /*Potential candiate - calculate Barycentric Coordinates */
         if (presel) {
           /*Sub-triangle areas */
-          double Aa=((ty[i+1]-ty[i+2])*(x[ofs]-tx[i+2])+
-                     (tx[i+2]-tx[i+1])*(y[ofs]-ty[i+2]))*invA0[j];
-          double Ab=((ty[i+2]-ty[i])*(x[ofs]-tx[i+2])+
-                     (tx[i]-tx[i+2])*(y[ofs]-ty[i+2]))*invA0[j];
-          double Ac=1.0-Aa-Ab;
+          mxDouble Aa=((ty[i+1]-ty[i+2])*(x[ofs]-tx[i+2])+
+                       (tx[i+2]-tx[i+1])*(y[ofs]-ty[i+2]))*invA0[j];
+          mxDouble Ab=((ty[i+2]-ty[i])*(x[ofs]-tx[i+2])+
+                       (tx[i]-tx[i+2])*(y[ofs]-ty[i+2]))*invA0[j];
+          mxDouble Ac=1.0-Aa-Ab;
           /*If the point is inside the triangle */
           /*A negative threshold is necessary if the interpolation point is
             on a triangle edge and due to the numerical errors buried
@@ -123,13 +119,13 @@ fftri2gridfast(double *x, double *y, double *tx, double *ty,
             switch (elementType){
               case P1:
                 for (mwSize nArg=0; nArg<nOuts; nArg++){
-                  if (tuIm[nArg] != NULL){
-                    *(wIm[nArg]+ofs)=P1(Aa,Ab,Ac,
-                                        *(tuIm[nArg]+i),*(tuIm[nArg]+i+1),
-                                        *(tuIm[nArg]+i+2));
-                    *(wRe[nArg]+ofs)=P1(Aa,Ab,Ac,
-                                        *(tuRe[nArg]+i),*(tuRe[nArg]+i+1),
-                                        *(tuRe[nArg]+i+2));
+                  if (tuCplx[nArg] != NULL){
+                    (*(wCplx[nArg]+ofs)).imag=P1(Aa,Ab,Ac,
+                                                 (*(tuCplx[nArg]+i)).imag,(*(tuCplx[nArg]+i+1)).imag,
+                                                 (*(tuCplx[nArg]+i+2)).imag);
+                    (*(wCplx[nArg]+ofs)).real=P1(Aa,Ab,Ac,
+                                                 (*(tuCplx[nArg]+i)).real,(*(tuCplx[nArg]+i+1)).real,
+                                                 (*(tuCplx[nArg]+i+2)).real);
                   }
                   else{
                     *(wRe[nArg]+ofs)=P1(Aa,Ab,Ac,
@@ -142,15 +138,15 @@ fftri2gridfast(double *x, double *y, double *tx, double *ty,
                 {
                 mwSize k=2*i;
                 for (mwSize nArg=0; nArg<nOuts; nArg++){
-                  if (tuIm[nArg] != NULL){
-                    *(wIm[nArg]+ofs)=P2(Aa,Ab,
-                                        *(tuIm[nArg]+k),*(tuIm[nArg]+k+1),
-                                        *(tuIm[nArg]+k+2),*(tuIm[nArg]+k+3),
-                                        *(tuIm[nArg]+k+4),*(tuIm[nArg]+k+5));
-                    *(wRe[nArg]+ofs)=P2(Aa,Ab,
-                                        *(tuRe[nArg]+k),*(tuRe[nArg]+k+1),
-                                        *(tuRe[nArg]+k+2),*(tuRe[nArg]+k+3),
-                                        *(tuRe[nArg]+k+4),*(tuRe[nArg]+k+5));
+                  if (tuCplx[nArg] != NULL){
+                    (*(wCplx[nArg]+ofs)).imag=P2(Aa,Ab,
+                                                 (*(tuCplx[nArg]+i)).imag,(*(tuCplx[nArg]+i+1)).imag,
+                                                 (*(tuCplx[nArg]+i+2)).imag,(*(tuCplx[nArg]+i+3)).imag,
+                                                 (*(tuCplx[nArg]+i+4)).imag,(*(tuCplx[nArg]+i+5)).imag);
+                    (*(wCplx[nArg]+ofs)).real=P2(Aa,Ab,
+                                                 (*(tuCplx[nArg]+i)).real,(*(tuCplx[nArg]+i+1)).real,
+                                                 (*(tuCplx[nArg]+i+2)).real,(*(tuCplx[nArg]+i+3)).real,
+                                                 (*(tuCplx[nArg]+i+4)).real,(*(tuCplx[nArg]+i+5)).real);
                   }
                   else{
                     *(wRe[nArg]+ofs)=P2(Aa,Ab,
@@ -182,26 +178,26 @@ void mexFunction(int nlhs, mxArray *plhs[],
   const mwSize nArgMax=100;
 
   feElement elementType=P1;
-  double *x, *y;
+  mxDouble *x, *y;
   mwSize nColX, mRowX, nColY, mRowY;
-  double *tx, *ty;
+  mxDouble *tx, *ty;
   mwSize nColTX, mRowTX, nColTY, mRowTY;
-  double *tuRe[nArgMax], *tuIm[nArgMax];
+  mxComplexDouble *tuCplx[nArgMax], *wCplx[nArgMax];
+  mxDouble *tuRe[nArgMax],*wRe[nArgMax];
   mwSize nColTU[nArgMax], mRowTU[nArgMax];
-  double *wRe[nArgMax], *wIm[nArgMax];
 
   if ((nrhs < 5) || (nrhs > nArgMax)){
     mexErrMsgTxt("Number of input arguments not plausible");
   }
 
   mwSize nDim=(mwSize)(nrhs-4);
-  //mexPrintf("nnDim: %i\n",nDim);
+  mexPrintf("nDim: %i\n",nDim);
 
   /*Meshgrid x,y */
-  x=mxGetPr(prhs[0]);
+  x=mxGetDoubles(prhs[0]);
   nColX=(mwSize)mxGetN(prhs[0]);
   mRowX=(mwSize)mxGetM(prhs[0]);
-  y=mxGetPr(prhs[1]);
+  y=mxGetDoubles(prhs[1]);
   nColY=(mwSize)mxGetN(prhs[1]);
   mRowY=(mwSize)mxGetM(prhs[1]);
   if (!((nColX == nColY) && (mRowX == mRowY))){
@@ -211,10 +207,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
   mwSize nY=mRowX;
 
   /*Triangle Mesh tx, ty */
-  tx=mxGetPr(prhs[2]);
+  tx=mxGetDoubles(prhs[2]);
   nColTX=(mwSize)mxGetN(prhs[2]);
   mRowTX=(mwSize)mxGetM(prhs[2]);
-  ty=mxGetPr(prhs[3]);
+  ty=mxGetDoubles(prhs[3]);
   nColTY=(mwSize)mxGetN(prhs[3]);
   mRowTY=(mwSize)mxGetM(prhs[3]);
   if (!((mRowTX == 3) && (mRowTY == 3))){
@@ -230,12 +226,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
     nColTU[i]=(mwSize)mxGetN(prhs[i+4]);
     mRowTU[i]=(mwSize)mxGetM(prhs[i+4]);
     if (mxIsComplex(prhs[i+4])){
-      tuRe[i]=mxGetPr(prhs[i+4]);
-      tuIm[i]=mxGetPi(prhs[i+4]);
+      tuCplx[i] = mxGetComplexDoubles(prhs[i+4]);
+      tuRe[i]=NULL;
     }
     else{
-      tuRe[i]=mxGetPr(prhs[i+4]);
-      tuIm[i]=NULL;
+      tuRe[i] = mxGetDoubles(prhs[i+4]);
+      tuCplx[i] = NULL;
     }
   }
   mwSize nDoF=mRowTU[0];
@@ -246,7 +242,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
      }
   }
 
-  //mexPrintf("nXcol:%i nYrow:%i nT:%i nDoF:%i\n",nX,nY,nTri,nDoF);
+  mexPrintf("nXcol:%i nYrow:%i nT:%i nDoF:%i\n",nX,nY,nTri,nDoF);
 
   switch (nDoF){
     case 3:
@@ -265,18 +261,20 @@ void mexFunction(int nlhs, mxArray *plhs[],
   }
 
   for (mwSize i=0; i<nDim; i++){
-     if (tuIm[i] != NULL){
+     if (tuCplx[i] != NULL){
        plhs[i]=mxCreateDoubleMatrix(nY, nX, mxCOMPLEX);
-       wRe[i]=mxGetPr(plhs[i]);
-       wIm[i]=mxGetPi(plhs[i]);
+       wCplx[i]=mxGetComplexDoubles(plhs[i]);
+       wRe[i]=NULL;
+       mexPrintf("data %i is complex\n",i);
      }
      else{
        plhs[i]=mxCreateDoubleMatrix(nY, nX, mxREAL);
-       wRe[i]=mxGetPr(plhs[i]);
-       wIm[i]=NULL;
+       wRe[i]=mxGetDoubles(plhs[i]);
+       wCplx[i]=NULL;
+       mexPrintf("data %i is real\n",i);
      }
   }
 
-  fftri2gridfast (x,y,tx,ty,tuRe,tuIm,wRe,wIm,nDim,nTri,nX,nY,
+  fftri2gridfast (x,y,tx,ty,tuRe,tuCplx,wRe,wCplx,nDim,nTri,nX,nY,
                   elementType);
 }

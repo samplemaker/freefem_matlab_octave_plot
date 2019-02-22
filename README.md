@@ -487,7 +487,7 @@ In Matlab under a Windows system with Microsoft Visual Studio as compiler the ME
 
 If the build fails with Microsoft Visual Studio 10 try to enable the C99-standard or try to change the file name into *.cpp, forcing MVS to use a C++ compiler.<br>
 
-Since release R2018 MathWorks has implemented a new memory layout for complex numbers. Old MEX files are incompatible with this new Interleaved Complex API. New ffmatlib MEX files are available but completely untested. If you want to be a test volunteer send me an e-mail.
+IMPORTANT: Since Matlab release R2018 MathWorks has worked out a new memory layout for complex matrices. Therefore old style MEX files are incompatible with this new Interleaved Complex API. If you want to use the runtime optimized code on such a new system please check out the files `fftri2gridfast_matlab_R2018.c` and `fftet2gridfast_matlab_R2018.c` instead.
 
 ## Notes on Hardware Acceleration
 
@@ -498,7 +498,7 @@ It should be emphasized that the responsiveness of the plots is highly dependent
   * `set(figure_handle,'Renderer','OpenGL')` forces a figure() to switch to OpenGL
   * `set(figure_handle,'Renderer','painters')` forces a figure() to switch to vector graphics
 
-Generally OpenGL can be considered to be faster than painters. To get an OpenGL info type `opengl info` within Matlab. Ensure the line `Software` shows `false` otherwise OpenGL will run in software mode. If hardware-accelerated OpenGL is available on the system, the modes can be changed manually using the `opengl software` and `opengl hardware` commands.
+Generally OpenGL can be considered to be faster than painters. To get an OpenGL info type `opengl info` within Matlab. Ensure the line `Software` shows `false` otherwise OpenGL will run in software mode. If hardware-accelerated OpenGL is available on the system, the modes can be changed manually using the `opengl software` and `opengl hardware` commands. My personal experience is that Matlab R2018 runs much fastern than R2013.
 
 ## Software
 
