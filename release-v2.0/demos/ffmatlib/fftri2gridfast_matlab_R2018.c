@@ -53,6 +53,11 @@
 
 #define P1(Aa,Ab,Ac,u1,u2,u3) (u1*Aa+u2*Ab+u3*Ac)
 
+#define P1b(Aa,Ab,Ac,u1,u2,u3,u4) (u1*Aa+                              \
+                                   u2*Ab+                              \
+                                   u3*Ac+                              \
+                                   9.0*(3.0*u4-(u1+u2+u3))*Aa*Ab*Ac)
+
 #define P2(Aa,Ab,u1,u2,u3,u4,u5,u6) u1*Aa*(2.0*Aa-1.0)+               \
                                     u2*Ab*(2.0*Ab-1.0)+               \
                                     u3*(1.0-Aa-Ab)*(1.0-2.0*(Aa+Ab))+ \
@@ -62,6 +67,7 @@
 
 typedef enum {
   P1,
+  P1b,
   P2
 } feElement;
 
@@ -134,9 +140,29 @@ fftri2gridfast(mxDouble *x, mxDouble *y, mxDouble *tx, mxDouble *ty,
                   }
                 }
               break;
+              case P1b:
+                {
+                mwSize k=4*j;
+                for (mwSize nArg=0; nArg<nOuts; nArg++){
+                  if (tuCplx[nArg] != NULL){
+                    (*(wCplx[nArg]+ofs)).imag=P1b(Aa,Ab,Ac,
+                                                 (*(tuCplx[nArg]+k)).imag,(*(tuCplx[nArg]+k+1)).imag,
+                                                 (*(tuCplx[nArg]+k+2)).imag,(*(tuCplx[nArg]+k+3)).imag);
+                    (*(wCplx[nArg]+ofs)).real=P1b(Aa,Ab,Ac,
+                                                 (*(tuCplx[nArg]+k)).real,(*(tuCplx[nArg]+k+1)).real,
+                                                 (*(tuCplx[nArg]+k+2)).real,(*(tuCplx[nArg]+k+3)).real);
+                  }
+                  else{
+                    *(wRe[nArg]+ofs)=P1b(Aa,Ab,Ac,
+                                        *(tuRe[nArg]+k),*(tuRe[nArg]+k+1),
+                                        *(tuRe[nArg]+k+2),*(tuRe[nArg]+k+3));
+                  }
+                }
+              }
+              break;
               case P2:
                 {
-                mwSize k=2*i;
+                mwSize k=6*j;
                 for (mwSize nArg=0; nArg<nOuts; nArg++){
                   if (tuCplx[nArg] != NULL){
                     (*(wCplx[nArg]+ofs)).imag=P2(Aa,Ab,
@@ -247,6 +273,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
   switch (nDoF){
     case 3:
       elementType=P1;
+    break;
+    case 4:
+      elementType=P1b;
     break;
     case 6:
       elementType=P2;

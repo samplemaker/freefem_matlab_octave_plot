@@ -30,6 +30,27 @@
 %
 %  For P1 elements coloring data is located at the mesh points.
 %
+%
+%  P1b (DoF=4) - Element Numbering
+%
+%            3
+%           /|
+%          / |
+%         /  |
+%        /   |
+%       /    |
+%      /     |
+%     /   4  |
+%    /       |
+%   1--------2
+%
+%  Note: The barycenter 4 is defined by the bubble function.
+%
+%  The triangle {1,2,3} is divided into following subtrinagles:
+%
+%  1.) {1,2,4},{2,3,4},{1,4,3}
+%
+%
 %  P2 (DoF=6) - Element Numbering
 %
 %            3
@@ -110,6 +131,27 @@ function [varargout] = prepare_data(elementType,triangles,xydata,xmesh,ymesh,doZ
                 %interpolation code / fftri2grid()
                 varargout{i+2*ndim}=[];
             end
+        case ('P1b')
+            for i=1:ndim
+               %cc is a nTriangle columns x 4 rows matrix containing
+               %all FE-Space data (= 3 triangle vertices + 1x bubble
+               %function)
+               cc=xydata{i};
+               %the value at the barycenter is the bubblevalue
+               uintrp=cc(4,:);
+               %Refine the mesh
+               um1_2_4=[cc(1,:);cc(2,:);uintrp];
+               um2_3_4=[cc(2,:);cc(3,:);uintrp];
+               um1_4_3=[cc(1,:);uintrp;cc(3,:)];
+               %Assemble the refined mesh
+               cdata=[um1_2_4,um2_3_4,um1_4_3];
+               varargout{i}=cdata;
+               %z-ploting for P1b is plotting the triangle vertices = (xmesh, ymesh) points
+               varargout{i+ndim}=cc(1:3,:);
+               %used by fftri2grid()
+               varargout{i+2*ndim}=cc;
+            end
+        %TODO: Remove "else" part and improve speed by moving all xmesh-calculations before the for loop!!!
         case ('P2')
             [~,nt]=size(triangles);
             for i=1:ndim
@@ -193,7 +235,7 @@ function [varargout] = prepare_data(elementType,triangles,xydata,xmesh,ymesh,doZ
                 end
             end
     otherwise
-        error('Unknown Lagrangian Finite Element. Only P1 and P2 allowed');
+        error('Unknown Lagrangian Finite Element. Only P1, P1b and P2 allowed');
     end
 
 end

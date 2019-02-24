@@ -28,6 +28,27 @@
 %
 %  For P1 elements xdata=xdataz=xmesh and ydata=ydataz=ymesh.
 %
+%
+%  P1b (DoF=4) - Element Numbering
+%
+%            3
+%           /|
+%          / |
+%         /  |
+%        /   |
+%       /    |
+%      /     |
+%     /   4  |
+%    /       |
+%   1--------2
+%
+%  Note: The barycenter 4 is defined by the bubble function.
+%
+%  The triangle {1,2,3} is divided into following subtrinagles:
+%
+%  1.) {1,2,4},{2,3,4},{1,4,3}
+%
+%
 %  P2 (DoF=6) - Element Numbering
 %
 %            3
@@ -97,6 +118,25 @@ function [xdata,xdataz,ydata,ydataz] = prepare_coordinates(elementType,xmesh,yme
             %z-ploting for P1 is simply plotting at the (xmesh, ymesh) points
             xdataz=[];
             ydataz=[];
+        case ('P1b')
+            %Calculate the barycenter
+            px4=(xmesh(3,:)+xmesh(2,:)+xmesh(1,:))/3;
+            py4=(ymesh(3,:)+ymesh(2,:)+ymesh(1,:))/3;
+            %Refine Mesh
+            xmesh124=[xmesh(1,:);xmesh(2,:);px4]; ymesh124=[ymesh(1,:);ymesh(2,:);py4];
+            xmesh234=[xmesh(2,:);xmesh(3,:);px4]; ymesh234=[ymesh(2,:);ymesh(3,:);py4];
+            xmesh143=[xmesh(1,:);px4;xmesh(3,:)]; ymesh143=[ymesh(1,:);py4;ymesh(3,:)];
+            %Assemble the refined mesh
+            xdata=[xmesh124 xmesh234 xmesh143];
+            ydata=[ymesh124 ymesh234 ymesh143];
+            if doZ
+                %z-ploting for P1b is plotting the triangle vertices = (xmesh, ymesh) points
+                xdataz=xmesh;
+                ydataz=ymesh;
+            else
+                xdataz=[];
+                ydataz=[];
+            end
         case ('P2')
             %Based on the nodal mesh points do refine the mesh according to the
             %extra points given in a P2 element

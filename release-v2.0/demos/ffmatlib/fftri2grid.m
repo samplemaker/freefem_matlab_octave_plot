@@ -39,6 +39,25 @@
 %
 %  For P1 elements coloring data is located at the mesh points.
 %
+%
+%  P1b (DoF=4) - Element Numbering
+%
+%            3
+%           /|
+%          / |
+%         /  |
+%        /   |
+%       /    |
+%      /     |
+%     /   4  |
+%    /       |
+%   1--------2
+%
+%  Note: The barycenter 4 is defined by the bubble function.
+%
+%  The triangle {1,2,3} is divided into following subtrinagles:
+%
+%
 %  P2 (DoF=6) - Element Numbering
 %
 %            3
@@ -69,7 +88,7 @@
 % $$ \rightarrow u_p(w_1,w_2)=c_1+c_2w_1+c_3w_2 $$
 %
 % This equation can be solved for the constants depending on $$ u $$ given at
-% the triangle edge/vertices. The base functions turn out to be:
+% the triangle vertices. The base functions turn out to be:
 %
 % $$ N_1=w_1 $$
 %
@@ -81,6 +100,32 @@
 % calculated by the values given on the triangle edge/vertices by:
 %
 % $$ u_p=u_1N_1+u_2N_2+u_3N_3 $$
+%
+
+%% P1b-Element Approximation (P1 with bubble)
+%
+% Each triangle has one bubble (a point) at the triangle barycenter which
+% adds a fourth degree of freedom. Properties of the bubble function:
+%
+%  - Vanishes on triangle edges
+%  - Becomes 1 at the barycenter
+%
+% The base functions $$ N_1, N_2, N_3 $$ were already discussed in the
+% P1-Element approximation above. The bubble function now becomes:
+%
+% $$ \beta(w_1,w_2) = 3^3 N_1 N_2 N_3 $$
+%
+% To interpolate inside a triangle the P1-Element interpolation
+% is augmented with the bubble function. Since FreeFem++ returns the
+% actual PDE value at the triangle vertices ($$ u_1,u_2,u_3 $$) and the
+% barycenter ($$ u_4 $$) the interpolation of $$ u_p $$ at the point
+% p with the coordinates $$ (x,y) $$ becomes:
+%
+% $$ u_p=u_1N_1+u_2N_2+u_3N_3+(u_4-\frac{1}{3}(u_1+u_2+u_3))\beta $$
+%
+% which yields:
+%
+% $$ u_p=u_1N_1+u_2N_2+u_3N_3+9(3u_4-(u_1+u_2+u_3))N_1 N_2 N_3 $$
 %
 
 %% P2-Element Approximation
@@ -198,6 +243,15 @@ function [varargout] = fftri2grid(x, y, tx, ty, varargin)
                             varargout{i}(my,mx)=varargin{i}(1,pos).*w1+ ...
                                                 varargin{i}(2,pos).*w2+ ...
                                                 varargin{i}(3,pos).*w3;
+                        end
+                    case 4 %P1b - (P1 with bubble)
+                        for i=1:nDim
+                            varargout{i}(my,mx)=varargin{i}(1,pos).*w1+ ...
+                                                varargin{i}(2,pos).*w2+ ...
+                                                varargin{i}(3,pos).*w3+ ...
+                                                9*(3*varargin{i}(4,pos)- ...
+                                                (varargin{i}(1,pos)+varargin{i}(2,pos)+varargin{i}(3,pos))).* ...
+                                                w1.*w2.*w3;
                         end
                     case 6 %P2 - Lagrangian Elements
                         for i=1:nDim

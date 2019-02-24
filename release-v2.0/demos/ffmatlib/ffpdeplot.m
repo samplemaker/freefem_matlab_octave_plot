@@ -208,14 +208,19 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                         meshcol = getmcol(mcolor,[0 0 0]);
                         switch (elementType)
                             case ('P1')
+                                %No subtriangles - mesh and data is equal
                                 hh=patch(xdata,ydata,cdata,'EdgeColor',meshcol);
-                            case ('P2')
+                            case {'P1b','P2'}
+                                %Plot the data - subtriangles (refined mesh)
                                 hh=patch(xdata,ydata,cdata,'EdgeColor','none');
+                                %Plot the mesh - defined by triangle vertices
+                                %The plots must ne split otherwise parts of
+                                %the mesh can be obscured by the subtriangledata
                                 hhm=patch(xmesh,ymesh,[1 1 1],'FaceColor','none', ...
                                           'EdgeColor',meshcol);
                                 hh=[hh; hhm];
                             otherwise
-                                error('Unknown Lagrangian Finite Element. Only P1 and P2 allowed');
+                                error('Unknown Lagrangian Finite Element. Only P1, P1b and P2 allowed');
                         end
                     else
                         %Without Mesh
@@ -242,15 +247,15 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                         switch (elementType)
                             case ('P1')
                                 hh=patch(xdata,ydata,cdata,cdata,'EdgeColor',meshcol);
-                            case ('P2')
+                            case {'P1b','P2'}
                                 hh=patch(xdata,ydata,cdata,cdata,'EdgeColor','none');
-                                %Display the mesh at the triangle points {1,6,2,4,3,5}
-                                %otherwise parts of mesh can be hidden by the
-                                %previous patch plot data
+                                %For P2: Display the mesh at the triangle points {1,6,2,4,3,5}
+                                %otherwise parts of mesh can be obscured by the previous patch plot data
+                                %For P1b: Plot the triangle vertices = mesh
                                 hhm=patch(xdataz,ydataz,cdataz,[1 1 1],'FaceColor','none','EdgeColor',meshcol);
                                 hh=[hh; hhm];
                             otherwise
-                                error('Unknown Lagrangian Finite Element. Only P1 and P2 allowed');
+                                error('Unknown Lagrangian Finite Element. Only P1, P1b and P2 allowed');
                         end
                     else
                         %Without Mesh
@@ -262,10 +267,10 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                     switch (elementType)
                         case ('P1')
                             hh=patch(xdata,ydata,cdata,[1 1 1],'FaceColor','none', 'EdgeColor',meshcol);
-                        case ('P2')
+                        case {'P1b','P2'}
                             hh=patch(xdataz,ydataz,cdataz,[1 1 1],'FaceColor','none', 'EdgeColor',meshcol);
                         otherwise
-                            error('Unknown Lagrangian Finite Element. Only P1 and P2 allowed');
+                            error('Unknown Lagrangian Finite Element. Only P1, P1b and P2 allowed');
                     end
                 end
                 %Once xyrawdata is given there is no way to create an empty plot
@@ -319,10 +324,10 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 switch (elementType)
                     case ('P1')
                         C=fftri2gridfast(X,Y,xdata,ydata,cdata);
-                    case ('P2')
+                    case {'P1b','P2'}
                         C=fftri2gridfast(X,Y,xmesh,ymesh,cdatainterpn);
                     otherwise
-                        error('Unknown Lagrangian Finite Element. Only P1 and P2 allowed');
+                        error('Unknown Lagrangian Finite Element. Only P1, P1b and P2 allowed');
                 end
             else
                 if (N>100)
@@ -331,10 +336,10 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 switch (elementType)
                     case ('P1')
                         C=fftri2grid(X,Y,xdata,ydata,cdata);
-                    case ('P2')
+                    case {'P1b','P2'}
                         C=fftri2grid(X,Y,xmesh,ymesh,cdatainterpn);
                     otherwise
-                        error('Unknown Lagrangian Finite Element. Only P1 and P2 allowed');
+                        error('Unknown Lagrangian Finite Element. Only P1, P1b and P2 allowed');
                 end
             end
 
@@ -367,7 +372,7 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                     isoneg = isolevels(isolevels<0);
                     if(length(isoneg)==1)
                         isoneg = [isoneg isoneg];
-                    end;
+                    end
                     %Workaround Matlab R2013
                     if strcmpi(ccolor,'flat')
                         [clabneg,hhcneg]=contour(X,Y,C,isoneg);
@@ -537,19 +542,19 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
             switch (elementType)
                 case ('P1')
                     [U,V]=fftri2gridfast(X,Y,xdata,ydata,udata,vdata);
-                case ('P2')
+                case {'P1b','P2'}
                     [U,V]=fftri2gridfast(X,Y,xmesh,ymesh,udatainterpn,vdatainterpn);
                 otherwise
-                    error('Unknown Lagrangian Finite Element. Only P1 and P2 allowed');
+                    error('Unknown Lagrangian Finite Element. Only P1, P1b and P2 allowed');
             end
         else
             switch (elementType)
                 case ('P1')
                     [U,V]=fftri2grid(X,Y,xdata,ydata,udata,vdata);
-                case ('P2')
+                case {'P1b','P2'}
                     [U,V]=fftri2grid(X,Y,xmesh,ymesh,udatainterpn,vdatainterpn);
                 otherwise
-                    error('Unknown Lagrangian Finite Element. Only P1 and P2 allowed');
+                    error('Unknown Lagrangian Finite Element. Only P1, P1b and P2 allowed');
             end
         end
 

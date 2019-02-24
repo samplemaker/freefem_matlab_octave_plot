@@ -70,6 +70,12 @@ function [elementType, xydata] = convert_pde_data(points,triangles,vhseq,xyrawda
                     cCols=xyrawdata(i,:);
                     xydata{i}=reshape(cCols(vhseq+1),3,nt);
                 end
+             case (4*nt)
+                elementType='P1b'; %nDoF=4 / element
+                for i=1:ndim
+                    cCols=xyrawdata(i,:);
+                    xydata{i}=reshape(cCols(vhseq+1),4,nt);
+                end
             case (6*nt)
                 elementType='P2'; %nDoF=6 / element
                 for i=1:ndim
