@@ -12,3 +12,5 @@ Release v2.0:
   - Introduction of the ffexport.idp macros
   - Fix periodic problem plots (use the Vh sequence)
   - Remove the 'CStyle' option from ffpdeplot()
+  - Add P1b (P1 with bubble) Finite Element in 2D
+  
