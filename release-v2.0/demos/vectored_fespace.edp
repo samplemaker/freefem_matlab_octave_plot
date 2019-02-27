@@ -7,8 +7,10 @@ Vh [u,v,w]=[x*y,y,x];
 
 savemesh(Th,"vectored_mesh.msh");
 ffSaveVh(Th,Vh,"vectored_vh.txt");
-//Need only to save one component - u,v,w are all the same
+//Need only to save one component
 ffSaveData(u,"vectored_data.txt");
+//u,v,w are all the same (three identical columns)
+ffSaveData3(u,v,w,"vectored_data3.txt");
 
 plot(u,wait=true,fill=true);
 plot(v,wait=true,fill=true);

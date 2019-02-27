@@ -14,7 +14,7 @@
 %  fftri2grid computes the function values w1, w2, ... over a mesh grid defined
 %  by the arguments x, y from a set of functions u1, u2, ... with values
 %  given on a triangular mesh tx, ty. The values are computed using first order
-%  or second order approximating basis functions (P1 or P2 - Lagrangian Finite
+%  or second order approximating basis functions (P1, P1b or P2 - Lagrangian Finite
 %  Elements). The function values w1, w2, ... are real if tu1, tu2, ... are real
 %  or complex if tu1, tu2, ... are complex. The mesh grid x, y can be cartesian
 %  or curved. fftri2grid returns NaNs when an interpolation point is outside the

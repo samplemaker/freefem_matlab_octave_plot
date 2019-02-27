@@ -1,5 +1,5 @@
 % Author: Chloros2 <chloros2@gmx.de>
-% Created: 2019-02-26
+% Created: 2019-02-27
 %
 % Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
 %
@@ -24,16 +24,17 @@ addpath('ffmatlib');
 
 [p,b,t,nv,nbe,nt] = ffreadmesh('vectored_mesh.msh');
 %Vector valued space {'P2','P2','P1'}
-[vhVEC] = ffreaddata('vectored_vh.txt');
-%FreeFem++ feature: solutions u,v,w - they are all the same. Need only one component.
-[uVEC] = ffreaddata('vectored_data.txt');
+[vhIn] = ffreaddata('vectored_vh.txt');
+%Solutions u,v,w - they are all the same. Need only one component.
+[uIn] = ffreaddata('vectored_data.txt');
+%[uIn,vIn,wIn] = ffreaddata('vectored_data3.txt');
 
-%Extract first component (PDE solution u and subspace/suborder for P2)
-[vhP2,u] = ffextractfespace(1, {'P2','P2','P1'}, nt, vhVEC, uVEC);
-%Extract second component - same suborder as for component #1
-[~,v] = ffextractfespace(2, {'P2','P2','P1'}, nt, vhVEC, uVEC);
+%Extract first component (PDE solution u and subspace for P2)
+[vhP2,u] = ffvectorget({'P2','P2','P1'}, vhIn, uIn, 1);
+%Extract second component - same subspace as for component #1
+[vhP2,v] = ffvectorget({'P2','P2','P1'}, vhIn, uIn, 2);
 %Extract third component
-[vhP1,w] = ffextractfespace(3, {'P2','P2','P1'}, nt, vhVEC, uVEC);
+[vhP1,w] = ffvectorget({'P2','P2','P1'}, vhIn, uIn, 3);
 
 ffpdeplot(p,b,t,'VhSeq',vhP2,'XYData',u,'Mesh','on','MColor','b','Boundary','on','ColorMap',jet);
 ylabel('y');

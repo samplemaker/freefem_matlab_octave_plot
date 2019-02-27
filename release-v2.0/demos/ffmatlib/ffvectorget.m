@@ -3,7 +3,7 @@
 %  Author: Chloros2 <chloros2@gmx.de>
 %  Created: 2019-02-26
 %
-% [varargout] = ffextractfespace(elementNo,vhStruct,nt,Vh)
+% [vhOut,uOut] = ffvectorget(struct,vhIn,u,elementNo)
 %
 %  This file is part of the ffmatlib which is hosted at
 %  https://github.com/samplemaker/freefem_matlab_octave_plot
@@ -17,17 +17,16 @@
 %% Input Parameters
 %
 %  elementNo: Index of component to be extracted
-%  vhStruct:  Structure of the vectorized FE-Space.
+%  struct:    Structure of the vectorized FE-Space.
 %             I.e. for "fespace Vh(Th, [P2,P1])" enter {'P2','P1'}
-%  nt:        Number of triangles
-%  vh:        Vector valued input FE-Space
+%  vhIn:      Vector valued input FE-Space
 %  u:         Vector valued PDE solution
 %
 
 %% Output Parameters
 %
-%  vhout: The component of the subspace/suborder
-%  uout:  The component of the PDE solution
+%  vhOut: The component of the subspace/suborder
+%  uOut:  The component of the PDE solution
 %
 
 %% Licence
@@ -52,40 +51,44 @@
 %% Code
 
 %Extract the FE-Space for a particular element from a vectorized FE-Space
-function [vhout,uout] = ffextractfespace(elementNo,vhStruct,nt,vhin,u)
+function [vhOut,uOut] = ffvectorget(struct,vhIn,u,elementNo)
 
-    if (elementNo > numel(vhStruct)) || (elementNo <= 0)
+    if (elementNo > numel(struct)) || (elementNo <= 0)
         error('Invalid element Index');
     end
  
-    %DoFs of the implemented vector spaces
+    %DoFs of implemented vector spaces
     EnDoFs = {{'P1','P1b','P2'},{3,4,6}};
     pattern = [];
     nDoF = [];
-    for i=1:numel(vhStruct)
-         idx = strcmpi(vhStruct{i},EnDoFs{1});
+    %Cycle through all components and gather the extraction pattern mask
+    for i=1:numel(struct)
+         idx = strcmpi(struct{i}, EnDoFs{1});
          if any(idx)
              j = find(idx,1);
-             %n(i) = EnDoFs{2}{j};
              if i == elementNo
+                 %Degree of Freedom of the component to be extracted
                  nDoF = EnDoFs{2}{j};
-                 pattern = [pattern, true(1,EnDoFs{2}{j})];
+                 pattern = [pattern, true(1, EnDoFs{2}{j})];
              else
-                 pattern = [pattern, false(1,EnDoFs{2}{j})];
+                 pattern = [pattern, false(1, EnDoFs{2}{j})];
              end
          else
-             fprintf('Element %s is not implemented!\n',vhStruct{i});
+             fprintf('Element %s is not implemented!\n',struct{i});
              error('Unknown Element');
          end
     end
+    %Get nb of triangles (the dirty way)
+    nt = numel(vhIn)/numel(pattern);
+    %Extraction mask
     mask = repmat(logical(pattern)',nt,1);
-    vhMask = vhin(mask);
-    uout = u(vhMask+1);
-    vhout = linspace(0,nDoF*nt-1,nDoF*nt);
+    vhMask = vhIn(mask);
+    uOut = u(vhMask+1);
+    vhOut = linspace(0,nDoF*nt-1,nDoF*nt);
 
 end
 
 function printhelp()
     fprintf('%s\n\n','Invalid call to ffreadfespace(). Correct usage is:');
-    fprintf('%s\n',' -- [vhout,uout] = ffextractfespace(elementNo,vhStruct,nt,vhin,u)');
+    fprintf('%s\n',' -- [vhOut,uOut] = ffvectorget(struct,vhIn,u,elementNo)');
 end

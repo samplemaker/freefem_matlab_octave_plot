@@ -2,7 +2,7 @@
 
 Once you have successfully simulated a PDE problem using FreeFem++ you may want to have a look at the simulation results from within Matlab or Octave. `ffmatlib` provides useful commands in order to load FreeFem++ meshes and simulation data and to call the underlying Matlab/Octave plot routines like `contour()`, `quiver()` as well as `patch()`.
 
-![](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_3d_gouraud.png)
+![](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_3d_gouraud2.png)
 
 ## Getting started
 
@@ -54,7 +54,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 Is a function specially tailored to FreeFem++ that offers most of the features of the classic Matlab `pdeplot()` command. `contour()` plots (2D iso values), `quiver()` plots (2D vector fields) and `patch()` plots (2D map data) can be created as well as their combinations. In addition domain border edges can be selectively displayed and superimposed to the plot data.  
 
-`ffpdeplot()` can plot `P1` and `P2` Lagrangian Finite Element - simulation data.
+`ffpdeplot()` is able to plot `P1`, `P1b` and `P2` Lagrangian Finite Element - simulation data.
 
 #### Synopsis
 
@@ -190,7 +190,7 @@ Interpolates from a 2D triangular mesh to a 2D cartesian or curved grid.
 
 #### Description
 
-`fftri2grid` computes the function values `w1`, `w2`, ... over a mesh grid defined by the arguments `x`, `y` from a set of functions `u1`, `u2`, ... with values given on a triangular mesh `tx`, `ty`. The values are computed using first order or second order approximating basis functions (P1 or P2 - Lagrangian Finite Elements). The function values `w1`, `w2`, ... are real if `tu1`, `tu2`, ... are real or complex if `tu1`, `tu2`, ... are complex. The mesh grid `x`, `y` can be cartesian or curved. `fftri2grid` returns NaNs when an interpolation point is outside the triangular mesh. `fftri2gridfast.c` is a runtime optimized mex implementation of the function `fftri2grid.m`. For more information see also [Notes on MEX Compilation](#notesoncompilation). `fftri2grid()` is a low level function and should not be called directly. To interpolate data, the wrapper function `ffinterpolate.m` should be used instead.
+`fftri2grid` computes the function values `w1`, `w2`, ... over a mesh grid defined by the arguments `x`, `y` from a set of functions `u1`, `u2`, ... with values given on a triangular mesh `tx`, `ty`. The values are computed using first order or second order approximating basis functions (P1, P1b or P2 - Lagrangian Finite Elements). The function values `w1`, `w2`, ... are real if `tu1`, `tu2`, ... are real or complex if `tu1`, `tu2`, ... are complex. The mesh grid `x`, `y` can be cartesian or curved. `fftri2grid` returns NaNs when an interpolation point is outside the triangular mesh. `fftri2gridfast.c` is a runtime optimized mex implementation of the function `fftri2grid.m`. For more information see also [Notes on MEX Compilation](#notesoncompilation). `fftri2grid()` is a low level function and should not be called directly. To interpolate data, the wrapper function `ffinterpolate.m` should be used instead.
 
 #### Examples
 
@@ -479,15 +479,19 @@ In Octave under a Linux system with gcc as compiler the MEX files are build with
 `mkoctfile --mex -Wall  fftri2gridfast.c`  
 `mkoctfile --mex -Wall  fftet2gridfast.c`
 
-Matlab/Windows:<br>
+Matlab before R2018/Windows:<br>
 In Matlab under a Windows system with Microsoft Visual Studio as compiler the MEX files are build with:
 
 `mex  fftri2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`  
 `mex  fftet2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`
 
-If the build fails with Microsoft Visual Studio 10 try to enable the C99-standard or try to change the file name into *.cpp, forcing MVS to use a C++ compiler.<br>
+If the build fails try to enable the C99-standard or try to change the file name into *.cpp, forcing MVS to use a C++ compiler.<br>
 
-IMPORTANT: Since Matlab release R2018 MathWorks has worked out a new memory layout for complex matrices. Therefore old style MEX files are incompatible with this new Interleaved Complex API. If you want to use the runtime optimized code on such a new system please check out the files `fftri2gridfast_matlab_R2018.c` and `fftet2gridfast_matlab_R2018.c` instead.
+IMPORTANT: Since Matlab release R2018 a new memory layout is used to store complex matrices (Interleaved Complex API). Therefore Octave MEX and MEX files used in earlier Matlab versions are not compatible. If you want to use the runtime optimized code on such a newer system please check out the files `fftri2gridfast_matlab_R2018.c` and `fftet2gridfast_matlab_R2018.c` instead. To comple these files on Windows with a gcc (mingw) you may rename the files and build them with:
+
+`setenv('MW_MINGW64_LOC','path to the mingw compiler');`  
+`mex -R2018a fftri2gridfast.c`  
+`mex -R2018a fftet2gridfast.c`  
 
 ## Notes on Hardware Acceleration
 
