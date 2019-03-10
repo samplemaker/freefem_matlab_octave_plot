@@ -166,13 +166,13 @@ fftri2gridfast(mxDouble *x, mxDouble *y, mxDouble *tx, mxDouble *ty,
                 for (mwSize nArg=0; nArg<nOuts; nArg++){
                   if (tuCplx[nArg] != NULL){
                     (*(wCplx[nArg]+ofs)).imag=P2(Aa,Ab,
-                                                 (*(tuCplx[nArg]+i)).imag,(*(tuCplx[nArg]+i+1)).imag,
-                                                 (*(tuCplx[nArg]+i+2)).imag,(*(tuCplx[nArg]+i+3)).imag,
-                                                 (*(tuCplx[nArg]+i+4)).imag,(*(tuCplx[nArg]+i+5)).imag);
+                                                 (*(tuCplx[nArg]+k)).imag,(*(tuCplx[nArg]+k+1)).imag,
+                                                 (*(tuCplx[nArg]+k+2)).imag,(*(tuCplx[nArg]+k+3)).imag,
+                                                 (*(tuCplx[nArg]+k+4)).imag,(*(tuCplx[nArg]+k+5)).imag);
                     (*(wCplx[nArg]+ofs)).real=P2(Aa,Ab,
-                                                 (*(tuCplx[nArg]+i)).real,(*(tuCplx[nArg]+i+1)).real,
-                                                 (*(tuCplx[nArg]+i+2)).real,(*(tuCplx[nArg]+i+3)).real,
-                                                 (*(tuCplx[nArg]+i+4)).real,(*(tuCplx[nArg]+i+5)).real);
+                                                 (*(tuCplx[nArg]+k)).real,(*(tuCplx[nArg]+k+1)).real,
+                                                 (*(tuCplx[nArg]+k+2)).real,(*(tuCplx[nArg]+k+3)).real,
+                                                 (*(tuCplx[nArg]+k+4)).real,(*(tuCplx[nArg]+k+5)).real);
                   }
                   else{
                     *(wRe[nArg]+ofs)=P2(Aa,Ab,

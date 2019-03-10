@@ -9,6 +9,8 @@ fprintf('region.edp\n');
 system('FreeFem++ -ns -nw -v 0 regions.edp');
 fprintf('periodic_bc.edp\n');
 system('FreeFem++ -ns -nw -v 0 periodic_bc.edp');
+fprintf('heat_transfer_p1b.edp\n');
+system('FreeFem++ -ns -nw -v 0 heat_transfer_p1b.edp');
 fprintf('convective_rolls.edp\n');
 system('FreeFem++ -ns -nw -v 0 convective_rolls.edp');
 fprintf('demo_Lshape.edp\n');
@@ -31,6 +33,9 @@ region
 pause(5);
 close all;
 periodic_bc
+pause(5);
+close all;
+heat_transfer
 pause(5);
 close all;
 convective_rolls
