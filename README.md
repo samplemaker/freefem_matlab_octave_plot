@@ -2,7 +2,7 @@
 
 Once you have successfully simulated a PDE problem using FreeFem++ you may want to have a look at the simulation results from within Matlab or Octave. `ffmatlib` provides useful commands in order to load FreeFem++ meshes and simulation data and to call the underlying Matlab/Octave plot routines like `contour()`, `quiver()` as well as `patch()`.
 
-![](https://raw.githubusercontent.com/samplemaker/freefem_matlab_octave_plot/public/screenshots/cap_3d_gouraud2.png)
+![](https://raw.githubusercontent.com/samplemaker/tests/master/karman_vortex.gif)
 
 ## Getting started
 
