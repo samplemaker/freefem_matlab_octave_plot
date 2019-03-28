@@ -473,23 +473,22 @@ In order to import the created files into the Matlab/Octave workspace the functi
 
 Go into the folder `./ffmatlib/`.
 
-Octave/Linux:<br>
-In Octave under a Linux system with gcc as compiler the MEX files are build with:
+Octave on Linux:<br>
+Using gcc the MEX files are build with the commands:
 
-`mkoctfile --mex -Wall  fftri2gridfast.c`  
-`mkoctfile --mex -Wall  fftet2gridfast.c`
+`mkoctfile --mex -Wall fftri2gridfast.c`  
+`mkoctfile --mex -Wall fftet2gridfast.c`
 
-Matlab before R2018/Windows:<br>
-In Matlab under a Windows system with Microsoft Visual Studio as compiler the MEX files are build with:
+Matlab before R2018 on Windows:<br>
+With Microsoft Visual Studio the MEX files are build with the commands:
 
 `mex  fftri2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`  
 `mex  fftet2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`
 
-If the build fails try to enable the C99-standard or try to change the file name into *.cpp, forcing MVS to use a C++ compiler.<br>
+Matlab before R2018 on Windows:<br>
+In Matlab release R2018 a new memory layout for complex numbers was introduced (i.e. the Interleaved Complex API). If you want to use the runtime optimized code on such a newer system use the files `fftri2gridfast_matlab_R2018.c` and `fftet2gridfast_matlab_R2018.c` instead. To compile these files on Windows with a gcc (mingw) compiler please rename the two source files and then build the mex files with the commands:
 
-IMPORTANT: Since Matlab release R2018 a new memory layout is used to store complex matrices (Interleaved Complex API). Therefore Octave MEX and MEX files used in earlier Matlab versions are not compatible. If you want to use the runtime optimized code on such a newer system please check out the files `fftri2gridfast_matlab_R2018.c` and `fftet2gridfast_matlab_R2018.c` instead. To comple these files on Windows with a gcc (mingw) you may rename the files and build them with:
-
-`setenv('MW_MINGW64_LOC','path to the mingw compiler');`  
+`setenv('MW_MINGW64_LOC','enter path to the mingw compiler');`  
 `mex -R2018a fftri2gridfast.c`  
 `mex -R2018a fftet2gridfast.c`  
 
