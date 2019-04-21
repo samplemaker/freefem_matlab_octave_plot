@@ -15,6 +15,8 @@ fprintf('convective_rolls.edp\n');
 system('FreeFem++ -ns -nw -v 0 convective_rolls.edp');
 fprintf('demo_Lshape.edp\n');
 system('FreeFem++ -ns -nw -v 0 demo_Lshape.edp');
+fprintf('vectored_fespace.edp\n');
+system('FreeFem++ -ns -nw -v 0 vectored_fespace.edp');
 capacitor_2d
 pause(5);
 close all;
@@ -42,6 +44,9 @@ convective_rolls
 pause(5);
 close all;
 demo_Lshape
+pause(5);
+close all;
+vectored_fespace
 pause(5);
 close all;
 
