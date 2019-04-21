@@ -54,7 +54,7 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 Is a function specially tailored to FreeFem++ that offers most of the features of the classic Matlab `pdeplot()` command. `contour()` plots (2D iso values), `quiver()` plots (2D vector fields) and `patch()` plots (2D map data) can be created as well as their combinations. In addition domain border edges can be selectively displayed and superimposed to the plot data.  
 
-`ffpdeplot()` is able to plot `P1`, `P1b` and `P2` Lagrangian Finite Element - simulation data.
+`ffpdeplot()` is able to plot `P0`, `P1`, `P1b` and `P2` Lagrangian Finite Element - simulation data.
 
 #### Synopsis
 
@@ -244,6 +244,8 @@ ffpdeplot(p,b,t,'VhSeq',vh,'XYData',u,'ZStyle','continuous','ColorBar','off');
 
 Creates cross-sections, selectively plots boundaries identified by a label and creates quiver3() plots from 3D simulation data. This function is still under construction.
 
+`ffpdeplot3D()` is able to plot `P0`, `P1` and `P2` Lagrangian Finite Element - simulation data.
+
 #### Synopsis
 
 ```Matlab
@@ -284,6 +286,8 @@ The contents of the points `p`, boundaries `b` and triangles `t` arguments are e
 |               |  (default=[]) |
 | 'ColorRange'  | Range of values to adjust the color thresholds |
 |               |  'minmax' (default) \| 'centered' \| [min,max] |
+| 'Mesh'        | Switches the mesh off / on |
+|               |  'on' (default) | 'off' |
 | 'FlowData'    | Data for quiver3 plot |
 |               |  FreeFem++ point data |
 | 'FGridParam'  | Number of grid points used for quiver3 plot at cross-section |
@@ -473,20 +477,20 @@ In order to import the created files into the Matlab/Octave workspace the functi
 
 Go into the folder `./ffmatlib/`.
 
-Octave on Linux:<br>
+Octave:<br>
 Using gcc the MEX files are build with the commands:
 
 `mkoctfile --mex -Wall fftri2gridfast.c`  
 `mkoctfile --mex -Wall fftet2gridfast.c`
 
-Matlab before R2018 on Windows:<br>
+Matlab before R2018:<br>
 With Microsoft Visual Studio the MEX files are build with the commands:
 
 `mex  fftri2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`  
 `mex  fftet2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`
 
-Matlab before R2018 on Windows:<br>
-In Matlab release R2018 a new memory layout for complex numbers was introduced (i.e. the Interleaved Complex API). If you want to use the runtime optimized code on such a newer system use the files `fftri2gridfast_matlab_R2018.c` and `fftet2gridfast_matlab_R2018.c` instead. To compile these files on Windows with a gcc (mingw) compiler please rename the two source files and then build the mex files with the commands:
+Matlab R2018 and later versions:<br>
+In Matlab release R2018 a new memory layout for complex numbers was introduced (i.e. the Interleaved Complex API). If you want to use the runtime optimized code on such a newer system use the files `fftri2gridfast_matlab_R2018.c` and `fftet2gridfast_matlab_R2018.c` instead. To compile these files on Windows with a gcc (mingw) compiler please rename the two source files and build the mex files with the commands:
 
 `setenv('MW_MINGW64_LOC','enter path to the mingw compiler');`  
 `mex -R2018a fftri2gridfast.c`  
@@ -520,7 +524,7 @@ Generally OpenGL can be considered to be faster than painters. To get an OpenGL 
 
 ## Acknowledgments
 
-Many thanks to David Fabre ([StabFEM](https://github.com/erbafdavid/StabFem)) for feature and implementation suggestions and code review.
+Many thanks to David Fabre ([StabFEM](https://gitlab.com/stabfem/StabFem)) for feature and implementation suggestions and code review.
 
 ## The License
 
