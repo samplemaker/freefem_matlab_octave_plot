@@ -47,6 +47,8 @@
 %                       (default=[])
 %      'ColorRange'    Range of values to adjust the color thresholds
 %                       'minmax' (default) | 'centered' | [min,max]
+%      'Mesh'         Switches the mesh off / on
+%                        'on' (default) | 'off'
 %      'FlowData'      Data for quiver3 plot
 %                       FreeFem++ point data
 %      'FGridParam'    Number of grid points used for quiver3 plot at cross-section
@@ -93,13 +95,13 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     numvarargs = length(varargin);
 
     %ATTENTION: No parameters after 'Slice' otherwise pos gets screwed
-    optsnames = {'VhSeq', 'XYZData', 'XYZStyle', 'Boundary', ...
+    optsnames = {'VhSeq', 'XYZData', 'XYZStyle', 'Mesh', 'Boundary', ...
                  'ColorMap', 'ColorBar', 'CBTitle', 'ColorRange', ...
                  'BDLabels', 'SGridParam', 'Project2D', ...
                  'FlowData', 'FGridParam', 'FGridParam3D', ...
                  'FLim3D', 'FMode3D', 'BoundingBox', 'Slice'};
 
-    vararginval = {[], [], 'interp', 'on', ...
+    vararginval = {[], [], 'interp', 'on', 'on', ...
                    'cool', 'off', [], 'minmax', ...
                    [], [75,75], 'off', ...
                    [], 'auto', 'auto', ...
@@ -132,7 +134,7 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
         end
     end
 
-    [vhseq, xyzrawdata, xyzstyle, showboundary, ...
+    [vhseq, xyzrawdata, xyzstyle, showmesh, showboundary, ...
      setcolormap, showcolbar, colorbartitle, colorrange, ...
      bdlabels, sgridparam, project2d, ...
      flowdata, fgridparam, fgridparam3d, ...
@@ -302,7 +304,12 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                 %interpolation the actual tetrahedrons
                 if sliceType
                     %Plot color according to the FE-Space function
-                    patch(xbdmesh,ybdmesh,zbdmesh,cbddata,'EdgeColor',[0 0 0],'LineWidth',1);
+                    if ~strcmpi(showmesh,'off')
+                        meshcol = [0,0,0];
+                    else
+                        meshcol = 'none';
+                    end
+                    patch(xbdmesh,ybdmesh,zbdmesh,cbddata,'EdgeColor',meshcol,'LineWidth',1);
                 else
                     %In interpolation mode if boundary is specified we do
                     %not slice the boundary because we cannot interpolate
@@ -315,7 +322,12 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
                         %ffpdeplot3D(p,b,t,'XYZData',u,'ColorMap','jet','Slice',S1,S2,S3,'BDLabels',[30,31]);
                     else
                         %Plot color according to the FE-Space function
-                        patch(xbdmesh,ybdmesh,zbdmesh,cbddata,'EdgeColor',[0 0 0],'LineWidth',1);
+                        if ~strcmpi(showmesh,'off')
+                            meshcol = [0,0,0];
+                        else
+                            meshcol = 'none';
+                        end
+                        patch(xbdmesh,ybdmesh,zbdmesh,cbddata,'EdgeColor',meshcol,'LineWidth',1);
                     end
                 end
                 %Note: At this point nothing could be drawn yet or slicing can
@@ -351,11 +363,16 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
     end
     %Boundary to be plot in monochrome (no FE-Space function)
     if strcmpi(showboundary,'on') && strcmpi(project2d,'off')
+        if ~strcmpi(showmesh,'off')
+            meshcol = [0,0,0];
+        else
+            meshcol = 'none';
+        end
         switch xyzstyle
             case('noface')
-                patch(xbdmesh,ybdmesh,zbdmesh,[0 1 1],'EdgeColor',[0 0 0],'LineWidth',1,'FaceColor','none');
+                patch(xbdmesh,ybdmesh,zbdmesh,[0 1 1],'EdgeColor',meshcol,'LineWidth',1,'FaceColor','none');
             case('monochrome')
-                patch(xbdmesh,ybdmesh,zbdmesh,[0 1 1],'EdgeColor',[0 0 0],'LineWidth',1);
+                patch(xbdmesh,ybdmesh,zbdmesh,[0 1 1],'EdgeColor',meshcol,'LineWidth',1);
             otherwise
                 %assume interp which is drawn elsewhere
         end
@@ -454,10 +471,10 @@ function [hh,varargout] = ffpdeplot3D(points,triangles,tetrahedra,varargin)
             end
         end
     end
+    daspect([1 1 1]);
     if ~strcmpi(project2d,'off')
         view(2);
     else
-        daspect([1 1 1]);
         view(3);
     end
     props = {'CameraViewAngle','DataAspectRatio','PlotBoxAspectRatio'};
@@ -662,6 +679,7 @@ function printhelp()
     fprintf('''ColorBar''     Indicator in order to include a colorbar (default=''on'')\n');
     fprintf('''CBTitle''      Colorbar Title (default=[])\n');
     fprintf('''ColorRange''   Range of values to adjust the color thresholds (default=''minmax'')\n');
+    fprintf('''Mesh''         Switches the mesh off / on (default=''on'')\n');
     fprintf('''FlowData''     Data for quiver3 plot \n');
     fprintf('''FGridParam''   Number of grid points used for quiver3 plot at cross-section (default=''auto'')\n');
     fprintf('''FGridParam3D'' Number of grid points used for a spatial quiver3 plot (default=''auto'')\n');

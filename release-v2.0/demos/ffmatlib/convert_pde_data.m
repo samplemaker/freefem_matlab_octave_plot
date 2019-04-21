@@ -64,6 +64,13 @@ function [elementType, xydata] = convert_pde_data(points,triangles,vhseq,xyrawda
             %error('Datalength of PDE data ''XYData'' or ''FlowData'' does not match with Vh-Space connectivity ''VhSeq''');
         %end
         switch (length(vhseq))
+            case (nt)
+                elementType='P0'; %nDoF=1 / element
+                for i=1:ndim
+                    cCols=xyrawdata(i,:);
+                    tmp=cCols(vhseq+1);
+                    xydata{i}=[tmp;tmp;tmp];
+                end
             case (3*nt)
                 elementType='P1'; %nDoF=3 / element
                 for i=1:ndim

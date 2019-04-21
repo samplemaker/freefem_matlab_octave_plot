@@ -24,7 +24,7 @@
  *   To build the source on Windows with (mingw) gcc execute:
  *
  *   setenv('MW_MINGW64_LOC','path to mingw');
- *   mex -R2018a fftri2gridfast_matlab_R2018.c
+ *   mex -R2018a fftri2gridfast.c
  *
  * Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
  *
@@ -66,6 +66,7 @@
                                     u6*4.0*Aa*Ab
 
 typedef enum {
+  P0,
   P1,
   P1b,
   P2
@@ -123,6 +124,17 @@ fftri2gridfast(mxDouble *x, mxDouble *y, mxDouble *tx, mxDouble *ty,
             in Aa,b,c */
           if ((Aa >= -1e-13) && (Ab >= -1e-13) && (Ac >= -1e-13)){
             switch (elementType){
+              case P0:
+                for (mwSize nArg=0; nArg<nOuts; nArg++){
+                  if (tuCplx[nArg] != NULL){
+                    (*(wCplx[nArg]+ofs)).imag=(*(tuCplx[nArg]+j)).imag;
+                    (*(wCplx[nArg]+ofs)).real=(*(tuCplx[nArg]+j)).real;
+                  }
+                  else{
+                    *(wRe[nArg]+ofs)=*(tuRe[nArg]+j);
+                  }
+                }
+              break;
               case P1:
                 for (mwSize nArg=0; nArg<nOuts; nArg++){
                   if (tuCplx[nArg] != NULL){
@@ -271,6 +283,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
   mexPrintf("nXcol:%i nYrow:%i nT:%i nDoF:%i\n",nX,nY,nTri,nDoF);
 
   switch (nDoF){
+    case 1:
+      elementType=P0;
+    break;
     case 3:
       elementType=P1;
     break;

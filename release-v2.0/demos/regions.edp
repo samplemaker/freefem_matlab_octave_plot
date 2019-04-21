@@ -42,11 +42,13 @@ mesh Th = buildmesh(cycloides(NN)+outer(100));
 
 plot(Th,wait=1);
 
-fespace Vh (Th, P1);
+fespace Vh (Th, P0);
 
 int reg1 = Th(XX[2],YY[2]).region, reg2 = Th(XX[1],YY[1]).region;
 
 Vh u=2.0*(region == reg1)-1.0*(region == reg2);
+
+plot(u,fill=1,wait=1);
 
 savemesh(Th,"region.msh");
 ffSaveVh(Th,Vh,"region_vh.txt");

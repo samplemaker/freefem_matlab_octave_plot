@@ -230,6 +230,13 @@ function [varargout] = fftet2grid(x, y, z, tx, ty, tz, varargin)
                 w3=V3(pos);
                 w4=V4(pos);
                 switch (ndof)
+                    case 1 %P0 - Peacewise constant
+                        for i=1:nDim
+                            varargout{i}(my,mx)=(U{i}(1,pos)+ ...
+                                                 U{i}(2,pos)+ ...
+                                                 U{i}(3,pos)+ ...
+                                                 U{i}(4,pos))/4.0;
+                        end
                     case 4 %P1 - Lagrangian Elements
                         for i=1:nDim
                             varargout{i}(my,mx)=U{i}(1,pos).*w1+ ...

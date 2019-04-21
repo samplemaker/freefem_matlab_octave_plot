@@ -39,6 +39,8 @@ function [elementType, varargout] = prepare_bd_data_3d(vhseq,nv,triangles,tetrah
             error('Datalength of PDE data ''XYData'' or ''FlowData'' does not match with Vh-Space connectivity ''VhSeq''');
         end
         switch (length(vhseq))
+            case (nt)
+                elementType='P0'; %nDoF=1 / element
             case (4*nt)
                 elementType='P1'; %nDoF=4 / element
             case (10*nt)
@@ -54,10 +56,33 @@ function [elementType, varargout] = prepare_bd_data_3d(vhseq,nv,triangles,tetrah
         end
     end
 
-
     varargout=cell(1,ndim);
 
     switch (elementType)
+        case ('P0')
+            %Hack: Create lookup table
+            %NOTE: Displays incorrectly at the borders
+            [~,nt]=size(tetrahedra);
+            ptnum=tetrahedra(1:4,:);
+            tmp=[vhseq+1,vhseq+1,vhseq+1,vhseq+1]';
+            lookup=zeros(nv,1);
+            lookup(ptnum(:))=tmp(:);
+            %Convert only the boundaries specified in bdlabels
+            if ~isempty(bdlabels)
+                keep=(triangles(4,:)==bdlabels(1));
+                for i=2:numel(bdlabels)
+                    keep=(keep | (triangles(4,:)==bdlabels(i)));
+                end
+                for i=1:ndim
+                    cols=xyzrawdata(i,:);
+                    varargout{i}=[cols(lookup(triangles(1,keep))); cols(lookup(triangles(2,keep))); cols(lookup(triangles(3,keep)))];
+                end
+            else
+                for i=1:ndim
+                    cols=xyzrawdata(i,:);
+                    varargout{i}=[cols(lookup(triangles(1,:))); cols(lookup(triangles(2,:))); cols(lookup(triangles(3,:)))];
+                end
+            end
         case ('P1')
             if (ndof==nv)
                 %Convert only the boundaries specified in bdlabels
@@ -81,12 +106,13 @@ function [elementType, varargout] = prepare_bd_data_3d(vhseq,nv,triangles,tetrah
             end
         case ('P2')
             %Hack: Create lookup table
-            [~,nt]=size(tetrahedra);
-            ptnum=tetrahedra(1:4,:);
-            tmp=reshape(vhseq+1,10,nt);
-            vheven=tmp(1:4,:);
+            %Note: Display surface only as P1 (extract P1 subdata from P2)
+            [~,nt]=size(tetrahedra); %mesh numbering + region in terms of connectivity
+            ptnum=tetrahedra(1:4,:); %remove region information, keep vertice mesh data
+            tmp=reshape(vhseq+1,10,nt); %bring into triangle format
+            vheven=tmp(1:4,:); %get the vertice corner points, remove higher order rubbish
             lookup=zeros(nv,1);
-            lookup(ptnum(:))=vheven(:);
+            lookup(ptnum(:))=vheven(:); %create index where to find a specific vertice number
             %Convert only the boundaries specified in bdlabels
             if ~isempty(bdlabels)
                 keep=(triangles(4,:)==bdlabels(1));
@@ -104,6 +130,6 @@ function [elementType, varargout] = prepare_bd_data_3d(vhseq,nv,triangles,tetrah
                 end
             end
         otherwise
-            error('Unknown Lagrangian Finite Element. Only P1 and P2 allowed');
+            error('Unknown Lagrangian Finite Element. Only P0, P1 and P2 allowed');
     end
 end

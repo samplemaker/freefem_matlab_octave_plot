@@ -63,6 +63,13 @@ function [elementType, xyzdata] = convert_pde_data_3d(points,tetrahedra,vhseq,xy
             error('Datalength of PDE data ''XYData'' or ''FlowData'' does not match with Vh-Space connectivity ''VhSeq''');
         end
         switch (length(vhseq))
+            case (nt)
+                elementType='P0'; %nDoF=1 / element
+                for i=1:ndim
+                    cCols=xyzrawdata(i,:);
+                    tmp=cCols(vhseq+1);
+                    xyzdata{i}=[tmp;tmp;tmp;tmp];
+                end
             case (4*nt)
                 elementType='P1'; %nDoF=4 / element
                 for i=1:ndim

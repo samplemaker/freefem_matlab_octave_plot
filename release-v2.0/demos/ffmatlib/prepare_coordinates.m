@@ -112,7 +112,7 @@
 function [xdata,xdataz,ydata,ydataz] = prepare_coordinates(elementType,xmesh,ymesh,doZ)
 
     switch (elementType)
-        case ('P1')
+        case {'P0','P1'}
             xdata=xmesh;
             ydata=ymesh;
             %z-ploting for P1 is simply plotting at the (xmesh, ymesh) points

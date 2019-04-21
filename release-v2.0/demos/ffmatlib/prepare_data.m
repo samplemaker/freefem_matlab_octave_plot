@@ -121,7 +121,7 @@ function [varargout] = prepare_data(elementType,triangles,xydata,xmesh,ymesh,doZ
     %3. Data to be used for fftri2grid() to create contour plots
     varargout=cell(1,3*ndim);
     switch (elementType)
-        case ('P1')
+        case {'P0','P1'}
             %For P1 elements interpolation data and zdata is equal to the
             %mesh data.
             varargout=xydata;

@@ -238,6 +238,10 @@ function [varargout] = fftri2grid(x, y, tx, ty, varargin)
                 w2=A2(pos);
                 w3=A3(pos);
                 switch (ndof)
+                    case 1 %P0 - Peace wise constant
+                        for i=1:nDim
+                            varargout{i}(my,mx)=varargin{i}(1,pos);
+                        end
                     case 3 %P1 - Lagrangian Elements
                         for i=1:nDim
                             varargout{i}(my,mx)=varargin{i}(1,pos).*w1+ ...

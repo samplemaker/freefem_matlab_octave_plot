@@ -58,7 +58,7 @@ function [vhOut,uOut] = ffvectorget(struct,vhIn,u,elementNo)
     end
  
     %DoFs of implemented vector spaces
-    EnDoFs = {{'P1','P1b','P2'},{3,4,6}};
+    EnDoFs = {{'P0','P1','P1b','P2'},{1,3,4,6}};
     pattern = [];
     nDoF = [];
     %Cycle through all components and gather the extraction pattern mask

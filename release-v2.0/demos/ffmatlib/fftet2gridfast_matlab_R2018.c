@@ -24,7 +24,7 @@
  *   To build the source on Windows with (mingw) gcc execute:
  *
  *   setenv('MW_MINGW64_LOC','path to mingw');
- *   mex -R2018a fftet2gridfast_matlab_R2018.c
+ *   mex -R2018a fftet2gridfast.c
  *
  * Copyright (C) 2018 Chloros2 <chloros2@gmx.de>
  *
@@ -96,6 +96,7 @@ Vector minus(Vector a, Vector b){
 }
 
 typedef enum {
+  P0,
   P1,
   P2
 } feElement;
@@ -166,6 +167,17 @@ fftet2gridfast (mxDouble *x, mxDouble *y, mxDouble *z, mxDouble *tx, mxDouble *t
             in Va..Vd */
           if ((Va >= -1e-13) && (Vb >= -1e-13) && (Vc >= -1e-13) && (Vd >= -1e-13)){
             switch (elementType){
+              case P0:
+                for (mwSize nArg=0; nArg<nOuts; nArg++){
+                  if (tuCplx[nArg] != NULL){
+                    (*(wCplx[nArg]+ofs)).imag=(*(tuCplx[nArg]+j)).imag;
+                    (*(wCplx[nArg]+ofs)).real=(*(tuCplx[nArg]+j)).real;
+                  }
+                  else{
+                    *(wRe[nArg]+ofs)=*(tuRe[nArg]+j);
+                  }
+                }
+              break;
               case P1:
                 for (mwSize nArg=0; nArg<nOuts; nArg++){
                   if (tuCplx[nArg] != NULL){
@@ -306,6 +318,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
   mexPrintf("nXcol:%i nYrow:%i nT:%i nDoF:%i\n",nX,nY,nTet,nDoF);
 
   switch (nDoF){
+    case 1:
+      elementType=P0;
+    break;
     case 4:
       elementType=P1;
     break;

@@ -207,7 +207,7 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                     if ~strcmpi(showmesh,'off')
                         meshcol = getmcol(mcolor,[0 0 0]);
                         switch (elementType)
-                            case ('P1')
+                            case {'P0','P1'}
                                 %No subtriangles - mesh and data is equal
                                 hh=patch(xdata,ydata,cdata,'EdgeColor',meshcol);
                             case {'P1b','P2'}
@@ -245,7 +245,7 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                     if ~strcmpi(showmesh,'off')
                         meshcol = getmcol(mcolor,[0 0 0]);
                         switch (elementType)
-                            case ('P1')
+                            case {'P0','P1'}
                                 hh=patch(xdata,ydata,cdata,cdata,'EdgeColor',meshcol);
                             case {'P1b','P2'}
                                 hh=patch(xdata,ydata,cdata,cdata,'EdgeColor','none');
@@ -265,7 +265,7 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
                 else
                     meshcol = getmcol(mcolor,[0 0 1]);
                     switch (elementType)
-                        case ('P1')
+                        case {'P0','P1'}
                             hh=patch(xdata,ydata,cdata,[1 1 1],'FaceColor','none', 'EdgeColor',meshcol);
                         case {'P1b','P2'}
                             hh=patch(xdataz,ydataz,cdataz,[1 1 1],'FaceColor','none', 'EdgeColor',meshcol);
@@ -322,24 +322,24 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
 
             if exist('fftri2gridfast','file')
                 switch (elementType)
-                    case ('P1')
+                    case {'P0','P1'}
                         C=fftri2gridfast(X,Y,xdata,ydata,cdata);
                     case {'P1b','P2'}
                         C=fftri2gridfast(X,Y,xmesh,ymesh,cdatainterpn);
                     otherwise
-                        error('Unknown Lagrangian Finite Element. Only P1, P1b and P2 allowed');
+                        error('Unknown Lagrangian Finite Element. Only P0, P1, P1b and P2 allowed');
                 end
             else
                 if (N>100)
                     fprintf('Note: To improve runtime build MEX function fftri2gridfast() from fftri2gridfast.c\n');
                 end
                 switch (elementType)
-                    case ('P1')
+                    case {'P0','P1'}
                         C=fftri2grid(X,Y,xdata,ydata,cdata);
                     case {'P1b','P2'}
                         C=fftri2grid(X,Y,xmesh,ymesh,cdatainterpn);
                     otherwise
-                        error('Unknown Lagrangian Finite Element. Only P1, P1b and P2 allowed');
+                        error('Unknown Lagrangian Finite Element. Only P0, P1, P1b and P2 allowed');
                 end
             end
 
@@ -540,21 +540,21 @@ function [hh,varargout] = ffpdeplot(points,boundary,triangles,varargin)
 
         if exist('fftri2gridfast','file')
             switch (elementType)
-                case ('P1')
+                case {'P0','P1'}
                     [U,V]=fftri2gridfast(X,Y,xdata,ydata,udata,vdata);
                 case {'P1b','P2'}
                     [U,V]=fftri2gridfast(X,Y,xmesh,ymesh,udatainterpn,vdatainterpn);
                 otherwise
-                    error('Unknown Lagrangian Finite Element. Only P1, P1b and P2 allowed');
+                    error('Unknown Lagrangian Finite Element. Only P0, P1, P1b and P2 allowed');
             end
         else
             switch (elementType)
-                case ('P1')
+                case {'P0','P1'}
                     [U,V]=fftri2grid(X,Y,xdata,ydata,udata,vdata);
                 case {'P1b','P2'}
                     [U,V]=fftri2grid(X,Y,xmesh,ymesh,udatainterpn,vdatainterpn);
                 otherwise
-                    error('Unknown Lagrangian Finite Element. Only P1, P1b and P2 allowed');
+                    error('Unknown Lagrangian Finite Element. Only P0, P1, P1b and P2 allowed');
             end
         end
 

@@ -70,6 +70,7 @@
                                     u6*4.0*Aa*Ab
 
 typedef enum {
+  P0,
   P1,
   P1b,
   P2
@@ -127,6 +128,17 @@ fftri2gridfast(double *x, double *y, double *tx, double *ty,
             in Aa,b,c */
           if ((Aa >= -1e-13) && (Ab >= -1e-13) && (Ac >= -1e-13)){
             switch (elementType){
+              case P0:
+                for (mwSize nArg=0; nArg<nOuts; nArg++){
+                  if (tuIm[nArg] != NULL){
+                    *(wIm[nArg]+ofs)=*(tuIm[nArg]+j);
+                    *(wRe[nArg]+ofs)=*(tuRe[nArg]+j);
+                  }
+                  else{
+                    *(wRe[nArg]+ofs)=*(tuRe[nArg]+j);
+                  }
+                }
+              break;
               case P1:
                 for (mwSize nArg=0; nArg<nOuts; nArg++){
                   if (tuIm[nArg] != NULL){
@@ -275,6 +287,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
   //mexPrintf("nXcol:%i nYrow:%i nT:%i nDoF:%i\n",nX,nY,nTri,nDoF);
 
   switch (nDoF){
+    case 1:
+      elementType=P0;
+    break;
     case 3:
       elementType=P1;
     break;
