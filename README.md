@@ -1,13 +1,13 @@
 # How to plot FreeFem++ Simulations in Matlab&copy; and Octave
 
-Once you have successfully simulated a PDE problem using FreeFem++ you may want to have a look at the simulation results from within Matlab or Octave. `ffmatlib` provides useful commands in order to load FreeFem++ meshes and simulation data and to call the underlying Matlab/Octave plot routines like `contour()`, `quiver()` as well as `patch()`.
+Once you have simulated a PDE problem using FreeFem++ you may want to have a look at the results in Matlab or Octave. `ffmatlib` provides useful commands to create `contour()`, `quiver()` as well as `patch()` plots from FreeFem++ simulation results.
 
 ![](https://raw.githubusercontent.com/samplemaker/tests/master/karman_vortex.gif)
 
 ## Getting started
 
   * Click on the button `Clone or download` (above) and then on the button `Download ZIP`
-  * Unzip and change to the directory `demos` and run all FreeFem++ *.edp scripts to create simulation data for plotting
+  * Unzip and change to the directory `demos`. Run all FreeFem++ *.edp scripts to create example simulation data
   * Run the matlab `*.m` demo files with Matlab or Octave
 
 Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpath(path to ffmatlib)` command to tell Matlab / Octave where the library functions are if you are working in a different directory.
@@ -52,9 +52,9 @@ Hint: The ffmatlib functions are stored in the folder `ffmatlib`. Use the `addpa
 
 ## ffpdeplot()
 
-Is a function specially tailored to FreeFem++ that offers most of the features of the classic Matlab `pdeplot()` command. `contour()` plots (2D iso values), `quiver()` plots (2D vector fields) and `patch()` plots (2D map data) can be created as well as their combinations. In addition domain border edges can be selectively displayed and superimposed to the plot data.  
+Is a function specially tailored to FreeFem++ that offers most of the features of the classic Matlab `pdeplot()` command. `contour()` plots (2D iso values), `quiver()` plots (2D vector fields) and `patch()` plots (2D map data) can be created as well as their combinations. In addition domain borders can be displayed and superimposed to the plot data.  
 
-`ffpdeplot()` is able to plot `P0`, `P1`, `P1b` and `P2` Lagrangian Finite Element - simulation data.
+`ffpdeplot()` can plot `P0`, `P1`, `P1b` and `P2` - Lagrangian Element data.
 
 #### Synopsis
 
@@ -64,7 +64,7 @@ Is a function specially tailored to FreeFem++ that offers most of the features o
 
 #### Description / Name-Value Pair Arguments
 
-The FEM mesh is entered through its vertices, the boundary values and the triangles as provided by the FreeFem++ command `savemesh(Th, "filename.msh")`. The finite element connectivity data as well as the PDE simulation data are provided using the FreeFem++ macros `ffSaveVh(Th, Vh, filename.txt)` and `ffSaveData(u, filename.txt)`. The contents of the points `p`, boundaries `b` and triangles `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct).  
+The FEM mesh is entered through its vertices, the boundary values and the triangles as provided by the FreeFem++ command `savemesh(Th, "filename.msh")`. The finite element connectivity data as well as the PDE simulation data is provided by the FreeFem++ macros `ffSaveVh(Th, Vh, filename.txt)` and `ffSaveData(u, filename.txt)`. The contents of the points `p`, boundaries `b` and triangles `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct).  
 
 `ffpdeplot()` can be called with name-value pair arguments as per following table:
 
@@ -137,7 +137,7 @@ The return value `handles` contains handles to the plot figures. The return valu
 
 #### Examples
 
-The mesh, the finite element space sequence and the simulation data is loaded into the Matlab workspace:
+First of all the mesh, the finite element space sequence and the simulation data is loaded into the Matlab workspace:
 
 ```Matlab
 [p,b,t]=ffreadmesh('capacitor_2d.msh');
@@ -190,7 +190,7 @@ Interpolates from a 2D triangular mesh to a 2D cartesian or curved grid.
 
 #### Description
 
-`fftri2grid` computes the function values `w1`, `w2`, ... over a mesh grid defined by the arguments `x`, `y` from a set of functions `u1`, `u2`, ... with values given on a triangular mesh `tx`, `ty`. The values are computed using first order or second order approximating basis functions (P1, P1b or P2 - Lagrangian Finite Elements). The function values `w1`, `w2`, ... are real if `tu1`, `tu2`, ... are real or complex if `tu1`, `tu2`, ... are complex. The mesh grid `x`, `y` can be cartesian or curved. `fftri2grid` returns NaNs when an interpolation point is outside the triangular mesh. `fftri2gridfast.c` is a runtime optimized mex implementation of the function `fftri2grid.m`. For more information see also [Notes on MEX Compilation](#notesoncompilation). `fftri2grid()` is a low level function and should not be called directly. To interpolate data, the wrapper function `ffinterpolate.m` should be used instead.
+`fftri2grid` computes the function values `w1`, `w2`, ... over a mesh grid defined by the arguments `x`, `y` from a set of functions `u1`, `u2`, ... with values given on a triangular mesh `tx`, `ty`. The interpolation values are computed using first order or second order approximating basis functions (P1, P1b or P2 - Lagrangian Finite Elements). The n-th function value `wn` is real if `un` is real and it is complex if `un` is complex. The mesh grid `x`, `y` can be cartesian or curved. `fftri2grid` returns `NaNs` when an interpolation point is outside the triangular mesh. `fftri2gridfast.c` is a runtime optimized mex implementation of the function `fftri2grid.m`. For more information see also [Notes on MEX Compilation](#notesoncompilation). `fftri2grid()` is a low level function and should not be called directly. To interpolate data, the wrapper function `ffinterpolate.m` should be used instead.
 
 #### Examples
 
@@ -212,17 +212,17 @@ view(3);
 
 ## ffinterpolate()
 
-Interpolates the real or complex valued multidimensional data `u1`, ... given on a triangular mesh defined by the points `p`, triangles `t` and boundary `b`, onto a cartesian or curved grid defined by the arguments `x`, `y`.
+Interpolates the real or complex valued multidimensional data `u1`, `u2`, ... given on a triangular mesh defined by the points `p`, triangles `t` and boundary `b`, onto a cartesian or curved grid defined by the arguments `x`, `y`.
 
 #### Synopsis
 
 ```Matlab
-[varargout] = ffinterpolate(p,~,t,vh,x,y,varargin)
+[varargout] = ffinterpolate(p,[],t,vh,x,y,varargin)
 ```
 
 #### Description
 
-The return values `w1`, ... are real if `u1`, ... are real or complex if `u1`, ... are complex. `ffinterpolate` is a wrapper function that calls the library function `fftri2grid`. If Matlab/Octave finds an executable of `fftri2gridfast.c` within its search path the runtime optimized C-implementation is used instead of the native version `fftri2grid.m`. The contents of the `p`, `b` and `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). The content of `u1`, ... is described in the section [ffreaddata](#ffreaddatafct).
+The n-th return value `wn` is real if the n-th input value `un` is real and it is complex if `un` is complex. `ffinterpolate` is a wrapper function that calls the library function `fftri2grid`. If Matlab/Octave finds a MEX - executable of `fftri2gridfast.c` within its search path the runtime optimized C-implementation is used instead of the matlab implementation `fftri2grid.m`. The contents of the `p`, `b` and `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). The content of `u1`, `u2`, ... is described in the section [ffreaddata](#ffreaddatafct).
 
 #### Examples
 
@@ -242,9 +242,9 @@ ffpdeplot(p,b,t,'VhSeq',vh,'XYData',u,'ZStyle','continuous','ColorBar','off');
 
 ## ffpdeplot3D()
 
-Creates cross-sections, selectively plots boundaries identified by a label and creates quiver3() plots from 3D simulation data. This function is still under construction.
+Creates cross-sections, plots boundaries identified by a label and creates quiver3() plots from 3D simulation data. This function is still under construction.
 
-`ffpdeplot3D()` is able to plot `P0`, `P1` and `P2` Lagrangian Finite Element - simulation data.
+`ffpdeplot3D()` can plot `P0`, `P1` and `P2` Lagrangian Finite Element - simulation data.
 
 #### Synopsis
 
@@ -254,7 +254,7 @@ Creates cross-sections, selectively plots boundaries identified by a label and c
 
 #### Description / Name-Value Pair Arguments
 
-The contents of the points `p`, boundaries `b` and triangles `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). Although the function can be run as pure Matlab code it is strongly recommended to build the MEX file of the library function `fftet2gridfast.c` to improve execution speed. See also chapter [Notes on MEX Compilation](#notesoncompilation).
+The contents of the points `p`, boundaries `b` and triangles `t` arguments are explained in the section [ffreadmesh()](#ffreadmeshfct). Although the function can be run as Matlab code it is strongly recommended to build the MEX - executable from the file `fftet2gridfast.c` to improve execution speed. See also chapter [Notes on MEX Compilation](#notesoncompilation).
 
 `ffpdeplot3D()` can be called with name-value pair arguments as per following table:
 
@@ -302,7 +302,7 @@ The contents of the points `p`, boundaries `b` and triangles `t` arguments are e
 
 #### Examples
 
-The mesh, the finite element space sequence and the simulation data is loaded into the Matlab workspace:
+First of all the mesh, the finite element space sequence and the simulation data is loaded into the Matlab workspace:
 
 ```Matlab
 [p,b,t,nv,nbe,nt,labels]=ffreadmesh('cap3d.mesh');
@@ -311,12 +311,12 @@ The mesh, the finite element space sequence and the simulation data is loaded in
 [Ex,Ey,Ez]=ffreaddata('cap3dvec.txt');
 ```
 
-To plot the domain boundaries the entire mesh is drawn with a monochrome face color:
+The mesh is plot with a monochrome face color:
 ```Matlab
 ffpdeplot3D(p,b,t,'XYZStyle','monochrome');
 ```
 
-In three dimensions some boundaries can be buried inside the domain and therefore invisible. In a FreeFem++ mesh all boundaries are labeled. If a specific label is specified it is possible to make the corresponding domain boundary visible. The following example plots only the boundaries/borders labeled with the numbers 30 and 31:
+In three dimensions boundaries can be buried inside a domain and therefore be invisible. If a particular label is given it is possible to display only the associated domain boundary. Following statement plots the boundaries/borders labeled with the numbers 30 and 31:
 ```Matlab
 ffpdeplot3D(p,b,t,'BDLabels',[30,31],'XYZStyle','monochrome');
 ```
@@ -326,7 +326,7 @@ The domain boundaries can be colored according to the PDE solution `u`:
 ffpdeplot3D(p,b,t,'XYZData',u,'ColorMap','jet');
 ```
 
-`ffpdeplot3D` with the argument `Slice` draws slices (cross-sections) for the volumetric data `u`. A slicing plane is defined by the parallelogram spanned by the three corner points S1, S2 and S3. Multiple slicing planes can be put together (series of cross-sections). As an example the following statement sequence creates and draws two orthogonal cross-sections of the volumetric data `u`:
+Slices (cross-sections) for the volumetric data `u` can be created with the argument `Slice`. A slicing plane is defined by the parallelogram spanned by the three vertice points S1, S2 and S3. For example the following statement sequence shows two orthogonal cross-sections of the volumetric data `u`:
 ```Matlab
 S1=[-0 0.375 0.0; ...
     0.375 0 0.0];
@@ -338,7 +338,7 @@ ffpdeplot3D(p,b,t,'VhSeq',vh,'XYZData',u,'Slice',S1,S2,S3,'Boundary','off','Colo
             'SGridParam',[300,300],'BoundingBox','on')
 ```
 
-A cross-section can also be viewed in a 2D projection:
+A cross-section can also be viewed as 2D projection:
 ```Matlab
 S1=[-0 0.375 0.0];
 S2=[0.0 0.375 0.5];
@@ -347,18 +347,18 @@ ffpdeplot3D(p,b,t,'VhSeq',vh,'XYZData',u,'Slice',S1,S2,S3,'SGridParam',[300,300]
             'Boundary','off','ColorMap',jet(200),'ColorBar','on');
 ```
 
-The following command plots a cross-section and additionally draws the complete mesh (the mesh facets are transparent):
+The following command plots a cross-section and additionally draws the mesh (facets are transparent):
 ```Matlab
 ffpdeplot3D(p,b,t,'VhSeq',vh,'XYZData',u,'Slice',S1,S2,S3,'XYZStyle','noface','ColorMap','jet')
 ```
 
-Three dimensional vector fields can be plotted over a cross-section. The following example creates a quiver3() plot for a cross-section defined by the three points S1, S2, and S3:
+A cross-section of three-dimensional vector fields can be plotted. The following example creates a quiver3() plot for a cross-section defined by the three points S1, S2, and S3:
 ```Matlab
 ffpdeplot3D(p,b,t,'VhSeq',vh,'FlowData',[Ex,Ey,Ez],'Slice',S1,S2,S3,'Boundary','on','BoundingBox','on', ...
             'BDLabels',[30,31],'XYZStyle','monochrome');
 ```
 
-If the parameter specification for the slice is omitted the vector field is instead drawn on a rectangular grid defined by the FGridParam3D and FLim3D parameters:
+If the parameter specification for the slice is omitted the vector field is displayed on a rectangular grid defined by the FGridParam3D and FLim3D parameters:
 ```Matlab
 ffpdeplot3D(p,b,t,'VhSeq',vh,'FlowData',[Ex,Ey,Ez],'FGridParam3D',[8,8,5],'FLim3D', ...
             [0.125,0.625;0.125,0.625;0.1,0.4],'BDLabels',[30,31],'XYZStyle','monochrome');
@@ -368,7 +368,7 @@ ffpdeplot3D(p,b,t,'VhSeq',vh,'FlowData',[Ex,Ey,Ez],'FGridParam3D',[8,8,5],'FLim3
 
 ## ffreadmesh()
 
-Reads a FreeFem++ mesh file created by the FreeFem++ `savemesh(Th,"2dmesh.msh")` or `savemesh(Th3d,"3dmesh.mesh")` command to the Matlab/Octave workspace.
+Reads a FreeFem++ mesh file created by the FreeFem++ `savemesh(Th,"2dmesh.msh")` or `savemesh(Th3d,"3dmesh.mesh")` command into the Matlab/Octave workspace.
 
 #### Synopsis
 
@@ -426,7 +426,7 @@ fprintf(['They are: ' repmat('%i ',1,size(labels,2)) '\n'],labels);
 
 ## ffreaddata()
 
-Reads a FreeFem++ data file and / or finite element space sequence created with a FreeFem++ [scripts](#exportfromff) to the Matlab/Octave workspace.
+Reads a FreeFem++ data file and / or finite element space sequence created with a FreeFem++ [script](#exportfromff) to the Matlab/Octave workspace.
 
 ```Matlab
 [varargout] = ffreadmesh(filename)
@@ -436,7 +436,7 @@ Note: The data to be imported can be real or complex, integer or float. The data
 
 #### Examples
 
-Read FE-Space connectivity data and a set of data vectors into the Matlab/Octave workspace:
+Read the FE-Space connectivity data and a set of data vectors into the Matlab/Octave workspace:
 
 ```Matlab
 [vh]=ffreaddata('capacitor_vh_2d.txt');
@@ -447,11 +447,13 @@ Read FE-Space connectivity data and a set of data vectors into the Matlab/Octave
 
 ## Exporting data from FreeFem++
 
-In order to create a plot from a FreeFem++ simulation with Matlab / Octave following data must be written into ASCII text files by FreeFem++:
+In order to create a plot from a FreeFem++ simulation in Matlab / Octave
 
   * The Mesh
   * The FE-Space sequence in terms of connectivity
   * The PDE simulation data
+
+must be written into ASCII text files.
 
 A FreeFem++ mesh can be exported using the FreeFem++ `savemesh` command:
 ```Matlab
@@ -459,17 +461,19 @@ savemesh(Th,"2d_mesh_file.msh");
 savemesh(Th3d,"3d_mesh_file.mesh");
 ```
 
-The FE-Space connectivity and the PDE simulation data can be written with the help of macros located in the `ffmatlib.idp` file. Following command saves the FE-Space sequence `Vh`:
+The FE-Space connectivity and the PDE simulation data can be written with the help of two macros located in the `ffmatlib.idp` file.
+
+The following command saves the FE-Space sequence `Vh`:
 ```Matlab
 ffSaveVh(Th,Vh,"vh.txt");
 ```
 
-Following command saves three data arrays into one text file:
+The following command saves three data arrays into one text file:
 ```Matlab
 ffSaveData3(u,Ex,Ey,"data.txt");
 ```
 
-In order to import the created files into the Matlab/Octave workspace the functions [ffreadmesh](#ffreadmeshfct) and [ffreaddata](#ffreaddatafct) must be used.
+In order to import the ASCII text files into the Matlab/Octave workspace the functions [ffreadmesh](#ffreadmeshfct) and [ffreaddata](#ffreaddatafct) must be used.
 
 <a name="notesoncompilation"></a>
 
@@ -490,7 +494,7 @@ With Microsoft Visual Studio the MEX files are build with the commands:
 `mex  fftet2gridfast.c -v -largeArrayDims COMPFLAGS='$COMPFLAGS /Wall'`
 
 Matlab R2018 and later versions:<br>
-In Matlab release R2018 a new memory layout for complex numbers was introduced (i.e. the Interleaved Complex API). If you want to use the runtime optimized code on such a newer system use the files `fftri2gridfast_matlab_R2018.c` and `fftet2gridfast_matlab_R2018.c` instead. To compile these files on Windows with a gcc (mingw) compiler please rename the two source files and build the mex files with the commands:
+In Matlab release R2018 a new memory layout for complex numbers was introduced (i.e. the Interleaved Complex API). If you want to use the runtime optimized code on such a system use the files `fftri2gridfast_matlab_R2018.c` and `fftet2gridfast_matlab_R2018.c`. To compile these files on Windows with a gcc (mingw) compiler rename the two files and build the MEX executables with the commands:
 
 `setenv('MW_MINGW64_LOC','enter path to the mingw compiler');`  
 `mex -R2018a fftri2gridfast.c`  
@@ -498,7 +502,7 @@ In Matlab release R2018 a new memory layout for complex numbers was introduced (
 
 ## Notes on Hardware Acceleration
 
-It should be emphasized that the responsiveness of the plots is highly dependent on the degree of freedom of the PDE problem and the capabilities of the graphics hardware. For larger problems (lots of thousand of vertices), a dedicated graphics card rather than on board graphics should be used. Hardware acceleration should be used extensively. Some notes on trouble shooting and tweaking:<br><br>
+It should be emphasized that the responsiveness of the plots is highly dependent on the degree of freedom of the PDE problem and the capabilities of the graphics hardware. For larger problems (lots of thousand of vertices), a dedicated graphics card should be used rather than an on board graphics. Hardware acceleration should be used extensively. Some notes on trouble shooting and tweaking:<br><br>
  If `get(gcf,'RendererMode')` is set to auto Matlab/Octave will decide on its own which renderer is the best for the current graphic task.
 
   * `get(figure_handle,'Renderer')` returns the current figure() renderer
